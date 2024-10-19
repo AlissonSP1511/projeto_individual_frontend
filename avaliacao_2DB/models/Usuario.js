@@ -13,6 +13,7 @@ const schema = mongoose.Schema({
         required: true,
         unique: true
     }
+    
 });
 
 const Usuario = mongoose.model('Usuario', schema);
