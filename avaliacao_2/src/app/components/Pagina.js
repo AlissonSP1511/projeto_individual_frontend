@@ -1,18 +1,21 @@
 'use client'
-import { Container, Nav, Navbar, NavDropdown, Button, Collapse } from "react-bootstrap";
+import { Container, Nav, Navbar } from "react-bootstrap";
 import { useState } from "react";
+import Image from 'next/image'; // Para uso com Next.js
 
 export default function Pagina(props) {
     const [expanded, setExpanded] = useState(false);
-
     return (
         <>
             <Navbar bg="dark" expand="lg" variant="dark" expanded={expanded}>
                 <Container>
-                    <Navbar.Brand href="/">{props.titulo}</Navbar.Brand>
+                    <Navbar.Brand href="/">
+                        <Image src="/brand2.png" alt="Brand Logo" width={125} height={75} style={{ paddingRight: '5px' }} />
+                        <span>Finanças Pessoais</span>
+                    </Navbar.Brand>
                     <Navbar.Toggle
                         aria-controls="basic-navbar-nav"
-                        onClick={() => setExpanded(expanded ? false : "expanded")}
+                        onClick={() => setExpanded(!expanded)} // Corrigido para alternar
                     />
                     <Navbar.Collapse id="basic-navbar-nav">
                         <Nav className="me-auto">

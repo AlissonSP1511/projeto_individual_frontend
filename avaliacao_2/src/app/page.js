@@ -51,6 +51,12 @@ export default function Home() {
           >
             Usuarios
           </a>
+          <a
+            href="/pages/home"
+            className={styles.secondary}
+          >
+            Home
+          </a>
         </div>
       </main>
       <footer className={styles.footer}>
