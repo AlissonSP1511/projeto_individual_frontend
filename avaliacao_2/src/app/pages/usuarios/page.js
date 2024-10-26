@@ -56,7 +56,7 @@ export default function Page() {
     }
 
     return (
-        <Pagina titulo="Usuários">
+        <Pagina titulo="Usuários" className="bg-primary bg-opacity-10">
             <Link
                 href="/pages/usuarios/form"
                 className="btn btn-primary mb-3"

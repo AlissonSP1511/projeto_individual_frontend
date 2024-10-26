@@ -9,7 +9,8 @@ app.use(express.urlencoded({ extended: false }));
 
 // Middleware para habilitar o CORS
 app.use(cors({
-    origin: 'http://localhost:3000', // Permite o acesso apenas do frontend no localhost:3000
+    origin: ['http://localhost:3000' ,'http://192.168.1.82:3000'], // Permite o acesso apenas do frontend no localhost:3000
+    
     credentials: true, // Se estiver usando cookies ou autenticação baseada em sessão
 }));
 

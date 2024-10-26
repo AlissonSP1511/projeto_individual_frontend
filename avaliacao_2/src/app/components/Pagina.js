@@ -7,10 +7,10 @@ export default function Pagina(props) {
     const [expanded, setExpanded] = useState(false);
     return (
         <>
-            <Navbar className="bg-primary bg-opacity-25 p-2 text-gray " expand="lg" variant="success" expanded={expanded}>
+            <Navbar className="bg-primary bg-opacity-25 p-1 text-gray " expand="lg" variant="success" expanded={expanded}>
                 <Container>
                     <Navbar.Brand href="/">
-                        <Image src="/brand2.png" alt="Brand Logo" width={125} height={75} style={{ paddingRight: '5px' }} />
+                        <Image src="/brand2.png" alt="Brand Logo" width={100} height={50} style={{ paddingRight: '5px' }} />
                         <span>Finanças Pessoais</span>
                     </Navbar.Brand>
                     <Navbar.Toggle
@@ -34,9 +34,11 @@ export default function Pagina(props) {
                 <h1 className="container">{props.titulo}</h1>
             </div> */}
 
-            <Container>
-                {props.children}
-            </Container>
+            <div className="bg-primary bg-opacity-10">
+                <Container>
+                    {props.children}
+                </Container>
+            </div>
         </>
     );
 }

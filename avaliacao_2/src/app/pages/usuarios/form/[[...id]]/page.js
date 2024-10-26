@@ -1,7 +1,7 @@
 'use client'
 
-import Pagina from "@/app/components/Pagina";
-import Api_avaliacao_2DB from "@/app/services/Api_avaliacao_2DB";
+import Pagina from "app/components/Pagina";
+import Api_avaliacao_2DB from "app/services/Api_avaliacao_2DB";
 import { Formik } from "formik";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
