@@ -70,3 +70,16 @@ a {
   font-weight: 700; /* ou 400 para Regular, 900 para Black */
 }
 
+.carousel-image-wrapper {
+  height: 400px; /* Defina a altura que você deseja */
+  overflow: hidden; /* Oculta qualquer conteúdo que ultrapasse a altura */
+  display: flex; /* Usado para centralizar */
+  justify-content: center; /* Centraliza horizontalmente */
+  align-items: center; /* Centraliza verticalmente */
+}
+
+.carousel-image-wrapper img {
+  width: 100%; /* Garante que a imagem preencha a largura do contêiner */
+  height: auto; /* Mantém a proporção da imagem */
+  object-fit: cover; /* Corta a imagem de forma centralizada */
+}
