@@ -1,7 +1,10 @@
+
 'use client'
 import { Container, Nav, Navbar } from "react-bootstrap";
 import { useState } from "react";
 import Image from 'next/image'; // Para uso com Next.js
+import LoginForm from "./LoginForm";
+import RegisterForm from "./RegisterForm";
 
 export default function Pagina(props) {
     const [expanded, setExpanded] = useState(false);
@@ -19,12 +22,17 @@ export default function Pagina(props) {
                     />
                     <Navbar.Collapse id="basic-navbar-nav">
                         <Nav className="me-auto">
-                            <Nav.Link href="/pages/deshboard">Dashboards</Nav.Link>
-                            <Nav.Link href="/pages/contasbancarias">Contas Bancarias</Nav.Link>
-                            <Nav.Link href="/pages/transacoes">Transações</Nav.Link>
-                            <Nav.Link href="/pages/cartoesdecredito">Cartões de Credito</Nav.Link>
-                            <Nav.Link href="/pages/relatorios">Relatórios</Nav.Link>
+                            <LoginForm />
+                            <RegisterForm/>
+                            <Nav.Link href="/pages/cartoesDeCredito">Cartões de Credito</Nav.Link>
                             <Nav.Link href="/pages/categorias">Categorias</Nav.Link>
+                            <Nav.Link href="/pages/contasBancarias">Contas Bancarias</Nav.Link>
+                            <Nav.Link href="/pages/dashboard">Dashboards</Nav.Link>
+                            <Nav.Link href="/pages/home">Home</Nav.Link>
+                            <Nav.Link href="/pages/investimentos">Investimentos</Nav.Link>
+                            <Nav.Link href="/pages/relatorios">Relatórios</Nav.Link>
+                            <Nav.Link href="/pages/transacoes">Transações</Nav.Link>
+                            <Nav.Link href="/pages/usuarios">Usuários</Nav.Link>
                         </Nav>
                     </Navbar.Collapse>
                 </Container>

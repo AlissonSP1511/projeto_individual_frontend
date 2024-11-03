@@ -12,7 +12,7 @@ import { MdOutlineArrowBack } from "react-icons/md";
 
 export default function Page({ params }) {
     const route = useRouter();
-    const [usuario, setUsuario] = useState({ nome: '', email: '', senha: '' });
+    const [usuario, setUsuario] = useState({ nome: '', email: '' });
 
     // Desembrulha o params usando React.use()
     const { id } = React.use(params); // Aqui está a mudança
@@ -74,15 +74,6 @@ export default function Page({ params }) {
                                 name="email"
                                 value={values.email}
                                 onChange={handleChange('email')}
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3" controlId="senha">
-                            <Form.Label>Senha</Form.Label>
-                            <Form.Control
-                                type="senha"
-                                name="senha"
-                                value={values.senha}
-                                onChange={handleChange('senha')}
                             />
                         </Form.Group>
                         <div className="text-center">

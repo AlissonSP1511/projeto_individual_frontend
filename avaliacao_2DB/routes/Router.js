@@ -10,6 +10,7 @@ const LancamentoCartaoCreditoController = require('../controllers/LancamentoCart
 const TransacaoController = require('../controllers/TransacaoController')
 const UsuarioController = require('../controllers/UsuarioController')
 const router = express.Router();
+const authMiddleware = require('../middlewares/authMiddleware');
 
 // // routes/login.js
 // const jwt = require('jsonwebtoken');
@@ -78,12 +79,26 @@ router.post('/transacao', (req, res) => TransacaoController.create(req, res))
 router.delete('/transacao/:id', (req, res) => TransacaoController.delete(req, res))
 router.put('/transacao/:id', (req, res) => TransacaoController.update(req, res))
 
-//usuario
+
+// Rota de login
+router.post('/login', UsuarioController.login);
+
+// Rota de cadastro de usuário
+router.post('/register', UsuarioController.register);
+
+// Rotas protegidas
 router.get('/usuario', (req, res) =>  UsuarioController.getAll(req, res))
-router.get('/usuario/:id', (req, res) => UsuarioController.get(req, res))
-router.post('/usuario', (req, res) => UsuarioController.create(req, res))
-router.delete('/usuario/:id', (req, res) => UsuarioController.delete(req, res))
-router.put('/usuario/:id', (req, res) => UsuarioController.update(req, res))
+router.get('/usuario/:id', (req, res) =>  UsuarioController.getAll(req, res))
+router.post('/usuario',  (req, res) =>  UsuarioController.getAll(req, res))
+router.put('/usuario/:id',  (req, res) =>  UsuarioController.getAll(req, res))
+router.delete('/usuario/:id', (req, res) =>  UsuarioController.getAll(req, res))
+
+// // Rotas protegidas
+// router.get('/usuario', authMiddleware, UsuarioController.getAll);
+// router.get('/usuario/:id', authMiddleware, UsuarioController.get);
+// router.post('/usuario', authMiddleware, UsuarioController.create);
+// router.put('/usuario/:id', authMiddleware, UsuarioController.update);
+// router.delete('/usuario/:id', authMiddleware, UsuarioController.delete);
 
 // //login
 // router.post('/login', async (req, res) => {

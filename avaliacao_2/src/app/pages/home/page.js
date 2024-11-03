@@ -27,16 +27,16 @@ export default function App() {
                 <CssBaseline />
 
                 <Pagina titulo="Home">
-                    <Row className="d-flex justify-content-center">
-                        <Col xs={12} md={6} className="d-flex justify-content-center mt-5 mb-4">
+                    <Row className="d-flex justify-content-center row-cols-1 row-cols-lg-2 row-cols-sm-1">
+                        <Col className="d-flex justify-content-center mt-5 mb-4">
                             <Carousel className="container d-block w-100 img-fluid" preserveAspectRatio="xMidYMid slice">
                                 <Carousel.Item interval={9000}>
                                     <div className="carousel-image-wrapper">
-                                        <Image src="https://portal.fgv.br/sites/portal.fgv.br/files/styles/noticia_geral/public/noticias/06/21/financas.jpg?itok=w3UzfCVO" alt="First slide" className='d-block w-100' />
+                                        <Image src="https://portal.fgv.br/sites/portal.fgv.br/files/styles/noticia_geral/public/noticias/06/21/financas.jpg" alt="First slide" className='d-block w-100' />
                                     </div>
                                     <Carousel.Caption>
-                                        <h3>First slide label</h3>
-                                        <p>Nulla vitae elit libero, a pharetra augue mollis interdum.</p>
+                                        <h3></h3>
+                                        <p></p>
                                     </Carousel.Caption>
                                 </Carousel.Item>
                                 <Carousel.Item interval={9000}>
@@ -44,8 +44,8 @@ export default function App() {
                                         <Image src="https://investidorsardinha.r7.com/wp-content/uploads/2022/03/15-perfis-de-influenciados-de-financas-no-instagram-para-melhorar-suas-financas.png" alt="Second slide" className='d-block w-100' />
                                     </div>
                                     <Carousel.Caption>
-                                        <h3>Second slide label</h3>
-                                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                                        <h3></h3>
+                                        <p></p>
                                     </Carousel.Caption>
                                 </Carousel.Item>
                                 <Carousel.Item interval={9000}>
@@ -53,15 +53,15 @@ export default function App() {
                                         <Image src="https://img.freepik.com/vetores-gratis/financas-e-ilustracao-de-conceito-de-desempenho-financeiro_53876-40450.jpg" alt="Third slide" className='d-block w-100' />
                                     </div>
                                     <Carousel.Caption>
-                                        <h3>Third slide label</h3>
+                                        <h3></h3>
                                         <p>
-                                            Praesent commodo cursus magna, vel scelerisque nisl consectetur.
+                                            
                                         </p>
                                     </Carousel.Caption>
                                 </Carousel.Item>
                             </Carousel>
                         </Col>
-                        <Col xs={12} md={6} className="justify-content-center mt-5 mb-4">
+                        <Col className="justify-content-center mt-5 mb-4">
                             <div>
                                 <h4>Bem-vindo ao [Nome do App]!</h4>
                                 <p style={{ textAlign: 'center' }}>Sabemos que a vida financeira é um dos pilares para uma vida mais tranquila e segura, e manter as finanças organizadas é essencial para alcançar suas metas e realizar sonhos. Com o nosso aplicativo, você não apenas acompanha suas receitas e despesas, mas também enxerga uma visão completa de onde está indo o seu dinheiro, identificando oportunidades para economizar e planejar melhor o futuro.</p>
@@ -77,9 +77,9 @@ export default function App() {
                         que a planilha não te oferece
                     </h1>
 
-                    <Row className='d-flex justify-content-center'>
+                    <Row className='d-flex justify-content-center row-cols-1 row-cols-lg-3 g-4 mt-5'  >
                         <Col style={{ display: 'flex', justifyContent: 'center' }} >
-                            <Card border="info" style={{ width: '39rem' }} className="bg-primary bg-opacity-10">
+                            <Card border="info" className="bg-primary bg-opacity-10">
                                 <Card.Header >Controle Total e Simplicidade</Card.Header>
                                 <Card.Body>
                                     <Card.Text>
@@ -89,7 +89,7 @@ export default function App() {
                             </Card>
                         </Col>
                         <Col style={{ display: 'flex', justifyContent: 'center' }}>
-                            <Card border="info" style={{ width: '39rem' }}>
+                            <Card border="info" >
                                 <Card.Header className="bg-primary bg-opacity-10">Visão Clara da Sua Saúde Financeira</Card.Header>
                                 <Card.Body className="bg-primary bg-opacity-10">
                                     <Card.Text>
@@ -99,7 +99,7 @@ export default function App() {
                             </Card>
                         </Col>
                         <Col style={{ display: 'flex', justifyContent: 'center' }}>
-                            <Card border="info" style={{ width: '39rem' }} className="bg-primary bg-opacity-10">
+                            <Card border="info"  className="bg-primary bg-opacity-10">
                                 <Card.Header>Defina e Alcance Suas Metas</Card.Header>
                                 <Card.Body>
                                     <Card.Text>
@@ -109,7 +109,7 @@ export default function App() {
                             </Card>
                         </Col>
                         <Col style={{ display: 'flex', justifyContent: 'center' }}>
-                            <Card border="info" style={{ width: '39rem' }}>
+                            <Card border="info" >
                                 <Card.Header className="bg-primary bg-opacity-10">Segurança e Privacidade</Card.Header>
                                 <Card.Body className="bg-primary bg-opacity-10">
                                     <Card.Text>
@@ -119,7 +119,51 @@ export default function App() {
                             </Card>
                         </Col>
                         <Col style={{ display: 'flex', justifyContent: 'center' }}>
-                            <Card border="info" style={{ width: '39rem' }} className="bg-primary bg-opacity-10">
+                            <Card border="info"  className="bg-primary bg-opacity-10">
+                                <Card.Header>Flexível e Personalizável</Card.Header>
+                                <Card.Body>
+                                    <Card.Title>Info Card Title</Card.Title>
+                                    <Card.Text>
+                                        Cada pessoa lida com o dinheiro de uma forma diferente, e por isso, o [Nome do App] permite que você personalize categorias, configure lembretes, e ajuste o app conforme a sua necessidade. É a ferramenta certa para organizar suas finanças do jeito que você prefere.
+                                    </Card.Text>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                        <Col style={{ display: 'flex', justifyContent: 'center' }}>
+                            <Card border="info"  >
+                                <Card.Header className="bg-primary bg-opacity-10">Flexível e Personalizável</Card.Header>
+                                <Card.Body className="bg-primary bg-opacity-10">
+                                    <Card.Title>Info Card Title</Card.Title>
+                                    <Card.Text>
+                                        Cada pessoa lida com o dinheiro de uma forma diferente, e por isso, o [Nome do App] permite que você personalize categorias, configure lembretes, e ajuste o app conforme a sua necessidade. É a ferramenta certa para organizar suas finanças do jeito que você prefere.
+                                    </Card.Text>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                        <Col style={{ display: 'flex', justifyContent: 'center' }}>
+                            <Card border="info"  className="bg-primary bg-opacity-10">
+                                <Card.Header>Flexível e Personalizável</Card.Header>
+                                <Card.Body>
+                                    <Card.Title>Info Card Title</Card.Title>
+                                    <Card.Text>
+                                        Cada pessoa lida com o dinheiro de uma forma diferente, e por isso, o [Nome do App] permite que você personalize categorias, configure lembretes, e ajuste o app conforme a sua necessidade. É a ferramenta certa para organizar suas finanças do jeito que você prefere.
+                                    </Card.Text>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                        <Col style={{ display: 'flex', justifyContent: 'center' }}>
+                            <Card border="info" >
+                                <Card.Header className="bg-primary bg-opacity-10">Flexível e Personalizável</Card.Header>
+                                <Card.Body className="bg-primary bg-opacity-10">
+                                    <Card.Title>Info Card Title</Card.Title>
+                                    <Card.Text>
+                                        Cada pessoa lida com o dinheiro de uma forma diferente, e por isso, o [Nome do App] permite que você personalize categorias, configure lembretes, e ajuste o app conforme a sua necessidade. É a ferramenta certa para organizar suas finanças do jeito que você prefere.
+                                    </Card.Text>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                        <Col style={{ display: 'flex', justifyContent: 'center' }}>
+                            <Card border="info" className="bg-primary bg-opacity-10">
                                 <Card.Header>Flexível e Personalizável</Card.Header>
                                 <Card.Body>
                                     <Card.Title>Info Card Title</Card.Title>

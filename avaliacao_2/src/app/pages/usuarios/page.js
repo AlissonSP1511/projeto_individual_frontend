@@ -70,6 +70,7 @@ export default function Page() {
                         <th>#</th>
                         <th>Nome</th>
                         <th>Email</th>
+                        <th>Senha</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -87,6 +88,7 @@ export default function Page() {
                             </td>
                             <td>{item.nome}</td>
                             <td>{item.email}</td>
+                            <td>{item.senha}</td>
                         </tr>
                     ))}
                 </tbody>
