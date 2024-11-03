@@ -22,7 +22,7 @@ export default function Pagina(props) {
                             <Nav.Link href="/pages/deshboard">Dashboards</Nav.Link>
                             <Nav.Link href="/pages/contasbancarias">Contas Bancarias</Nav.Link>
                             <Nav.Link href="/pages/transacoes">Transações</Nav.Link>
-                            <Nav.Link href="/pages/cartoesdecredito">Cartões de Credito</Nav.Link>
+                            <Nav.Link href="/pages/cartoesDeCredito">Cartões de Credito</Nav.Link>
                             <Nav.Link href="/pages/relatorios">Relatórios</Nav.Link>
                             <Nav.Link href="/pages/categorias">Categorias</Nav.Link>
                         </Nav>
