@@ -1,5 +1,6 @@
 'use client'
 
+import ProtectedRoute from '../../components/ProtectedRoute';
 import Pagina from "app/components/Pagina";
 import Api_avaliacao_2DB from "app/services/Api_avaliacao_2DB";
 import Link from "next/link"
@@ -39,58 +40,60 @@ export default function Page() {
         }).then((result) => {
             if (result.isConfirmed) {
                 Api_avaliacao_2DB.delete(`/usuario/${id}`)
-                .then(() => {
-                    carregarUsuarios()
-                    Swal.fire({
-                        title: "Excluído!",
-                        text: "Registro excluído com sucesso.",
-                        icon: "success",
-                        showConfirmButton: false,
-                        timer: 1500
+                    .then(() => {
+                        carregarUsuarios()
+                        Swal.fire({
+                            title: "Excluído!",
+                            text: "Registro excluído com sucesso.",
+                            icon: "success",
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    }).catch((error) => {
+                        console.error('Erro ao excluir usuário:', error);
                     });
-                }).catch((error) => {
-                    console.error('Erro ao excluir usuário:', error);
-                });
             }
         });
     }
 
     return (
-        <Pagina titulo="Usuários" className="bg-primary bg-opacity-10">
-            <Link
-                href="/pages/usuarios/form"
-                className="btn btn-primary mb-3"
-            >
-                <FaPlusCircle /> Novo
-            </Link>
+        <ProtectedRoute>
+            <Pagina titulo="Dashboard" className="bg-primary bg-opacity-10">
+                <Link
+                    href="/pages/usuarios/form"
+                    className="btn btn-primary mb-3"
+                >
+                    <FaPlusCircle /> Novo
+                </Link>
 
-            <Table striped bordered hover>
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Nome</th>
-                        <th>Email</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {usuarios.map((item) => (
-                        <tr key={item._id}>
-                            <td>
-                                <Link href={`/pages/usuarios/form/${item._id}`}>
-                                    <FaRegEdit title="Editar" className="text-primary" />
-                                </Link>
-                                <MdDelete
-                                    title="Excluir"
-                                    className="text-danger"
-                                    onClick={() => excluir(item._id)}
-                                />
-                            </td>
-                            <td>{item.nome}</td>
-                            <td>{item.email}</td>
+                <Table striped bordered hover>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Nome</th>
+                            <th>Email</th>
                         </tr>
-                    ))}
-                </tbody>
-            </Table>
-        </Pagina>
+                    </thead>
+                    <tbody>
+                        {usuarios.map((item) => (
+                            <tr key={item._id}>
+                                <td>
+                                    <Link href={`/pages/usuarios/form/${item._id}`}>
+                                        <FaRegEdit title="Editar" className="text-primary" />
+                                    </Link>
+                                    <MdDelete
+                                        title="Excluir"
+                                        className="text-danger"
+                                        onClick={() => excluir(item._id)}
+                                    />
+                                </td>
+                                <td>{item.nome}</td>
+                                <td>{item.email}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </Table>
+            </Pagina>
+        </ProtectedRoute>
     )
 }

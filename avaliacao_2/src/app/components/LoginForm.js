@@ -5,6 +5,7 @@ import * as Yup from 'yup';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import Api_avaliacao_2DB from '../services/Api_avaliacao_2DB';
+import { TextField, Button, Box, Alert } from '@mui/material';
 
 const LoginForm = () => {
   const router = useRouter();
@@ -39,21 +40,41 @@ const LoginForm = () => {
       validationSchema={validationSchema}
       onSubmit={handleLogin} // Chama handleLogin ao enviar o formulário
     >
-      {({ errors, touched }) => (
+      {({ errors, touched, handleChange, handleBlur }) => (
         <Form>
-          <div>
-            <label>Email</label>
-            <Field name="email" type="email" />
-            {errors.email && touched.email ? <div>{errors.email}</div> : null}
-          </div>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <TextField
+              fullWidth
+              name="email"
+              label="Email"
+              type="email"
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={touched.email && Boolean(errors.email)}
+              helperText={touched.email && errors.email}
+            />
 
-          <div>
-            <label>Senha</label>
-            <Field name="password" type="password" />
-            {errors.password && touched.password ? <div>{errors.password}</div> : null}
-          </div>
+            <TextField
+              fullWidth
+              name="password"
+              label="Senha"
+              type="password"
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={touched.password && Boolean(errors.password)}
+              helperText={touched.password && errors.password}
+            />
 
-          <button type="submit">Entrar</button>
+            <Button 
+              type="submit" 
+              variant="contained" 
+              color="primary"
+              fullWidth
+              sx={{ mt: 2 }}
+            >
+              Entrar
+            </Button>
+          </Box>
         </Form>
       )}
     </Formik>

@@ -25,7 +25,7 @@ const Api_avaliacao_2DB = axios.create({
     withCredentials: true, // Habilita o envio de cookies e credenciais
 });
 
-// Adiciona o token JWT no cabeçalho das requisições se estiver disponível
+// Interceptor para adicionar o token em todas as requisições
 Api_avaliacao_2DB.interceptors.request.use((config) => {
     const token = localStorage.getItem('token'); // Obtém o token do localStorage
     if (token) {
@@ -36,7 +36,7 @@ Api_avaliacao_2DB.interceptors.request.use((config) => {
     return Promise.reject(error);
 });
 
-// Interceptor para tratar erros de resposta
+// Interceptor para tratar erros de autenticação
 Api_avaliacao_2DB.interceptors.response.use(
     (response) => response,
     (error) => {
@@ -44,7 +44,7 @@ Api_avaliacao_2DB.interceptors.response.use(
             // Redireciona para a página de login se o token expirar
             alert('Sessão expirada. Faça login novamente.');
             localStorage.removeItem('token'); // Remove o token expirado
-            window.location.href = '/login'; // Redireciona para a página de login
+            window.location.href = '/pages/login'; // Redireciona para a página de login
         }
         return Promise.reject(error);
     }

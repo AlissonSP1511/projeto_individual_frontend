@@ -5,6 +5,7 @@ import * as Yup from 'yup';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import Api_avaliacao_2DB from '../services/Api_avaliacao_2DB';
+import { TextField, Button, Box, Alert } from '@mui/material';
 
 const RegisterForm = () => {
   const router = useRouter();
@@ -19,7 +20,7 @@ const RegisterForm = () => {
     try {
       await Api_avaliacao_2DB.post('/register', values);
       alert('Usuário cadastrado com sucesso!');
-      router.push('/login'); // Redireciona para a página de login após o cadastro
+      router.push('/pages/login'); // Redireciona para a página de login após o cadastro
     } catch (error) {
       console.error('Erro no cadastro:', error);
       alert('Erro ao cadastrar o usuário');
@@ -32,27 +33,51 @@ const RegisterForm = () => {
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
     >
-      {({ errors, touched }) => (
+      {({ errors, touched, handleChange, handleBlur }) => (
         <Form>
-          <div>
-            <label>Nome</label>
-            <Field name="nome" type="text" />
-            {errors.nome && touched.nome ? <div>{errors.nome}</div> : null}
-          </div>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <TextField
+              fullWidth
+              name="nome"
+              label="Nome"
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={touched.nome && Boolean(errors.nome)}
+              helperText={touched.nome && errors.nome}
+            />
 
-          <div>
-            <label>Email</label>
-            <Field name="email" type="email" />
-            {errors.email && touched.email ? <div>{errors.email}</div> : null}
-          </div>
+            <TextField
+              fullWidth
+              name="email"
+              label="Email"
+              type="email"
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={touched.email && Boolean(errors.email)}
+              helperText={touched.email && errors.email}
+            />
 
-          <div>
-            <label>Senha</label>
-            <Field name="password" type="password" />
-            {errors.password && touched.password ? <div>{errors.password}</div> : null}
-          </div>
+            <TextField
+              fullWidth
+              name="password"
+              label="Senha"
+              type="password"
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={touched.password && Boolean(errors.password)}
+              helperText={touched.password && errors.password}
+            />
 
-          <button type="submit">Cadastrar</button>
+            <Button 
+              type="submit" 
+              variant="contained" 
+              color="primary"
+              fullWidth
+              sx={{ mt: 2 }}
+            >
+              Cadastrar
+            </Button>
+          </Box>
         </Form>
       )}
     </Formik>
