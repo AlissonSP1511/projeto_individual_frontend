@@ -1,6 +1,5 @@
 // avaliacao_2DB/models/Usuario.js
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
 
 const schema = mongoose.Schema({
     nome: {
@@ -20,27 +19,9 @@ const schema = mongoose.Schema({
     }
 });
 
-// Middleware para hash da senha antes de salvar o usuário
-schema.pre('save', async function (next) {
-    if (!this.isModified('password')) return next();
-    try {
-        const salt = await bcrypt.genSalt(10);
-        this.password = await bcrypt.hash(this.password, salt);
-        next();
-    } catch (error) {
-        next(error);
-    }
-});
-
-// Método para validar a senha
-schema.methods.isValidPassword = function(password) {
-    return bcrypt.compare(password, this.password);
-};
-
 const Usuario = mongoose.model('Usuario', schema);
 
 module.exports = Usuario;
-
 
 // Explicação:
 // nome:

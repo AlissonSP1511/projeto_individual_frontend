@@ -12,118 +12,78 @@ const UsuarioController = require('../controllers/UsuarioController')
 const router = express.Router();
 const authMiddleware = require('../middlewares/authMiddleware');
 
-// // routes/login.js
-// const jwt = require('jsonwebtoken');
-// const bcrypt = require('bcryptjs'); // Para comparar senhas criptografadas
-// const Usuario = require('../models/Usuario');
-
-// const SECRET_KEY = "sua_chave_secreta"; // Use uma chave secreta forte e armazene-a em variáveis de ambiente
-
+// Rotas públicas
 router.get('/', function (req, res) {
     res.json({})
 })
 
-//cartaocredito
-router.get('/cartaocredito', (req, res) => CartaoCreditoController.getAll(req, res))
-router.get('/cartaocredito/:id', (req, res) => CartaoCreditoController.get(req, res))
-router.post('/cartaocredito', (req, res) => CartaoCreditoController.create(req, res))
-router.delete('/cartaocredito/:id', (req, res) => CartaoCreditoController.delete(req, res))
-router.put('/cartaocredito/:id', (req, res) => CartaoCreditoController.update(req, res))
-
-//carteirainvestimento
-router.get('/carteirainvestimento', (req, res) =>  CarteiraInvestimentoController.getAll(req, res))
-router.get('/carteirainvestimento/:id', (req, res) => CarteiraInvestimentoController.get(req, res))
-router.post('/carteirainvestimento', (req, res) => CarteiraInvestimentoController.create(req, res))
-router.delete('/carteirainvestimento/:id', (req, res) => CarteiraInvestimentoController.delete(req, res))
-router.put('/carteirainvestimento/:id', (req, res) => CarteiraInvestimentoController.update(req, res))
-
-//categoria
-router.get('/categoria', (req, res) =>  CategoriaController.getAll(req, res))
-router.get('/categoria/:id', (req, res) => CategoriaController.get(req, res))
-router.post('/categoria', (req, res) => CategoriaController.create(req, res))
-router.delete('/categoria/:id', (req, res) => CategoriaController.delete(req, res))
-router.put('/categoria/:id', (req, res) => CategoriaController.update(req, res))
-
-//conta
-router.get('/conta', (req, res) =>  ContaController.getAll(req, res))
-router.get('/conta/:id', (req, res) => ContaController.get(req, res))
-router.post('/conta', (req, res) => ContaController.create(req, res))
-router.delete('/conta/:id', (req, res) => ContaController.delete(req, res))
-router.put('/conta/:id', (req, res) => ContaController.update(req, res))
-
-//faturacartaocredito
-router.get('/faturacartaocredito', (req, res) =>  FaturaCartaoCreditoController.getAll(req, res))
-router.get('/faturacartaocredito/:id', (req, res) => FaturaCartaoCreditoController.get(req, res))
-router.post('/faturacartaocredito', (req, res) => FaturaCartaoCreditoController.create(req, res))
-router.delete('/faturacartaocredito/:id', (req, res) => FaturaCartaoCreditoController.delete(req, res))
-router.put('/faturacartaocredito/:id', (req, res) => FaturaCartaoCreditoController.update(req, res))
-
-//investimento
-router.get('/investimento', (req, res) =>  InvestimentoController.getAll(req, res))
-router.get('/investimento/:id', (req, res) => InvestimentoController.get(req, res))
-router.post('/investimento', (req, res) => InvestimentoController.create(req, res))
-router.delete('/investimento/:id', (req, res) => InvestimentoController.delete(req, res))
-router.put('/investimento/:id', (req, res) => InvestimentoController.update(req, res))
-
-//lancamentocartaocredito
-router.get('/lancamentocartaocredito', (req, res) =>  LancamentoCartaoCreditoController.getAll(req, res))
-router.get('/lancamentocartaocredito/:id', (req, res) => LancamentoCartaoCreditoController.get(req, res))
-router.post('/lancamentocartaocredito', (req, res) => LancamentoCartaoCreditoController.create(req, res))
-router.delete('/lancamentocartaocredito/:id', (req, res) => LancamentoCartaoCreditoController.delete(req, res))
-router.put('/lancamentocartaocredito/:id', (req, res) => LancamentoCartaoCreditoController.update(req, res))
-
-//transacao
-router.get('/transacao', (req, res) =>  TransacaoController.getAll(req, res))
-router.get('/transacao/:id', (req, res) => TransacaoController.get(req, res))
-router.post('/transacao', (req, res) => TransacaoController.create(req, res))
-router.delete('/transacao/:id', (req, res) => TransacaoController.delete(req, res))
-router.put('/transacao/:id', (req, res) => TransacaoController.update(req, res))
-
-
-// Rota de login
+// Rotas de autenticação (públicas)
 router.post('/login', UsuarioController.login);
-
-// Rota de cadastro de usuário
 router.post('/register', UsuarioController.register);
 
-// Rotas protegidas
-router.get('/usuario', (req, res) =>  UsuarioController.getAll(req, res))
-router.get('/usuario/:id', (req, res) =>  UsuarioController.getAll(req, res))
-router.post('/usuario',  (req, res) =>  UsuarioController.getAll(req, res))
-router.put('/usuario/:id',  (req, res) =>  UsuarioController.getAll(req, res))
-router.delete('/usuario/:id', (req, res) =>  UsuarioController.getAll(req, res))
+// Rotas protegidas - Todas as rotas abaixo requerem autenticação
+router.use(authMiddleware); // Aplica o middleware de autenticação para todas as rotas abaixo
 
-// // Rotas protegidas
-// router.get('/usuario', authMiddleware, UsuarioController.getAll);
-// router.get('/usuario/:id', authMiddleware, UsuarioController.get);
-// router.post('/usuario', authMiddleware, UsuarioController.create);
-// router.put('/usuario/:id', authMiddleware, UsuarioController.update);
-// router.delete('/usuario/:id', authMiddleware, UsuarioController.delete);
+// Cartão de crédito
+router.get('/cartaocredito', CartaoCreditoController.getAll)
+router.get('/cartaocredito/:id', CartaoCreditoController.get)
+router.post('/cartaocredito', CartaoCreditoController.create)
+router.delete('/cartaocredito/:id', CartaoCreditoController.delete)
+router.put('/cartaocredito/:id', CartaoCreditoController.update)
 
-// //login
-// router.post('/login', async (req, res) => {
-//     console.log(req.body);
-//     console.log("aqui");
-//     const { email, senha } = req.body;
+// Carteira de investimento
+router.get('/carteirainvestimento', CarteiraInvestimentoController.getAll)
+router.get('/carteirainvestimento/:id', CarteiraInvestimentoController.get)
+router.post('/carteirainvestimento', CarteiraInvestimentoController.create)
+router.delete('/carteirainvestimento/:id', CarteiraInvestimentoController.delete)
+router.put('/carteirainvestimento/:id', CarteiraInvestimentoController.update)
 
-//     try {
-//         const usuario = await Usuario.findOne({ email });
-//         if (!usuario) {
-//             return res.status(404).json({ error: "Usuário não encontrado" });
-//         }
+// Categoria
+router.get('/categoria', CategoriaController.getAll)
+router.get('/categoria/:id', CategoriaController.get)
+router.post('/categoria', CategoriaController.create)
+router.delete('/categoria/:id', CategoriaController.delete)
+router.put('/categoria/:id', CategoriaController.update)
 
-//         const senhaValida = await bcrypt.compare(senha, usuario.senha);
-//         if (!senhaValida) {
-//             return res.status(401).json({ error: "Senha incorreta" });
-//         }
+// Conta
+router.get('/conta', ContaController.getAll)
+router.get('/conta/:id', ContaController.get)
+router.post('/conta', ContaController.create)
+router.delete('/conta/:id', ContaController.delete)
+router.put('/conta/:id', ContaController.update)
 
-//         // Gerar token JWT
-//         const token = jwt.sign({ userId: usuario._id }, SECRET_KEY, { expiresIn: '1h' });
+// Fatura cartão de crédito
+router.get('/faturacartaocredito', FaturaCartaoCreditoController.getAll)
+router.get('/faturacartaocredito/:id', FaturaCartaoCreditoController.get)
+router.post('/faturacartaocredito', FaturaCartaoCreditoController.create)
+router.delete('/faturacartaocredito/:id', FaturaCartaoCreditoController.delete)
+router.put('/faturacartaocredito/:id', FaturaCartaoCreditoController.update)
 
-//         res.json({ token, message: "Login bem-sucedido" });
-//     } catch (error) {
-//         res.status(500).json({ error: "Erro ao fazer login" });
-//     }
-// });
+// Investimento
+router.get('/investimento', InvestimentoController.getAll)
+router.get('/investimento/:id', InvestimentoController.get)
+router.post('/investimento', InvestimentoController.create)
+router.delete('/investimento/:id', InvestimentoController.delete)
+router.put('/investimento/:id', InvestimentoController.update)
+
+// Lançamento cartão de crédito
+router.get('/lancamentocartaocredito', LancamentoCartaoCreditoController.getAll)
+router.get('/lancamentocartaocredito/:id', LancamentoCartaoCreditoController.get)
+router.post('/lancamentocartaocredito', LancamentoCartaoCreditoController.create)
+router.delete('/lancamentocartaocredito/:id', LancamentoCartaoCreditoController.delete)
+router.put('/lancamentocartaocredito/:id', LancamentoCartaoCreditoController.update)
+
+// Transação
+router.get('/transacao', TransacaoController.getAll)
+router.get('/transacao/:id', TransacaoController.get)
+router.post('/transacao', TransacaoController.create)
+router.delete('/transacao/:id', TransacaoController.delete)
+router.put('/transacao/:id', TransacaoController.update)
+
+// Usuário
+router.get('/usuario', UsuarioController.getAll)
+router.get('/usuario/:id', UsuarioController.get)
+router.put('/usuario/:id', UsuarioController.update)
+router.delete('/usuario/:id', UsuarioController.delete)
 
 module.exports = router
