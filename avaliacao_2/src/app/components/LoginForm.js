@@ -19,18 +19,15 @@ const LoginForm = () => {
   const handleLogin = async (values) => {
     try {
       const response = await Api_avaliacao_2DB.post('/login', values);
-      console.log('Resposta do login:', response.data); // Verifica se o token é recebido
-      localStorage.setItem('token', response.data.token); // Salva o token no localStorage
-      Api_avaliacao_2DB.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`; // Configura o token nas próximas requisições
-      console.log("Token salvo:", localStorage.getItem('token')); // Verifique o console
-      router.push('/pages/dashboard'); // Redireciona para página após login bem-sucedido
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('userId', response.data.user.id);
+      localStorage.setItem('userName', response.data.user.nome);
+      
+      Api_avaliacao_2DB.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
+      router.push('/pages/contasBancarias');
     } catch (error) {
       console.error('Erro de login:', error);
-      if (error.response && error.response.status === 401) {
-        alert('Sessão expirada. Faça login novamente.');
-      } else {
-        alert('Erro ao fazer login. Verifique suas credenciais.');
-      }
+      alert('Erro ao fazer login. Verifique suas credenciais.');
     }
   };
 
@@ -82,36 +79,3 @@ const LoginForm = () => {
 };
 
 export default LoginForm;
-
-
-// // Função de login
-// const handleLogin = async (values) => {
-//   try {
-//     const response = await Api_avaliacao_2DB.post('/login', values);
-//     localStorage.setItem('token', response.data.token); // Salva o token no localStorage
-//     localStorage.setItem('authToken', response.data.token);
-//     console.log(response.data);
-//     router.push('/pages/dashboard'); // Redireciona após login bem-sucedido
-//   } catch (error) {
-//     console.error('Erro de login:', error);
-//     alert('Erro ao fazer login. Verifique suas credenciais.');
-//   }
-// };
-
-
-// const handleLogin = async (values) => {
-//   try {
-//     const response = await Api_avaliacao_2DB.post('/login', values);
-//     console.log('Resposta do login:', response.data); // Verifica se o token é recebido
-//     localStorage.setItem('token', response.data.token); // Salva o token no localStorage
-//     Api_avaliacao_2DB.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`; // Configura o token nas próximas requisições
-//     router.push('/pages/dashboard'); // Redireciona para página após login bem-sucedido
-//   } catch (error) {
-//     console.error('Erro de login:', error);
-//     if (error.response && error.response.status === 401) {
-//       alert('Sessão expirada. Faça login novamente.');
-//     } else {
-//       alert('Erro ao fazer login. Verifique suas credenciais.');
-//     }
-//   }
-// };

@@ -8,8 +8,11 @@ const ProtectedRoute = ({ children }) => {
 
     useEffect(() => {
         const token = localStorage.getItem('token');
-        if (!token) {
-            router.push('/pages/home');
+        const userId = localStorage.getItem('userId');
+
+        if (!token || !userId) {
+            localStorage.clear();
+            router.push('/pages/login');
         }
     }, []);
 
