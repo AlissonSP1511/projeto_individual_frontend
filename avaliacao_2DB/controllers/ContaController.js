@@ -4,7 +4,7 @@ const Conta = require('../models/Conta'); // Modelo de contas
 const ContaController = {
     getAll: async (req, res) => {
         try {
-            const contas = await Conta.find().populate('usuario_id'); // Populando a referência para mostrar dados do usuário
+            const contas = await Conta.find({ usuario_id: req.userId }).populate('usuario_id');
             res.json(contas);
         } catch (error) {
             res.status(500).json({ error: "Erro ao buscar contas" });
@@ -13,7 +13,11 @@ const ContaController = {
 
     get: async (req, res) => {
         try {
-            const conta = await Conta.findById(req.params.id).populate('usuario_id');
+            const conta = await Conta.findOne({
+                _id: req.params.id,
+                usuario_id: req.userId
+            }).populate('usuario_id');
+            
             if (!conta) {
                 return res.status(404).json({ error: "Conta não encontrada" });
             }
@@ -22,18 +26,16 @@ const ContaController = {
             res.status(500).json({ error: "Erro ao buscar a conta" });
         }
     },
+
     create: async (req, res) => {
-        const { usuario_id, saldo, tipo_conta } = req.body; // O usuario_id será o ObjectId gerado automaticamente para o usuário
-
-        if (!usuario_id || saldo === undefined || !tipo_conta) {
-            return res.status(400).json({ error: "Os campos usuario_id, saldo e tipo_conta são obrigatórios." });
-        }
-
         try {
-            const novaConta = await Conta.create({ usuario_id, saldo, tipo_conta });
-            res.status(201).json(novaConta); // Retorna a nova conta criada
+            const novaConta = await Conta.create({
+                ...req.body,
+                usuario_id: req.userId
+            });
+            res.status(201).json(novaConta);
         } catch (error) {
-            res.status(400).json({ error: "Erro ao criar a conta." });
+            res.status(400).json({ error: "Erro ao criar a conta" });
         }
     },
 

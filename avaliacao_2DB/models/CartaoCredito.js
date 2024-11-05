@@ -2,6 +2,11 @@
 const mongoose = require('mongoose');
 
 const CartaoCreditoSchema = new mongoose.Schema({
+  usuario_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Usuario',
+    required: true
+  },
   numero: {
     type: String,
     required: true,
