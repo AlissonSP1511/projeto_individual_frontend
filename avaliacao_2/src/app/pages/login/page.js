@@ -13,7 +13,7 @@ import { MdMargin, MdOutlineKeyboardArrowLeft, MdOutlineKeyboardArrowRight } fro
 import { Card, Carousel, Col, Image, Row } from 'react-bootstrap';
 import LoginForm from 'app/components/LoginForm';
 import RegisterForm from 'app/components/RegisterForm';
-import { Container, Grid, Paper, Typography } from '@mui/material';
+import { Container, Box, Paper, Typography } from '@mui/material';
 
 export default function App() {
     const cache = createCache({ key: 'css' });
@@ -24,8 +24,8 @@ export default function App() {
                 <CssBaseline />
                 <Pagina titulo="Login">
                     <Container maxWidth="lg">
-                        <Grid container spacing={3} justifyContent="center" alignItems="center" style={{ minHeight: '80vh' }}>
-                            <Grid item xs={12} md={6}>
+                        <Box container spacing={3} justifyContent="center" alignItems="center" style={{ minHeight: '80vh' }}>
+                            <Box item xs={12} md={6}>
                                 <Paper elevation={3} sx={{ p: 4, mb: 3 }}>
                                     <Typography variant="h5" gutterBottom align="center">
                                         Login
@@ -38,8 +38,8 @@ export default function App() {
                                     </Typography>
                                     <RegisterForm />
                                 </Paper>
-                            </Grid>
-                        </Grid>
+                            </Box>
+                        </Box>
                     </Container>
                 </Pagina>
             </ThemeProvider>

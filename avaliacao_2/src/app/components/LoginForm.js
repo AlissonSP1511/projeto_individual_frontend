@@ -16,16 +16,27 @@ const LoginForm = () => {
     password: Yup.string().required('Obrigatório')
   });
 
+  // const handleLogin = async (values) => {
+  //   try {
+  //     const response = await Api_avaliacao_2DB.post('/login', values);
+  //     localStorage.setItem('token', response.data.token);
+  //     localStorage.setItem('userId', response.data.user.id);
+  //     localStorage.setItem('userName', response.data.user.nome);
+
+  //     Api_avaliacao_2DB.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
+  //     router.push('/pages/contasBancarias');
+  //   } catch (error) {
   const handleLogin = async (values) => {
     try {
       const response = await Api_avaliacao_2DB.post('/login', values);
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('userId', response.data.user.id);
       localStorage.setItem('userName', response.data.user.nome);
-      
+
       Api_avaliacao_2DB.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
       router.push('/pages/contasBancarias');
     } catch (error) {
+
       console.error('Erro de login:', error);
       alert('Erro ao fazer login. Verifique suas credenciais.');
     }
@@ -62,9 +73,9 @@ const LoginForm = () => {
               helperText={touched.password && errors.password}
             />
 
-            <Button 
-              type="submit" 
-              variant="contained" 
+            <Button
+              type="submit"
+              variant="contained"
               color="primary"
               fullWidth
               sx={{ mt: 2 }}

@@ -1,56 +1,74 @@
 'use client'
-import { Container, Nav, Navbar } from "react-bootstrap";
-import { useState } from "react";
-import Image from 'next/image';
 
-export default function Pagina(props) {
+import { Container, Nav, Navbar, Button, Image } from 'react-bootstrap';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
+export default function Pagina({ titulo, children }) {
+    const [userName, setUserName] = useState('');
     const [expanded, setExpanded] = useState(false);
+    const router = useRouter();
+
+    useEffect(() => {
+        const storedUserName = localStorage.getItem('userName');
+        if (storedUserName) {
+            setUserName(storedUserName);
+        }
+    }, []);
+
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('userName');
+        router.push('/pages/login');
+    };
+
     return (
         <>
             <Navbar className="bg-primary bg-opacity-25 p-1 text-gray" expand="lg" variant="success" expanded={expanded}>
                 <Container>
                     <Navbar.Brand href="/">
                         <Image src="/brand2.png" alt="Brand Logo" width={100} height={50} style={{ paddingRight: '5px' }} />
-                        <span>Finanças Pessoais</span>
                     </Navbar.Brand>
-                    <Navbar.Toggle
-                        aria-controls="basic-navbar-nav"
-                        onClick={() => setExpanded(!expanded)} // Corrigido para alternar
-                    />
-                    <Navbar.Collapse id="basic-navbar-nav"> 
-                        <Nav className="ms-auto text-center align-items-center">
+                    <Navbar.Toggle onClick={() => setExpanded(!expanded)} />
+                    <Navbar.Collapse>
+                        <Nav className="me-auto">
                             <Nav.Link href="/pages/home">Home</Nav.Link>
-                            <Nav.Link href="/pages/contasBancarias">
-                                Contas<span className="d-none d-lg-inline"> Bancarias</span>
-                            </Nav.Link>
-                            <Nav.Link href="/pages/cartoesDeCredito">
-                                Cartões<span className="d-none d-lg-inline"> de Credito</span>
-                            </Nav.Link>
-                            <Nav.Link href="/pages/dashboard">Dashboards</Nav.Link>
-                            <Nav.Link href="/pages/investimentos">Investimentos</Nav.Link>
-                            <Nav.Link href="/pages/relatorios">Relatórios</Nav.Link>
-                            <div className="d-flex justify-content-center">
-                                <Nav.Link 
-                                    href="/pages/login" 
-                                    className="text-primary-bold bg-primary bg-opacity-75 rounded-pill px-3 d-inline-block"
-                                >
-                                    Entrar/Cadastrar
-                                </Nav.Link>
-                            </div>
+                            {userName && (
+                                <>
+                                    <Nav.Link href="/pages/dashboard">Dashboard</Nav.Link>
+                                    <Nav.Link href="/pages/contasBancarias">Contas</Nav.Link>
+                                    <Nav.Link href="/pages/cartoesDeCredito">Cartões</Nav.Link>
+                                    <Nav.Link href="/pages/transacoes">Transações</Nav.Link>
+                                    <Nav.Link href="/pages/investimentos">Investimentos</Nav.Link>
+                                    <Nav.Link href="/pages/categorias">Categorias</Nav.Link>
+                                    <Nav.Link href="/pages/relatorios">Relatórios</Nav.Link>
+                                </>
+                            )}
+                        </Nav>
+                        <Nav>
+                            {userName ? (
+                                <div className="d-flex align-items-center">
+                                    <span className="me-3">Olá, {userName}</span>
+                                    <Button variant="outline-danger" onClick={handleLogout}>
+                                        Sair
+                                    </Button>
+                                </div>
+                            ) : (
+                                <Nav.Link href="/pages/login">Entrar/Cadastrar</Nav.Link>
+                            )}
                         </Nav>
                     </Navbar.Collapse>
                 </Container>
             </Navbar>
-
-            {/* <div className="text-dark bg-dark bg-opacity-25 p-5">
-                <h1 className="container">{props.titulo}</h1>
-            </div> */}
-
-            <div className="bg-primary bg-opacity-10">
+            <div className="bg-secondary py-3 text-white text-center mb-3">
                 <Container>
-                    {props.children}
+                    <h1>{titulo}</h1>
                 </Container>
             </div>
+            <Container className="mb-5">
+                {children}
+            </Container>
         </>
     );
 }
