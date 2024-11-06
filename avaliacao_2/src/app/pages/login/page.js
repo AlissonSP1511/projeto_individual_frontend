@@ -1,16 +1,11 @@
 'use client';
 
-import { useEffect } from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Pagina from 'app/components/Pagina';
-import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
 import { MaterialUIControllerProvider } from 'context';
 import theme from 'assets/theme';
-import MDPagination from 'components/MDPagination';
-import { MdMargin, MdOutlineKeyboardArrowLeft, MdOutlineKeyboardArrowRight } from 'react-icons/md';
-import { Card, Carousel, Col, Image, Row } from 'react-bootstrap';
 import LoginForm from 'app/components/LoginForm';
 import RegisterForm from 'app/components/RegisterForm';
 import { Container, Box, Paper, Typography } from '@mui/material';
@@ -24,8 +19,18 @@ export default function App() {
                 <CssBaseline />
                 <Pagina titulo="Login">
                     <Container maxWidth="lg">
-                        <Box container spacing={3} justifyContent="center" alignItems="center" style={{ minHeight: '80vh' }}>
-                            <Box item xs={12} md={6}>
+                        <Box
+                            display="flex"
+                            flexDirection="column"
+                            justifyContent="center"
+                            alignItems="center"
+                            style={{ minHeight: '80vh' }}
+                        >
+                            <Box
+                                sx={{
+                                    width: { xs: '100%', md: '50%' }
+                                }}
+                            >
                                 <Paper elevation={3} sx={{ p: 4, mb: 3 }}>
                                     <Typography variant="h5" gutterBottom align="center">
                                         Login

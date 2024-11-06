@@ -3,60 +3,39 @@
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Pagina from 'app/components/Pagina';
-import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
 import { MaterialUIControllerProvider } from 'context';
 import theme from 'assets/theme';
 import MDPagination from 'components/MDPagination';
-import { MdMargin, MdOutlineKeyboardArrowLeft, MdOutlineKeyboardArrowRight } from 'react-icons/md';
+import { MdOutlineKeyboardArrowLeft, MdOutlineKeyboardArrowRight } from 'react-icons/md';
 import { Card, Carousel, Col, Image, Row } from 'react-bootstrap';
-
-
 
 export default function App() {
     // Criação de cache padrão do Emotion
     const cache = createCache({ key: 'css' });
-
     return (
-
-
         <MaterialUIControllerProvider>
             {/* <CacheProvider value={cache}> */}
             <ThemeProvider theme={theme}>
                 <CssBaseline />
-
                 <Pagina titulo="Home">
                     <Row className="d-flex justify-content-center row-cols-1 row-cols-lg-2 row-cols-sm-1">
                         <Col className="d-flex justify-content-center mt-5 mb-4">
                             <Carousel className="container d-block w-100 img-fluid" preserveAspectRatio="xMidYMid slice">
                                 <Carousel.Item interval={9000}>
                                     <div className="carousel-image-wrapper">
-                                        <Image src="https://portal.fgv.br/sites/portal.fgv.br/files/styles/noticia_geral/public/noticias/06/21/financas.jpg" alt="First slide" className='d-block w-100' />
+                                        <Image src="https://blog.singularityubrazil.com/wp-content/uploads/2023/01/financas-corporativas.jpg" alt="First slide" className='d-block w-100' />
                                     </div>
-                                    <Carousel.Caption>
-                                        <h3></h3>
-                                        <p></p>
-                                    </Carousel.Caption>
                                 </Carousel.Item>
                                 <Carousel.Item interval={9000}>
                                     <div className="carousel-image-wrapper">
                                         <Image src="https://investidorsardinha.r7.com/wp-content/uploads/2022/03/15-perfis-de-influenciados-de-financas-no-instagram-para-melhorar-suas-financas.png" alt="Second slide" className='d-block w-100' />
                                     </div>
-                                    <Carousel.Caption>
-                                        <h3></h3>
-                                        <p></p>
-                                    </Carousel.Caption>
                                 </Carousel.Item>
                                 <Carousel.Item interval={9000}>
                                     <div className="carousel-image-wrapper">
                                         <Image src="https://img.freepik.com/vetores-gratis/financas-e-ilustracao-de-conceito-de-desempenho-financeiro_53876-40450.jpg" alt="Third slide" className='d-block w-100' />
                                     </div>
-                                    <Carousel.Caption>
-                                        <h3></h3>
-                                        <p>
-                                            
-                                        </p>
-                                    </Carousel.Caption>
                                 </Carousel.Item>
                             </Carousel>
                         </Col>
@@ -67,7 +46,6 @@ export default function App() {
                             </div>
                         </Col>
                     </Row>
-
                     <h1 className="max-w-[590px] text-base-text text-3xl font-semibold md:leading-[64px] text-center tracking-tight sm:text-5xl lg:max-w-[460px] lg:text-5xl lg:text-left lg:m-0 xl:max-w-[550px] xl:text-6xl">
                         Controle financeiro pessoal com toda a
                         <div className="inline-block relative z-10">
@@ -75,7 +53,6 @@ export default function App() {
                         </div>
                         que a planilha não te oferece
                     </h1>
-
                     <Row className='d-flex justify-content-center row-cols-1 row-cols-lg-3 g-4 mt-5'  >
                         <Col style={{ display: 'flex', justifyContent: 'center' }} >
                             <Card border="info" className="bg-primary bg-opacity-10">
@@ -98,7 +75,7 @@ export default function App() {
                             </Card>
                         </Col>
                         <Col style={{ display: 'flex', justifyContent: 'center' }}>
-                            <Card border="info"  className="bg-primary bg-opacity-10">
+                            <Card border="info" className="bg-primary bg-opacity-10">
                                 <Card.Header>Defina e Alcance Suas Metas</Card.Header>
                                 <Card.Body>
                                     <Card.Text>
@@ -118,7 +95,7 @@ export default function App() {
                             </Card>
                         </Col>
                         <Col style={{ display: 'flex', justifyContent: 'center' }}>
-                            <Card border="info"  className="bg-primary bg-opacity-10">
+                            <Card border="info" className="bg-primary bg-opacity-10">
                                 <Card.Header>Flexível e Personalizável</Card.Header>
                                 <Card.Body>
                                     <Card.Title>Info Card Title</Card.Title>
@@ -140,7 +117,7 @@ export default function App() {
                             </Card>
                         </Col>
                         <Col style={{ display: 'flex', justifyContent: 'center' }}>
-                            <Card border="info"  className="bg-primary bg-opacity-10">
+                            <Card border="info" className="bg-primary bg-opacity-10">
                                 <Card.Header>Flexível e Personalizável</Card.Header>
                                 <Card.Body>
                                     <Card.Title>Info Card Title</Card.Title>
@@ -173,8 +150,6 @@ export default function App() {
                             </Card>
                         </Col>
                     </Row>
-
-
                     <Row className="justify-content-center" mt={5}>
                         <Col style={{ display: 'flex', justifyContent: 'center' }}>
                             <MDPagination size="large">
@@ -190,7 +165,6 @@ export default function App() {
                             </MDPagination>
                         </Col>
                     </Row>
-
                 </Pagina>
             </ThemeProvider>
             {/* </CacheProvider> */}
@@ -202,7 +176,6 @@ export default function App() {
   justify-content: center; /* Centraliza horizontalmente */
   align-items: center; /* Centraliza verticalmente */
 }
-
 .carousel-image-wrapper img {
   width: 100%; /* Garante que a imagem preencha a largura do contêiner */
   height: auto; /* Mantém a proporção da imagem */
@@ -210,6 +183,5 @@ export default function App() {
 }
             `}</style>
         </MaterialUIControllerProvider>
-
     );
 }

@@ -1,30 +1,9 @@
-// // src/services/Api_avaliacao_2DB.js
-// import axios from 'axios';
-
-// const Api_avaliacao_2DB = axios.create({
-//     baseURL: 'http://192.168.1.45:3001/', // Altere para o IP correto se necessário
-//     withCredentials: true, // Habilita o envio de cookies e credenciais
-// });
-
-// // Se você quiser adicionar interceptores para tratar erros ou respostas, pode fazê-lo aqui
-// Api_avaliacao_2DB.interceptors.response.use(
-//     response => response,
-//     error => {
-//         // Tratar o erro conforme necessário
-//         return Promise.reject(error);
-//     }
-// );
-
-// export default Api_avaliacao_2DB;
-
-// src/services/Api_avaliacao_2DB.js
 import axios from 'axios';
 
 const Api_avaliacao_2DB = axios.create({
-    baseURL: 'http://192.168.1.45:3001/', // Certifique-se de que o IP está correto
+    baseURL: 'http://10.30.33.64:3001/', // Certifique-se de que o IP está correto
     withCredentials: true, // Habilita o envio de cookies e credenciais
 });
-
 // Interceptor para adicionar o token em todas as requisições
 Api_avaliacao_2DB.interceptors.request.use((config) => {
     const token = localStorage.getItem('token'); // Obtém o token do localStorage
@@ -35,7 +14,6 @@ Api_avaliacao_2DB.interceptors.request.use((config) => {
 }, (error) => {
     return Promise.reject(error);
 });
-
 // Interceptor para tratar erros de autenticação
 Api_avaliacao_2DB.interceptors.response.use(
     (response) => response,
