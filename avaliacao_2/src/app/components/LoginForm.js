@@ -76,7 +76,7 @@ const LoginForm = () => {
             <Button
               type="submit"
               variant="contained"
-              color="primary"
+              className="bg-primary bg-opacity-50 text-gray text-black fw-bolder fs-6"
               fullWidth
               sx={{ mt: 2 }}
             >

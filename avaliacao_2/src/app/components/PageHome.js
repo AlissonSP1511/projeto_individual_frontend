@@ -17,7 +17,6 @@ export default function App() {
         <MaterialUIControllerProvider>
             {/* <CacheProvider value={cache}> */}
             <ThemeProvider theme={theme}>
-                <CssBaseline />
                 <Pagina titulo="Home">
                     <Row className="d-flex justify-content-center row-cols-1 row-cols-lg-2 row-cols-sm-1">
                         <Col className="d-flex justify-content-center mt-5 mb-4">

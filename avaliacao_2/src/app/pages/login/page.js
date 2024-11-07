@@ -16,14 +16,14 @@ export default function App() {
     return (
         <MaterialUIControllerProvider>
             <ThemeProvider theme={theme}>
-                <CssBaseline />
+                {/* <CssBaseline /> */}
                 <Pagina titulo="Login">
                     <Container maxWidth="lg">
                         <Box
                             display="flex"
                             flexDirection="column"
-                            justifyContent="center"
                             alignItems="center"
+                            paddingTop={5}
                             style={{ minHeight: '80vh' }}
                         >
                             <Box
@@ -31,7 +31,7 @@ export default function App() {
                                     width: { xs: '100%', md: '50%' }
                                 }}
                             >
-                                <Paper elevation={3} sx={{ p: 4, mb: 3 }}>
+                                <Paper elevation={3} sx={{ p: 4, mb: 5 }}>
                                     <Typography variant="h5" gutterBottom align="center">
                                         Login
                                     </Typography>

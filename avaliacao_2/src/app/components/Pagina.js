@@ -25,23 +25,22 @@ export default function Pagina({ titulo, children }) {
 
     return (
         <>
-            <Navbar className="bg-primary bg-opacity-25 p-1 text-gray" expand="lg" variant="success" expanded={expanded}>
-
+            <Navbar className="bg-primary bg-opacity-25 p-1 text-black" expand="lg" variant="success" expanded={expanded}>
                 <Navbar.Brand href="/">
                     <Image src="/brand2.png" alt="Brand Logo" width={100} height={50} style={{ paddingRight: '5px' }} />
-                    <span>Finanças Pessoais</span>
+                    <span className="fs-4 fw-bolder">Finanças Pessoais</span>
                 </Navbar.Brand>
                 <Navbar.Toggle onClick={() => setExpanded(!expanded)} />
                 <Navbar.Collapse>
                     {userName && (
-                        <Nav className="mx-auto">
-                            <Nav.Link href="/pages/dashboard">Dashboard</Nav.Link>
-                            <Nav.Link href="/pages/contasBancarias">Contas</Nav.Link>
-                            <Nav.Link href="/pages/cartoesDeCredito">Cartões</Nav.Link>
-                            <Nav.Link href="/pages/transacoes">Transações</Nav.Link>
-                            <Nav.Link href="/pages/investimentos">Investimentos</Nav.Link>
-                            <Nav.Link href="/pages/categorias">Categorias</Nav.Link>
-                            <Nav.Link href="/pages/relatorios">Relatórios</Nav.Link>
+                        <Nav className="mx-auto container">
+                            <Nav.Link href="/pages/dashboard" className="fw-bolder fs-5">Dashboard</Nav.Link>
+                            <Nav.Link href="/pages/contasBancarias" className="fw-bolder fs-5">Contas</Nav.Link>
+                            <Nav.Link href="/pages/cartoesDeCredito" className="fw-bolder fs-5">Cartões</Nav.Link>
+                            <Nav.Link href="/pages/transacoes" className="fw-bolder fs-5">Transações</Nav.Link>
+                            <Nav.Link href="/pages/investimentos" className="fw-bolder fs-5">Investimentos</Nav.Link>
+                            <Nav.Link href="/pages/categorias" className="fw-bolder fs-5">Categorias</Nav.Link>
+                            <Nav.Link href="/pages/relatorios" className="fw-bolder fs-5">Relatórios</Nav.Link>
                         </Nav>
                     )}
                     <Nav className='ms-auto'>
