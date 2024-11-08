@@ -6,90 +6,95 @@ import { Formik } from "formik";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { Button, Form } from "react-bootstrap";
-import { FaCheck } from "react-icons/fa";
+import { Card, Form } from "react-bootstrap";
+import { FaSave } from "react-icons/fa";
 import { MdOutlineArrowBack } from "react-icons/md";
+import * as Yup from 'yup';
+
+const validationSchema = Yup.object().shape({
+    descricao: Yup.string().required('Descrição é obrigatória'),
+});
 
 export default function Page({ params }) {
     const route = useRouter();
-    const [usuario, setUsuario] = useState({ nome: '', email: '' });
-
-    // Desembrulha o params usando React.use()
-    const { id } = React.use(params); // Aqui está a mudança
+    const [categoria, setCategoria] = useState({ descricao: '' });
+    const { id } = params?.id ? params : { id: null };
 
     useEffect(() => {
         if (id) {
-            Api_avaliacao_2DB.get(`/usuario/${id}`)
+            Api_avaliacao_2DB.get(`/categoria/${id}`)
                 .then(result => {
-                    setUsuario(result.data);
+                    setCategoria(result.data);
                 })
                 .catch(error => {
-                    alert(error.response?.data?.message || "Ocorreu um erro ao buscar o usuário.");
+                    console.error('Erro ao carregar categoria:', error);
                 });
         }
-    }, [id]); // Altera para id
+    }, [id]);
 
     function salvar(dados) {
-        if (usuario._id) {
-            Api_avaliacao_2DB.put(`/usuario/${usuario._id}`, dados)
-                .then(() => route.push('/pages/usuarios'))
-                .catch(error => {
-                    alert(error.response?.data?.message || "Ocorreu um erro ao atualizar o usuário.");
-                });
-        } else {
-            Api_avaliacao_2DB.post('/usuario', dados)
-                .then(() => route.push('/pages/usuarios'))
-                .catch(error => {
-                    alert(error.response?.data?.message || "Ocorreu um erro ao criar o usuário.");
-                });
-        }
+        const endpoint = id ? `/categoria/${id}` : '/categoria';
+        const method = id ? 'put' : 'post';
+
+        Api_avaliacao_2DB[method](endpoint, dados)
+            .then(() => {
+                route.push('/pages/categorias');
+            })
+            .catch(error => {
+                console.error('Erro ao salvar categoria:', error);
+            });
     }
 
     return (
-        <Pagina titulo="Usuário">
-            <Formik
-                initialValues={usuario}
-                enableReinitialize={true}
-                onSubmit={values => salvar(values)}
-            >
-                {({
-                    values,
-                    handleChange,
-                    handleSubmit,
-                }) => (
-                    <Form>
-                        <Form.Group className="mb-3" controlId="nome">
-                            <Form.Label>Nome</Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="nome"
-                                value={values.nome}
-                                onChange={handleChange('nome')}
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3" controlId="email">
-                            <Form.Label>Email</Form.Label>
-                            <Form.Control
-                                type="email"
-                                name="email"
-                                value={values.email}
-                                onChange={handleChange('email')}
-                            />
-                        </Form.Group>
-                        <div className="text-center">
-                            <Button onClick={handleSubmit} variant="success">
-                                <FaCheck /> Salvar
-                            </Button>
-                            <Link
-                                href="/pages/usuarios"
-                                className="btn btn-danger ms-2"
-                            >
-                                <MdOutlineArrowBack /> Voltar
-                            </Link>
-                        </div>
-                    </Form>
-                )}
-            </Formik>
+        <Pagina titulo="Categoria">
+            <Card className="card-primary">
+                <Card.Header>
+                    <Card.Title>{id ? 'Editar Categoria' : 'Nova Categoria'}</Card.Title>
+                </Card.Header>
+                <Formik
+                    initialValues={categoria}
+                    enableReinitialize={true}
+                    validationSchema={validationSchema}
+                    onSubmit={values => salvar(values)}
+                >
+                    {({
+                        values,
+                        errors,
+                        touched,
+                        handleChange,
+                        handleSubmit,
+                    }) => (
+                        <Form onSubmit={handleSubmit}>
+                            <Card.Body>
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Descrição</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="descricao"
+                                        value={values.descricao}
+                                        onChange={handleChange}
+                                        isInvalid={touched.descricao && errors.descricao}
+                                    />
+                                    <Form.Control.Feedback type="invalid">
+                                        {errors.descricao}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
+                            </Card.Body>
+                            <Card.Footer className="text-center">
+                                <button type="submit" className="btn btn-success me-2">
+                                    <FaSave /> Salvar
+                                </button>
+                                <Link
+                                    href="/pages/categorias"
+                                    className="btn btn-danger"
+                                >
+                                    <MdOutlineArrowBack /> Voltar
+                                </Link>
+                            </Card.Footer>
+                        </Form>
+                    )}
+                </Formik>
+            </Card>
         </Pagina>
     );
 }
