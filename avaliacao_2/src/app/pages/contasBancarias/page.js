@@ -1,6 +1,6 @@
 'use client'
 
-import { Button, Card, CardContent, CardHeader, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, IconButton, Paper, Chip, Box, Tooltip } from "@mui/material";
+import { Button, Card, CardContent, CardHeader, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, IconButton, Paper, Chip, Box, Tooltip, Grid } from "@mui/material";
 import Pagina from "app/components/Pagina";
 import Api_avaliacao_2DB from "app/services/Api_avaliacao_2DB";
 import Link from "next/link"
@@ -9,6 +9,7 @@ import { FaPlusCircle, FaRegEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import Swal from 'sweetalert2'
 import { ResponsiveContainer, PieChart as RechartsePieChart, Pie, Cell } from 'recharts';
+import NomeUsuario from "app/components/NomeUsuario";
 
 export default function Page() {
     const [contas, setContas] = useState([])
@@ -58,9 +59,10 @@ export default function Page() {
 
     return (
         <Pagina titulo="Contas Bancárias">
-            <Card>
+            <Card sx={{ mt: 2 }}>
                 <CardHeader
-                    title={`Contas Bancárias de ${localStorage.getItem('userName')}`}
+                    title={<>Contas Bancárias de <NomeUsuario /></>}
+                    className=" text-dark p-2 rounded" sx={{ backgroundColor: '#e3f2fd', fontSize: '1.2rem' }}
                     action={
                         <Link href="/pages/contasBancarias/form" passHref>
                             <Button
@@ -79,10 +81,10 @@ export default function Page() {
                         <Table>
                             <TableHead>
                                 <TableRow>
-                                    <TableCell width={120}>Ações</TableCell>
-                                    <TableCell>Nome do Banco</TableCell>
-                                    <TableCell>Tipo de Conta</TableCell>
-                                    <TableCell>Saldo</TableCell>
+                                    <TableCell width={120} className="text-dark" sx={{ backgroundColor: '#e3f2fd', fontSize: '1.2rem' }}>Ações </TableCell>
+                                    <TableCell className="text-dark" sx={{ backgroundColor: '#e3f2fd', fontSize: '1.2rem' }}>Nome do Banco</TableCell>
+                                    <TableCell className="text-dark" sx={{ backgroundColor: '#e3f2fd', fontSize: '1.2rem' }}>Tipo de Conta</TableCell>
+                                    <TableCell className="text-dark" sx={{ backgroundColor: '#e3f2fd', fontSize: '1.2rem' }}>Saldo</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -138,9 +140,9 @@ export default function Page() {
                         </Table>
                     </TableContainer>
                     {/* Gráfico de Pizza das Contas */}
-                    <Box sx={{ mt: 4, height: 300 }}>
-                        <Typography variant="h6" gutterBottom>
-                            Distribuição do Saldo por Conta
+                    <Box sx={{ mt: 4, height: 300, mb: 4 }}>
+                        <Typography variant="h6" gutterBottom className=" text-dark p-2 rounded" sx={{ backgroundColor: '#e3f2fd', fontSize: '1.2rem' }}>
+                            Distribuição do Dinheiro pelas Contas
                         </Typography>
                         {contas.length > 0 ? (
                             <ResponsiveContainer width="100%" height="100%">
@@ -158,7 +160,7 @@ export default function Page() {
                                         label={({ name, percent }) =>
                                             `${name}: ${(percent * 100).toFixed(1)}%`
                                         }
-                                        labelLine={true}
+                                        labelLine={false}
                                         labelPlacement="outside"
                                         paddingAngle={4}
                                     >
@@ -167,7 +169,7 @@ export default function Page() {
                                                 key={`cell-${index}`}
                                                 fill={[
                                                     '#0088FE', '#00C49F', '#FFBB28',
-                                                    '#FF8042', '#8884d8', '#82ca9d'
+                                                    '#FF8042', '#8884d8', '#82ca9d',
                                                 ][index % 6]}
                                             />
                                         ))}
@@ -183,9 +185,40 @@ export default function Page() {
                             </Typography>
                         )}
                     </Box>
+                    <Box sx={{ mt: 2, mb: 2 }}>
+                        <Typography variant="h6" gutterBottom>
+                            Resumo Financeiro
+                        </Typography>
+                        <Grid container spacing={2}>
+                            <Grid item xs={12} sm={6} md={4}>
+                                <Paper elevation={3} sx={{ p: 2, bgcolor: '#e3f2fd' }}>
+                                    <Typography variant="subtitle1">Saldo Total</Typography>
+                                    <Typography variant="h6">
+                                        R$ {contas.reduce((acc, conta) => acc + conta.saldo, 0).toFixed(2)}
+                                    </Typography>
+                                </Paper>
+                            </Grid>
+                            <Grid item xs={12} sm={6} md={4}>
+                                <Paper elevation={3} sx={{ p: 2, bgcolor: '#e8f5e9' }}>
+                                    <Typography variant="subtitle1">Total Positivo</Typography>
+                                    <Typography variant="h6" color="success.main">
+                                        R$ {contas.reduce((acc, conta) => acc + (conta.saldo > 0 ? conta.saldo : 0), 0).toFixed(2)}
+                                    </Typography>
+                                </Paper>
+                            </Grid>
+                            <Grid item xs={12} sm={6} md={4}>
+                                <Paper elevation={3} sx={{ p: 2, bgcolor: '#ffebee' }}>
+                                    <Typography variant="subtitle1">Total Negativo</Typography>
+                                    <Typography variant="h6" color="error.main">
+                                        R$ {Math.abs(contas.reduce((acc, conta) => acc + (conta.saldo < 0 ? conta.saldo : 0), 0)).toFixed(2)}
+                                    </Typography>
+                                </Paper>
+                            </Grid>
+                        </Grid>
+                    </Box>
                 </CardContent>
                 <CardContent sx={{ borderTop: 1, borderColor: 'divider', textAlign: 'right' }}>
-                    <Typography variant="body2">
+                    <Typography variant="body2" className="fs-5">
                         Total de contas: {contas.length}
                     </Typography>
                 </CardContent>
