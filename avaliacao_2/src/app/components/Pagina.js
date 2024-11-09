@@ -29,11 +29,12 @@ export default function Pagina({ titulo, children }) {
                 <Navbar.Brand href="/">
                     <Image src="/brand2.png" alt="Brand Logo" width={100} height={50} style={{ paddingRight: '5px' }} />
                     <span className="fs-4 fw-bolder">Finanças Pessoais</span>
+
                 </Navbar.Brand>
                 <Navbar.Toggle onClick={() => setExpanded(!expanded)} />
                 <Navbar.Collapse>
                     {userName && (
-                        <Nav className="mx-auto container">
+                        <Nav className="mx-auto container d-flex ">
                             <Nav.Link href="/pages/dashboard" className="fw-bolder fs-5">Dashboard</Nav.Link>
                             <Nav.Link href="/pages/contasBancarias" className="fw-bolder fs-5">Contas</Nav.Link>
                             <Nav.Link href="/pages/cartoesDeCredito" className="fw-bolder fs-5">Cartões</Nav.Link>
@@ -62,9 +63,9 @@ export default function Pagina({ titulo, children }) {
                     <h1>{titulo}</h1>
                 </Container>
             </div> */}
-            <Container className="mb-5">
+            <div className="mb-5 container">
                 {children}
-            </Container>
+            </div>
         </>
     );
 }

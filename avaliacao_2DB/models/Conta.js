@@ -10,6 +10,10 @@ const ContaSchema = new mongoose.Schema({
     type: Number,
     min: 0 // O saldo não pode ser negativo
   },
+  nome_banco: {
+    type: String,
+    maxlength: 50 // Ex: Corrente, Poupança, Investimentos, etc.
+  },
   tipo_conta: {
     type: String,
     maxlength: 50 // Ex: Corrente, Poupança, Investimentos, etc.

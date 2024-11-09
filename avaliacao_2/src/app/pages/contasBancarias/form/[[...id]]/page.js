@@ -10,18 +10,30 @@ import { Card, Form, Row, Col } from "react-bootstrap";
 import { FaCheck, FaSave } from "react-icons/fa";
 import { MdOutlineArrowBack } from "react-icons/md";
 import * as Yup from 'yup';
+import { use } from 'react';
 
 const validationSchema = Yup.object().shape({
     usuario_id: Yup.string().required('Usuário é obrigatório'),
     tipo_conta: Yup.string().required('Tipo de conta é obrigatório'),
-    saldo: Yup.number().min(0, 'Saldo não pode ser negativo').required('Saldo é obrigatório'),
+    nome_banco: Yup.string().required('Nome do banco é obrigatório'),
+    saldo: Yup.number()
+        .typeError('Saldo deve ser um número')
+        .required('Saldo é obrigatório')
+        .min(0, 'Saldo não pode ser negativo'),
 });
 
 export default function Page({ params }) {
     const route = useRouter();
-    const [conta, setConta] = useState({ usuario_id: '', saldo: 0, tipo_conta: '' });
+    const [conta, setConta] = useState({ 
+        usuario_id: '', 
+        saldo: '', 
+        tipo_conta: '', 
+        nome_banco: '' 
+    });
     const [usuarios, setUsuarios] = useState([]);
-    const { id } = params?.id ? params : { id: null };
+    
+    const resolvedParams = use(params);
+    const id = resolvedParams?.id ? resolvedParams.id[0] : null;
 
     useEffect(() => {
         // Carregar lista de usuários
@@ -124,12 +136,29 @@ export default function Page({ params }) {
                                 <Row>
                                     <Col md={12}>
                                         <Form.Group className="mb-3">
+                                            <Form.Label>nome_banco</Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                name="nome_banco"
+                                                value={values.nome_banco}
+                                                onChange={handleChange}
+                                                isInvalid={touched.nome_banco && errors.nome_banco}
+                                            />
+                                            <Form.Control.Feedback type="invalid">
+                                                {errors.nome_banco}
+                                            </Form.Control.Feedback>
+                                        </Form.Group>
+                                    </Col>
+                                </Row>
+                                <Row>
+                                    <Col md={12}>
+                                        <Form.Group className="mb-3">
                                             <Form.Label>Saldo</Form.Label>
                                             <Form.Control
                                                 type="number"
                                                 step="0.01"
                                                 name="saldo"
-                                                value={values.saldo}
+                                                value={values.saldo || ''}
                                                 onChange={handleChange}
                                                 isInvalid={touched.saldo && errors.saldo}
                                             />

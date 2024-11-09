@@ -1,6 +1,6 @@
 'use client'
 
-import { Button, Card, CardContent, CardHeader, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, IconButton, Paper, Chip } from "@mui/material";
+import { Button, Card, CardContent, CardHeader, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, IconButton, Paper, Chip, Box, Tooltip } from "@mui/material";
 import Pagina from "app/components/Pagina";
 import Api_avaliacao_2DB from "app/services/Api_avaliacao_2DB";
 import Link from "next/link"
@@ -8,9 +8,11 @@ import { useEffect, useState } from "react";
 import { FaPlusCircle, FaRegEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import Swal from 'sweetalert2'
+import { ResponsiveContainer, PieChart as RechartsePieChart, Pie, Cell } from 'recharts';
 
 export default function Page() {
     const [contas, setContas] = useState([])
+    console.log(contas)
 
     useEffect(() => {
         carregarContas()
@@ -58,7 +60,7 @@ export default function Page() {
         <Pagina titulo="Contas Bancárias">
             <Card>
                 <CardHeader
-                    title="Gerenciamento de Contas"
+                    title={`Contas Bancárias de ${localStorage.getItem('userName')}`}
                     action={
                         <Link href="/pages/contasBancarias/form" passHref>
                             <Button
@@ -78,7 +80,7 @@ export default function Page() {
                             <TableHead>
                                 <TableRow>
                                     <TableCell width={120}>Ações</TableCell>
-                                    <TableCell>Usuário</TableCell>
+                                    <TableCell>Nome do Banco</TableCell>
                                     <TableCell>Tipo de Conta</TableCell>
                                     <TableCell>Saldo</TableCell>
                                 </TableRow>
@@ -100,13 +102,21 @@ export default function Page() {
                                                 <MdDelete />
                                             </IconButton>
                                         </TableCell>
-                                        <TableCell>
+                                        {/* <TableCell>
                                             <Typography variant="subtitle1">
                                                 {item.usuario_id?.nome || 'Usuário não encontrado'}
                                             </Typography>
                                             <Typography variant="caption" color="textSecondary">
                                                 {item.usuario_id?.email}
                                             </Typography>
+                                        </TableCell> */}
+                                        <TableCell>
+                                            <Chip
+                                                label={item.nome_banco}
+                                                color="default"
+                                                size="small"
+                                                className="fs-5"
+                                            />
                                         </TableCell>
                                         <TableCell>
                                             <Chip
@@ -127,6 +137,52 @@ export default function Page() {
                             </TableBody>
                         </Table>
                     </TableContainer>
+                    {/* Gráfico de Pizza das Contas */}
+                    <Box sx={{ mt: 4, height: 300 }}>
+                        <Typography variant="h6" gutterBottom>
+                            Distribuição do Saldo por Conta
+                        </Typography>
+                        {contas.length > 0 ? (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <RechartsePieChart>
+                                    <Pie
+                                        data={contas.map(conta => ({
+                                            name: `${conta.nome_banco} (${conta.tipo_conta})`,
+                                            value: Math.abs(conta.saldo)
+                                        }))}
+                                        dataKey="value"
+                                        nameKey="name"
+                                        cx="50%"
+                                        cy="50%"
+                                        outerRadius={100}
+                                        label={({ name, percent }) =>
+                                            `${name}: ${(percent * 100).toFixed(1)}%`
+                                        }
+                                        labelLine={true}
+                                        labelPlacement="outside"
+                                        paddingAngle={4}
+                                    >
+                                        {contas.map((_, index) => (
+                                            <Cell
+                                                key={`cell-${index}`}
+                                                fill={[
+                                                    '#0088FE', '#00C49F', '#FFBB28',
+                                                    '#FF8042', '#8884d8', '#82ca9d'
+                                                ][index % 6]}
+                                            />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip
+                                        formatter={(value) => `R$ ${value.toFixed(2)}`}
+                                    />
+                                </RechartsePieChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <Typography variant="body2" color="textSecondary" align="center">
+                                Nenhuma conta disponível para exibir o gráfico
+                            </Typography>
+                        )}
+                    </Box>
                 </CardContent>
                 <CardContent sx={{ borderTop: 1, borderColor: 'divider', textAlign: 'right' }}>
                     <Typography variant="body2">
