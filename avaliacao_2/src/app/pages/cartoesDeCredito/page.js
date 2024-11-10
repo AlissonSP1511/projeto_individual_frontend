@@ -47,6 +47,63 @@ export default function CartoesDeCredito() {
     }
   }
 
+  const [carregando, setCarregando] = useState(true);
+
+  async function carregarDados() {
+    try {
+      setCarregando(true);
+      await carregarCartoes();
+    } finally {
+      setCarregando(false);
+    }
+  }
+
+  useEffect(() => {
+    carregarDados();
+  }, []);
+
+  if (carregando) {
+    return (
+      <Pagina titulo="Cartões de Crédito">
+
+      <div className="preloader flex-column justify-content-center align-items-center">
+        <img 
+          className="animation__shake" 
+          src="/dist/img/AdminLTELogo.png" 
+          alt="AdminLTELogo" 
+          height={60} 
+          width={60} 
+        />
+        <h3 className="mt-3">Carregando...</h3>
+        </div>
+      </Pagina>
+    );
+  }
+
+  if (cartoes.length === 0) {
+    return (
+      <Pagina titulo="Cartões de Crédito">
+      <div className="d-flex flex-column justify-content-center align-items-center text-center p-5">
+        <FaCreditCard size={60} className="text-muted mb-4" />
+        <h4 className="mb-3">Nenhum cartão encontrado</h4>
+        <p className="text-muted mb-4">
+          Adicionar cartões ao seu aplicativo de finanças pessoais é um passo importante em direção ao controle total sobre sua vida financeira. 
+          Imagine ter todos os seus cartões de crédito e débito, com seus limites, datas de vencimento e faturas, organizados em um único lugar.
+        </p>
+        <p className="text-muted mb-4">
+          Ao cadastrar cada cartão, você não apenas tem acesso fácil às informações, mas também ganha uma visão clara e precisa sobre seu fluxo de caixa e gastos.
+          Cada novo cartão inserido é uma oportunidade de planejar melhor seus pagamentos e evitar surpresas no fim do mês.
+        </p>
+        <Link href="/pages/cartoesDeCredito/form" passHref>
+          <button className="btn btn-primary">
+            <FaPlus className="me-2" /> Adicionar Novo Cartão
+          </button>
+        </Link>
+        </div>
+      </Pagina>
+    );
+  }
+
   function excluir(id) {
     Swal.fire({
       title: 'Confirmar exclusão?',
@@ -74,21 +131,22 @@ export default function CartoesDeCredito() {
 
   return (
     <Pagina titulo="Cartões de Crédito">
-      <Container>
-        <div className="d-flex justify-content-end mb-4">
-          <Link href="/pages/cartoesDeCredito/form" passHref className="btn btn-primary">
-            <FaPlus className="me-2" /> Novo Cartão
-          </Link>
-        </div>
-
-        {cartoes.map(cartao => (
-          <CardCartao
-            key={cartao._id}
-            cartao={cartao}
-            onExcluir={excluir}
-          />
-        ))}
-      </Container>
+      {cartoes.length > 0 &&
+        <Container>
+          {cartoes.map(cartao => (
+            <CardCartao
+              key={cartao._id}
+              cartao={cartao}
+              onExcluir={excluir}
+            />
+          ))}
+          <div className="d-flex justify-content-end mb-4">
+            <Link href="/pages/cartoesDeCredito/form" passHref className="btn btn-primary">
+              <FaPlus className="me-2" /> Novo Cartão
+            </Link>
+          </div>
+        </Container>
+      }
     </Pagina>
   );
 }
@@ -149,7 +207,7 @@ function CardCartao({ cartao, onExcluir }) {
         </Col>
         <Col xs={12} md={1} className="d-flex flex-md-column justify-content-end align-items-center p-3">
           <Link href={`/pages/cartoesDeCredito/form/${cartao._id}`}
-          
+
             className="btn btn-outline-primary btn-sm mb-md-2 me-2 me-md-0">
             <FaEdit className="me-1" />  Editar
           </Link>
