@@ -1,4 +1,4 @@
-// src/controllers/CarteiraInvestimentosController.js
+// avaliacao_2DB/controllers/CarteiraInvestimentosController.js
 const CarteiraInvestimento = require('../models/CarteiraInvestimento'); // Modelo de carteira de investimentos
 
 const CarteiraInvestimentoController = {

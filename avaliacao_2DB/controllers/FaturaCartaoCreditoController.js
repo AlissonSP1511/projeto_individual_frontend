@@ -1,4 +1,4 @@
-// src/controllers/FaturaCartaoCreditoController.js
+// avaliacao_2DB/controllers/FaturaCartaoCreditoController.js
 const FaturasCartaoCredito = require('../models/FaturaCartaoCredito'); // Modelo de fatura de cartão de crédito
 
 const FaturaCartaoCreditoController = {

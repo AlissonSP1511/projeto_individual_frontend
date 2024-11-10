@@ -1,4 +1,4 @@
-// src/controllers/CategoriaController.js
+// avaliacao_2DB/controllers/CategoriaController.js
 const Categoria = require('../models/Categoria'); // Modelo de categoria
 
 const CategoriaController = {

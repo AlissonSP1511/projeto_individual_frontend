@@ -1,3 +1,4 @@
+// avaliacao_2/src/app/components/Pagina.js
 'use client'
 
 import { Container, Nav, Navbar, Button, Image } from 'react-bootstrap';

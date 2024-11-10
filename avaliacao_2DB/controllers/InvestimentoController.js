@@ -1,4 +1,4 @@
-// src/controllers/InvestimentoController.js
+// avaliacao_2DB/controllers/InvestimentoController.js
 const Investimento = require('../models/Investimento'); // Modelo de investimentos
 
 const InvestimentoController = {

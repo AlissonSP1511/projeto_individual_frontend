@@ -1,3 +1,4 @@
+// avaliacao_2/src/app/pages/dashboard/page.js
 'use client'
 
 import ProtectedRoute from '../../components/ProtectedRoute';

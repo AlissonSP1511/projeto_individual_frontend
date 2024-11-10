@@ -1,3 +1,4 @@
+// avaliacao_2/src/app/components/NomeUsuario.js
 'use client'
 import { useEffect, useState } from 'react'
 

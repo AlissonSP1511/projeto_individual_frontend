@@ -1,3 +1,4 @@
+// avaliacao_2/src/app/components/Cabecalho.js
 export default function Cabecalho(props){
     return (
         <>

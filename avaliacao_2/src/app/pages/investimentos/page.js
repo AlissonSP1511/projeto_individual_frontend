@@ -1,3 +1,4 @@
+// avaliacao_2/src/app/pages/investimentos/page.js
 'use client'
 
 import { Button, Card, CardContent, CardHeader, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, IconButton, Paper, Chip } from "@mui/material";

@@ -1,3 +1,4 @@
+// avaliacao_2/src/app/pages/relatorios/page.js
 'use client'
 
 import Pagina from "app/components/Pagina";

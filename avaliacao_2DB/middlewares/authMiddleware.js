@@ -1,4 +1,4 @@
-// middlewares/authMiddleware.js
+// avaliacao_2DB/middlewares/authMiddleware.js
 const jwt = require('jsonwebtoken');
 const SECRET_KEY = "sua_chave_secreta"; // Mesma chave secreta do token
 const Usuario = require('../models/Usuario');

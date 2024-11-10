@@ -1,4 +1,4 @@
-// src/controllers/LancamentoCartaoCreditoController.js
+// avaliacao_2DB/controllers/LancamentoCartaoCreditoController.js
 const LancamentoCartaoCredito = require('../models/LancamentoCartaoCredito'); // Modelo de lançamentos de cartão de crédito
 
 const LancamentoCartaoCreditoController = {

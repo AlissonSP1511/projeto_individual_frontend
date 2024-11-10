@@ -1,4 +1,4 @@
-
+// avaliacao_2/src/app/layout.js
 import localFont from "next/font/local";
 import "./globals.css";
 import 'bootstrap/dist/css/bootstrap.min.css';

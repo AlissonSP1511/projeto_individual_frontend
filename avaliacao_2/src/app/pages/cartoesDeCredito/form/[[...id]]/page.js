@@ -1,3 +1,4 @@
+// avaliacao_2/src/app/pages/cartoesDeCredito/form/[[...id]]/page.js
 'use client'
 
 import React, { useEffect, useState } from 'react';
@@ -13,58 +14,162 @@ import Api_avaliacao_2DB from "app/services/Api_avaliacao_2DB";
 import Swal from 'sweetalert2';
 
 const validationSchema = Yup.object().shape({
+  bancoEmissor: Yup.string()
+    .required('O banco emissor é obrigatório'),
+  bandeira: Yup.string()
+    .required('A bandeira é obrigatória'),
   numero: Yup.string()
-    .required('Número do cartão é obrigatório')
-    .matches(/^[0-9]{16}$/, 'Número do cartão deve ter 16 dígitos'),
+    .required('O número do cartão é obrigatório')
+    .length(16, 'O número do cartão deve ter 16 dígitos'),
   nome: Yup.string()
-    .required('Nome é obrigatório')
-    .min(3, 'Nome deve ter pelo menos 3 caracteres'),
+    .required('O nome no cartão é obrigatório'),
   limite: Yup.number()
-    .min(0, 'Limite não pode ser negativo')
-    .required('Limite é obrigatório'),
-  vencimento: Yup.date()
-    .required('Data de vencimento é obrigatória')
-    .min(new Date(), 'Data de vencimento deve ser futura'),
+    .required('O limite é obrigatório')
+    .min(0, 'O limite deve ser maior que zero'),
+  diaFechamento: Yup.number()
+    .required('O dia de fechamento é obrigatório')
+    .min(1, 'O dia deve ser entre 1 e 31')
+    .max(31, 'O dia deve ser entre 1 e 31'),
+  diaVencimento: Yup.number()
+    .required('O dia de vencimento é obrigatório')
+    .min(1, 'O dia deve ser entre 1 e 31')
+    .max(31, 'O dia deve ser entre 1 e 31'),
+  imagemCartao: Yup.string()
 });
 
 export default function CartaoCreditoForm({ params }) {
   const route = useRouter();
+  const [userName, setUserName] = useState('');
+  const [initialUserId, setInitialUserId] = useState('');
   const [cartao, setCartao] = useState({
     numero: '',
     nome: '',
+    bancoEmissor: '',
+    bandeira: '',
+    imagemCartao: '',
     limite: '',
-    vencimento: '',
-    usado: 0
+    diaFechamento: '',
+    diaVencimento: '',
+    limiteUtilizado: 0,
+    comprasParceladas: [],
+    comprasAVista: [],
+    usuario_id: ''
   });
-  const { id } = params?.id ? params : { id: null };
+
+  const id = React.use(params)?.id?.[0] || null;
+  console.log('ID recebido nos parâmetros:', id);
 
   useEffect(() => {
-    if (id) {
-      Api_avaliacao_2DB.get(`/cartoes/${id}`)
-        .then(result => {
-          const cartaoData = result.data;
-          cartaoData.vencimento = cartaoData.vencimento ? 
-            new Date(cartaoData.vencimento).toISOString().split('T')[0] : '';
-          setCartao(cartaoData);
-        })
-        .catch(error => {
-          console.error('Erro ao carregar cartão:', error);
-          Swal.fire({
-            icon: 'error',
-            title: 'Erro!',
-            text: 'Não foi possível carregar os dados do cartão.'
-          });
-        });
+    const storedUserId = localStorage.getItem('userId');
+    setInitialUserId(storedUserId);
+
+    if (!id) {
+      console.log('Nenhum ID encontrado - modo criação');
+      return;
     }
+
+    const fetchCartao = async () => {
+      console.log('Buscando cartão - ID:', id, 'UserID:', storedUserId);
+
+      try {
+        const response = await Api_avaliacao_2DB.get(`/cartaocredito/${id}`, {
+          params: { usuario_id: storedUserId }
+        });
+
+        console.log('Resposta da API:', response.data);
+
+        if (!response.data) {
+          console.log('caiu no if !response.data')
+          throw new Error('Dados do cartão não encontrados');
+        }
+
+        const cartaoData = response.data;
+        if (cartaoData.usuario_id !== storedUserId) {
+          console.log('caiu no if cartaoData.usuario_id !== storedUserId')
+          throw new Error('Acesso não autorizado a este cartão');
+        }
+
+        setCartao({
+          _id: cartaoData._id,
+          numero: cartaoData.numero || '',
+          nome: cartaoData.nome || '',
+          bancoEmissor: cartaoData.bancoEmissor || '',
+          bandeira: cartaoData.bandeira || '',
+          imagemCartao: cartaoData.imagemCartao || '',
+          limite: Number(cartaoData.limite || 0),
+          diaFechamento: Number(cartaoData.diaFechamento || 1),
+          diaVencimento: Number(cartaoData.diaVencimento || 1),
+          limiteUtilizado: Number(cartaoData.limiteUtilizado || 0),
+          comprasParceladas: cartaoData.comprasParceladas || [],
+          comprasAVista: cartaoData.comprasAVista || [],
+          usuario_id: cartaoData.usuario_id
+        });
+
+      } catch (error) {
+        let mensagemErro = 'Não foi possível carregar os dados do cartão.';
+        if (error.response?.status === 500) {
+          mensagemErro = 'Erro interno do servidor. Por favor, tente novamente mais tarde.';
+        }
+
+        console.error('Erro ao carregar cartão:', {
+          tipo: error.name,
+          mensagem: error.message,
+          status: error.response?.status,
+          resposta: error.response?.data,
+          cartaoId: id,
+          userId: storedUserId
+        });
+
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro ao carregar cartão',
+          text: mensagemErro
+        });
+      }
+    };
+
+    fetchCartao();
   }, [id]);
 
   async function salvar(dados) {
-    try {
-      const endpoint = id ? `/cartoes/${id}` : '/cartoes';
-      const method = id ? 'put' : 'post';
+    const usuarioLogado = localStorage.getItem('userId');
+    
+    if (!usuarioLogado) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro!',
+        text: 'Usuário não está logado. Por favor, faça login novamente.'
+      });
+      return;
+    }
 
-      await Api_avaliacao_2DB[method](endpoint, dados);
-      
+    const dadosParaSalvar = {
+      _id: id ? id : undefined,
+      numero: dados.numero,
+      nome: dados.nome,
+      bancoEmissor: dados.bancoEmissor,
+      bandeira: dados.bandeira,
+      imagemCartao: dados.imagemCartao,
+      limite: Number(dados.limite),
+      diaFechamento: Number(dados.diaFechamento),
+      diaVencimento: Number(dados.diaVencimento),
+      usuario_id: usuarioLogado,
+      limiteUtilizado: Number(dados.limiteUtilizado || 0),
+      comprasParceladas: dados.comprasParceladas || [],
+      comprasAVista: dados.comprasAVista || []
+    };
+
+    console.log('Dados formatados para salvar:', dadosParaSalvar);
+    console.log('Método:', id ? 'put' : 'post');
+    console.log('Endpoint:', id ? `/cartaocredito/${id}` : '/cartaocredito');
+
+    const endpoint = id ? `/cartaocredito/${id}` : '/cartaocredito';
+    const method = id ? 'put' : 'post';
+
+    try {
+      const response = await Api_avaliacao_2DB[method](endpoint, dadosParaSalvar);
+      console.log('Resposta da API:', response.data);
+
       Swal.fire({
         icon: 'success',
         title: 'Sucesso!',
@@ -86,12 +191,25 @@ export default function CartaoCreditoForm({ params }) {
 
   return (
     <Pagina titulo={id ? 'Editar Cartão' : 'Novo Cartão'}>
-      <Card className="card-primary">
+      <Card>
         <Card.Header>
           <Card.Title>{id ? 'Editar Cartão' : 'Novo Cartão'}</Card.Title>
         </Card.Header>
         <Formik
-          initialValues={cartao}
+          initialValues={id ? cartao : {
+            numero: '',
+            nome: '',
+            bancoEmissor: '',
+            bandeira: '',
+            imagemCartao: '',
+            limite: '',
+            diaFechamento: '',
+            diaVencimento: '',
+            limiteUtilizado: 0,
+            comprasParceladas: [],
+            comprasAVista: [],
+            usuario_id: initialUserId
+          }}
           enableReinitialize={true}
           validationSchema={validationSchema}
           onSubmit={values => salvar(values)}
@@ -108,7 +226,62 @@ export default function CartaoCreditoForm({ params }) {
                 <Row>
                   <Col md={6}>
                     <Form.Group className="mb-3">
-                      <Form.Label>Número do Cartão</Form.Label>
+                      <Form.Label>Usuário</Form.Label>
+                      <Form.Control
+                        type="text"
+                        value={userName}
+                        disabled
+                        plaintext
+                      />
+                      <Form.Control
+                        type="hidden"
+                        name="usuario_id"
+                        value={values.usuario_id}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Banco Emissor</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="bancoEmissor"
+                        value={values.bancoEmissor}
+                        onChange={handleChange}
+                        isInvalid={touched.bancoEmissor && errors.bancoEmissor}
+                      />
+                      <Form.Control.Feedback type="invalid">
+                        {errors.bancoEmissor}
+                      </Form.Control.Feedback>
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Bandeira</Form.Label>
+                      <Form.Select
+                        name="bandeira"
+                        value={values.bandeira}
+                        onChange={handleChange}
+                        isInvalid={touched.bandeira && errors.bandeira}
+                      >
+                        <option value="">Selecione a bandeira</option>
+                        <option value="Visa">Visa</option>
+                        <option value="MasterCard">MasterCard</option>
+                        <option value="Elo">Elo</option>
+                      </Form.Select>
+                      <Form.Control.Feedback type="invalid">
+                        {errors.bandeira}
+                      </Form.Control.Feedback>
+                    </Form.Group>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Número</Form.Label>
                       <Form.Control
                         type="text"
                         name="numero"
@@ -123,7 +296,7 @@ export default function CartaoCreditoForm({ params }) {
                   </Col>
                   <Col md={6}>
                     <Form.Group className="mb-3">
-                      <Form.Label>Nome no Cartão</Form.Label>
+                      <Form.Label>Nome</Form.Label>
                       <Form.Control
                         type="text"
                         name="nome"
@@ -153,33 +326,66 @@ export default function CartaoCreditoForm({ params }) {
                       </Form.Control.Feedback>
                     </Form.Group>
                   </Col>
+                </Row>
+                <Row>
                   <Col md={6}>
                     <Form.Group className="mb-3">
-                      <Form.Label>Vencimento</Form.Label>
+                      <Form.Label>Dia de Fechamento</Form.Label>
                       <Form.Control
-                        type="date"
-                        name="vencimento"
-                        value={values.vencimento}
+                        type="number"
+                        name="diaFechamento"
+                        value={values.diaFechamento}
                         onChange={handleChange}
-                        isInvalid={touched.vencimento && errors.vencimento}
+                        isInvalid={touched.diaFechamento && errors.diaFechamento}
                       />
                       <Form.Control.Feedback type="invalid">
-                        {errors.vencimento}
+                        {errors.diaFechamento}
+                      </Form.Control.Feedback>
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Dia de Vencimento</Form.Label>
+                      <Form.Control
+                        type="number"
+                        name="diaVencimento"
+                        value={values.diaVencimento}
+                        onChange={handleChange}
+                        isInvalid={touched.diaVencimento && errors.diaVencimento}
+                      />
+                      <Form.Control.Feedback type="invalid">
+                        {errors.diaVencimento}
+                      </Form.Control.Feedback>
+                    </Form.Group>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Imagem do Cartão (URL)</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="imagemCartao"
+                        value={values.imagemCartao}
+                        onChange={handleChange}
+                        isInvalid={touched.imagemCartao && errors.imagemCartao}
+                      />
+                      <Form.Control.Feedback type="invalid">
+                        {errors.imagemCartao}
                       </Form.Control.Feedback>
                     </Form.Group>
                   </Col>
                 </Row>
               </Card.Body>
-              <Card.Footer className="text-center">
-                <button type="submit" className="btn btn-success me-2">
-                  <FaSave /> Salvar
-                </button>
-                <Link
-                  href="/pages/cartoesDeCredito"
-                  className="btn btn-danger"
-                >
-                  <MdOutlineArrowBack /> Voltar
-                </Link>
+              <Card.Footer>
+                <div className="d-flex justify-content-between">
+                  <Link href="/pages/cartoesDeCredito" className="btn btn-outline-dark">
+                    <MdOutlineArrowBack /> Voltar
+                  </Link>
+                  <button type="submit" className="btn btn-primary">
+                    <FaSave /> Salvar
+                  </button>
+                </div>
               </Card.Footer>
             </Form>
           )}
