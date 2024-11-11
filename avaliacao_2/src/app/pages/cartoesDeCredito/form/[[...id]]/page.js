@@ -159,15 +159,11 @@ export default function CartaoCreditoForm({ params }) {
       comprasAVista: dados.comprasAVista || []
     };
 
-    console.log('Dados formatados para salvar:', dadosParaSalvar);
-    console.log('Método:', id ? 'put' : 'post');
-    console.log('Endpoint:', id ? `/cartaocredito/${id}` : '/cartaocredito');
-
-    const endpoint = id ? `/cartaocredito/${id}` : '/cartaocredito';
-    const method = id ? 'put' : 'post';
-
     try {
+      const endpoint = id ? `/cartaocredito/${id}` : '/cartaocredito';
+      const method = id ? 'put' : 'post';
       const response = await Api_avaliacao_2DB[method](endpoint, dadosParaSalvar);
+      
       console.log('Resposta da API:', response.data);
 
       Swal.fire({
@@ -181,10 +177,30 @@ export default function CartaoCreditoForm({ params }) {
       route.push('/pages/cartoesDeCredito');
     } catch (error) {
       console.error('Erro ao salvar cartão:', error);
+      
+      // Tratamento específico das mensagens de erro do backend
+      let mensagemErro = 'Não foi possível salvar o cartão.';
+      
+      if (error.response) {
+        // Se o backend retornou uma resposta com erro
+        if (error.response.data && error.response.data.error) {
+          mensagemErro = error.response.data.error;
+        } else if (error.response.status === 400) {
+          mensagemErro = 'Dados inválidos. Verifique as informações e tente novamente.';
+        } else if (error.response.status === 404) {
+          mensagemErro = 'Cartão não encontrado.';
+        } else if (error.response.status === 403) {
+          mensagemErro = 'Você não tem permissão para realizar esta operação.';
+        } else if (error.response.status === 500) {
+          mensagemErro = 'Erro interno do servidor. Por favor, tente novamente mais tarde.';
+        }
+      }
+
       Swal.fire({
         icon: 'error',
         title: 'Erro!',
-        text: `Não foi possível ${id ? 'atualizar' : 'cadastrar'} o cartão.`
+        text: mensagemErro,
+        confirmButtonText: 'OK'
       });
     }
   }

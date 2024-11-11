@@ -7,8 +7,8 @@ import { FaPlus, FaCreditCard, FaEdit, FaTrash } from 'react-icons/fa';
 import Link from 'next/link';
 import Api_avaliacao_2DB from "app/services/Api_avaliacao_2DB";
 import Pagina from "app/components/Pagina";
-import NomeUsuario from "app/components/NomeUsuario";
 import Swal from 'sweetalert2';
+import { Box } from '@mui/material';
 
 export default function CartoesDeCredito() {
   const [cartoes, setCartoes] = useState([]);
@@ -66,15 +66,23 @@ export default function CartoesDeCredito() {
     return (
       <Pagina titulo="Cartões de Crédito">
 
-      <div className="preloader flex-column justify-content-center align-items-center">
-        <img 
-          className="animation__shake" 
-          src="/dist/img/AdminLTELogo.png" 
-          alt="AdminLTELogo" 
-          height={60} 
-          width={60} 
-        />
-        <h3 className="mt-3">Carregando...</h3>
+        <div className="preloader d-flex flex-column justify-content-center align-items-center min-vh-100">
+          <Box
+            component="img"
+            sx={{
+              animation: 'shake 1.5s infinite',
+              '@keyframes shake': {
+                '0%, 100%': { transform: 'translateX(0)' },
+                '25%': { transform: 'translateX(-10px)' },
+                '75%': { transform: 'translateX(10px)' }
+              },
+              height: 100,
+              width: 600
+            }}
+            src="../LOGOAPP.png"
+            alt="Bank"
+          />
+          <h3 className="mt-3">Carregando...</h3>
         </div>
       </Pagina>
     );
@@ -83,22 +91,22 @@ export default function CartoesDeCredito() {
   if (cartoes.length === 0) {
     return (
       <Pagina titulo="Cartões de Crédito">
-      <div className="d-flex flex-column justify-content-center align-items-center text-center p-5">
-        <FaCreditCard size={60} className="text-muted mb-4" />
-        <h4 className="mb-3">Nenhum cartão encontrado</h4>
-        <p className="text-muted mb-4">
-          Adicionar cartões ao seu aplicativo de finanças pessoais é um passo importante em direção ao controle total sobre sua vida financeira. 
-          Imagine ter todos os seus cartões de crédito e débito, com seus limites, datas de vencimento e faturas, organizados em um único lugar.
-        </p>
-        <p className="text-muted mb-4">
-          Ao cadastrar cada cartão, você não apenas tem acesso fácil às informações, mas também ganha uma visão clara e precisa sobre seu fluxo de caixa e gastos.
-          Cada novo cartão inserido é uma oportunidade de planejar melhor seus pagamentos e evitar surpresas no fim do mês.
-        </p>
-        <Link href="/pages/cartoesDeCredito/form" passHref>
-          <button className="btn btn-primary">
-            <FaPlus className="me-2" /> Adicionar Novo Cartão
-          </button>
-        </Link>
+        <div className="d-flex flex-column justify-content-center align-items-center text-center p-5">
+          <FaCreditCard size={60} className="text-muted mb-4" />
+          <h4 className="mb-3">Nenhum cartão encontrado</h4>
+          <p className="text-muted mb-4">
+            Adicionar cartões ao seu aplicativo de finanças pessoais é um passo importante em direção ao controle total sobre sua vida financeira.
+            Imagine ter todos os seus cartões de crédito e débito, com seus limites, datas de vencimento e faturas, organizados em um único lugar.
+          </p>
+          <p className="text-muted mb-4">
+            Ao cadastrar cada cartão, você não apenas tem acesso fácil às informações, mas também ganha uma visão clara e precisa sobre seu fluxo de caixa e gastos.
+            Cada novo cartão inserido é uma oportunidade de planejar melhor seus pagamentos e evitar surpresas no fim do mês.
+          </p>
+          <Link href="/pages/cartoesDeCredito/form" passHref>
+            <button className="btn btn-primary">
+              <FaPlus className="me-2" /> Adicionar Novo Cartão
+            </button>
+          </Link>
         </div>
       </Pagina>
     );
@@ -158,19 +166,21 @@ function CardCartao({ cartao, onExcluir }) {
     <Card className="mb-3">
       <Row className="g-0">
         <Col xs={12} md={4} className="d-flex align-items-center justify-content-center p-3">
-          {cartao.imagemCartao ? (
-            <Image
-              src={cartao.imagemCartao}
-              alt={`Cartão ${cartao.nome}`}
-              className="img-fluid rounded"
-              style={{ maxWidth: '200px' }}
-            />
-          ) : (
-            <div className="card-placeholder d-flex align-items-center justify-content-center bg-light rounded"
-              style={{ width: '200px', height: '126px' }}>
-              <FaCreditCard size={48} className="text-muted" />
-            </div>
-          )}
+          <Link href={`/pages/cartoesDeCredito/detalhes/${cartao._id}`} passHref>
+            {cartao.imagemCartao ? (
+              <Image
+                src={cartao.imagemCartao}
+                alt={`Cartão ${cartao.nome}`}
+                className="img-fluid rounded"
+                style={{ maxWidth: '200px' }}
+              />
+            ) : (
+              <div className="card-placeholder d-flex align-items-center justify-content-center bg-light rounded"
+                style={{ width: '200px', height: '126px' }}>
+                <FaCreditCard size={48} className="text-muted" />
+              </div>
+            )}
+          </Link>
         </Col>
         <Col xs={12} md={7}>
           <Card.Body>

@@ -11,7 +11,7 @@ import Api_avaliacao_2DB from "app/services/Api_avaliacao_2DB";
 import Swal from 'sweetalert2';
 
 export default function DetalhesCartao({ params }) {
-    const { id } = params;
+    const { id } = React.use(params);
     const [cartao, setCartao] = useState(null);
     const [mesAtual, setMesAtual] = useState(new Date().getMonth());
     const [anoAtual, setAnoAtual] = useState(new Date().getFullYear());
@@ -22,7 +22,11 @@ export default function DetalhesCartao({ params }) {
 
     async function carregarCartao() {
         try {
-            const response = await Api_avaliacao_2DB.get(`/cartaocredito/${id}`);
+            const userId = localStorage.getItem('userId');
+            console.log('ID do usuário recuperado:', userId);
+            const response = await Api_avaliacao_2DB.get(`/cartaocredito/${id}`, {
+                params: { usuario_id: userId }
+            });
             setCartao(response.data);
         } catch (error) {
             console.error('Erro ao carregar cartão:', error);
@@ -51,9 +55,9 @@ export default function DetalhesCartao({ params }) {
             return dataCompra.getMonth() === mesAtual && dataCompra.getFullYear() === anoAtual;
         });
 
-        const totalParcelado = comprasParceladasMes.reduce((acc, compra) => 
+        const totalParcelado = comprasParceladasMes.reduce((acc, compra) =>
             acc + (compra.valor * compra.parcelas), 0);
-        const totalAVista = comprasAVistaMes.reduce((acc, compra) => 
+        const totalAVista = comprasAVistaMes.reduce((acc, compra) =>
             acc + compra.valor, 0);
 
         return {
@@ -113,7 +117,7 @@ export default function DetalhesCartao({ params }) {
                                 Faturas do Mês
                             </div>
                             <div>
-                                <select 
+                                <select
                                     className="form-select form-select-sm"
                                     value={mesAtual}
                                     onChange={(e) => setMesAtual(Number(e.target.value))}
@@ -141,8 +145,8 @@ export default function DetalhesCartao({ params }) {
                                 {cartao.comprasParceladas
                                     .filter(compra => {
                                         const data = new Date(compra.dataCompra);
-                                        return data.getMonth() === mesAtual && 
-                                               data.getFullYear() === anoAtual;
+                                        return data.getMonth() === mesAtual &&
+                                            data.getFullYear() === anoAtual;
                                     })
                                     .map((compra, index) => (
                                         <tr key={`parcelada-${index}`}>
@@ -159,8 +163,8 @@ export default function DetalhesCartao({ params }) {
                                 {cartao.comprasAVista
                                     .filter(compra => {
                                         const data = new Date(compra.dataCompra);
-                                        return data.getMonth() === mesAtual && 
-                                               data.getFullYear() === anoAtual;
+                                        return data.getMonth() === mesAtual &&
+                                            data.getFullYear() === anoAtual;
                                     })
                                     .map((compra, index) => (
                                         <tr key={`avista-${index}`}>

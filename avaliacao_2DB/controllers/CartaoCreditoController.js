@@ -63,7 +63,7 @@ const CartaoCreditoController = {
 
             const cartaoExistente = await CartaoCredito.findOne({ numero, usuario_id });
             if (cartaoExistente) {
-                return res.status(400).json({ error: "Número do cartão já cadastrado para este usuário" });
+                return res.status(500).json({error: "Número do cartão já cadastrado para este usuário"} );
             }
 
             const novoCartao = await CartaoCredito.create({
