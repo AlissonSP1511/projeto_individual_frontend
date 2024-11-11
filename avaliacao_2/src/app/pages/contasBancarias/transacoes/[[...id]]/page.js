@@ -26,6 +26,8 @@ export default function Page({ params }) {
     const [showForm, setShowForm] = useState(false);
     const [editingTransacao, setEditingTransacao] = useState(null);
     const [categorias, setCategorias] = useState([]);
+    const [sortField, setSortField] = useState('data');
+    const [sortDirection, setSortDirection] = useState('desc');
 
     useEffect(() => {
         if (id) {
@@ -118,6 +120,28 @@ export default function Page({ params }) {
             });
         }
     }
+
+    const sortTransactions = (transactions) => {
+        return [...transactions].sort((a, b) => {
+            if (sortField === 'data') {
+                const dateA = new Date(a.data);
+                const dateB = new Date(b.data);
+                return sortDirection === 'asc' ? dateA - dateB : dateB - dateA;
+            } else if (sortField === 'valor') {
+                return sortDirection === 'asc' ? a.valor - b.valor : b.valor - a.valor;
+            }
+            return 0;
+        });
+    };
+
+    const handleSort = (field) => {
+        if (sortField === field) {
+            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortField(field);
+            setSortDirection('desc');
+        }
+    };
 
     if (!conta) return <div>Carregando...</div>;
 
@@ -266,16 +290,20 @@ export default function Page({ params }) {
                         <Table responsive striped hover>
                             <thead>
                                 <tr>
-                                    <th>Data</th>
+                                    <th onClick={() => handleSort('data')} style={{ cursor: 'pointer' }}>
+                                        Data {sortField === 'data' && (sortDirection === 'asc' ? '↑' : '↓')}
+                                    </th>
                                     <th>Descrição</th>
                                     <th>Tipo</th>
                                     <th>Forma Pagamento</th>
-                                    <th>Valor</th>
+                                    <th onClick={() => handleSort('valor')} style={{ cursor: 'pointer' }}>
+                                        Valor {sortField === 'valor' && (sortDirection === 'asc' ? '↑' : '↓')}
+                                    </th>
                                     <th>Ações</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {conta.transacoes.map((transacao) => (
+                                {sortTransactions(conta.transacoes).map((transacao) => (
                                     <tr key={transacao._id}>
                                         <td>{new Date(transacao.data).toLocaleDateString('pt-BR')}</td>
                                         <td>{transacao.descricao}</td>
