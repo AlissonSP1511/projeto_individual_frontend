@@ -3,21 +3,54 @@ const mongoose = require('mongoose');
 
 const ContaSchema = new mongoose.Schema({
   usuario_id: {
-    type: mongoose.Schema.Types.ObjectId, // O ObjectId será gerado automaticamente no MongoDB para o usuário
-    ref: 'Usuario', // Referencia o model 'Usuario
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Usuario',
+    required: true
   },
   saldo: {
     type: Number,
-    min: 0 // O saldo não pode ser negativo
+    min: 0,
+    required: true
   },
   nome_banco: {
     type: String,
-    maxlength: 50 // Ex: Corrente, Poupança, Investimentos, etc.
+    maxlength: 50,
+    required: true
   },
   tipo_conta: {
     type: String,
-    maxlength: 50 // Ex: Corrente, Poupança, Investimentos, etc.
-  }
+    maxlength: 50,
+    required: true
+  },
+  transacoes: [{
+    data: { 
+      type: Date, 
+      required: true 
+    },
+    descricao: { 
+      type: String, 
+      required: false
+    },
+    tipo_transacao: {
+      type: String,
+      enum: ['Entrada', 'Saída'],
+      required: true
+    },
+    tipo_pagamento: {
+      type: String,
+      enum: ['Boleto', 'Cartão Debito', 'Pix', 'Transferência', 'Dinheiro', 'Cheque', 'Depósito'],
+      required: true
+    },
+    valor: { 
+      type: Number, 
+      required: true 
+    },
+    categoria_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Categoria',
+      required: false
+    }
+  }]
 });
 
 const Conta = mongoose.model('Conta', ContaSchema);

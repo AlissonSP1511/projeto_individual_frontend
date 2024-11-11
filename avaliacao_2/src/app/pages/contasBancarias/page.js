@@ -6,7 +6,7 @@ import Pagina from "app/components/Pagina";
 import Api_avaliacao_2DB from "app/services/Api_avaliacao_2DB";
 import Link from "next/link"
 import { useEffect, useState } from "react";
-import { FaPlusCircle, FaRegEdit } from "react-icons/fa";
+import { FaMoneyBillWave, FaPlusCircle, FaRegEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import Swal from 'sweetalert2'
 import { ResponsiveContainer, PieChart as RechartsePieChart, Pie, Cell } from 'recharts';
@@ -92,6 +92,13 @@ export default function Page() {
                                 {contas.map((item) => (
                                     <TableRow key={item._id}>
                                         <TableCell>
+                                            <Link href={`/pages/contasBancarias/transacoes/${item._id}`} passHref>
+                                                <IconButton color="success" size="small">
+                                                    <Tooltip title="Gerenciar Transações">
+                                                        <FaMoneyBillWave />
+                                                    </Tooltip>
+                                                </IconButton>
+                                            </Link>
                                             <Link href={`/pages/contasBancarias/form/${item._id}`} passHref>
                                                 <IconButton color="primary" size="small">
                                                     <FaRegEdit />
@@ -105,21 +112,14 @@ export default function Page() {
                                                 <MdDelete />
                                             </IconButton>
                                         </TableCell>
-                                        {/* <TableCell>
-                                            <Typography variant="subtitle1">
-                                                {item.usuario_id?.nome || 'Usuário não encontrado'}
-                                            </Typography>
-                                            <Typography variant="caption" color="textSecondary">
-                                                {item.usuario_id?.email}
-                                            </Typography>
-                                        </TableCell> */}
                                         <TableCell>
-                                            <Chip
-                                                label={item.nome_banco}
-                                                color="default"
-                                                size="small"
-                                                className="fs-5"
-                                            />
+                                                <Chip
+                                                    href={`/pages/contasBancarias/extrato/${item._id}`}
+                                                    label={item.nome_banco}
+                                                    color="default"
+                                                    size="small"
+                                                    className="fs-5"
+                                                />
                                         </TableCell>
                                         <TableCell>
                                             <Chip

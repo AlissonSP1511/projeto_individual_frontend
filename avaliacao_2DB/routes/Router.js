@@ -7,7 +7,6 @@ const ContaController = require('../controllers/ContaController')
 const FaturaCartaoCreditoController = require('../controllers/FaturaCartaoCreditoController')
 const InvestimentoController = require('../controllers/InvestimentoController')
 const LancamentoCartaoCreditoController = require('../controllers/LancamentoCartaoCreditoController')
-const TransacaoController = require('../controllers/TransacaoController')
 const UsuarioController = require('../controllers/UsuarioController')
 const router = express.Router();
 const authMiddleware = require('../middlewares/authMiddleware');
@@ -52,6 +51,12 @@ router.post('/conta', ContaController.create)
 router.delete('/conta/:id', ContaController.delete)
 router.put('/conta/:id', ContaController.update)
 
+// Novas rotas para transações
+router.post('/conta/:id/transacao', ContaController.addTransacao)
+router.delete('/conta/:contaId/transacao/:transacaoId', ContaController.removeTransacao)
+router.get('/conta/:id/transacoes', ContaController.getTransacoesPorPeriodo)
+router.patch('/conta/:id/transacao/:transacaoId', authMiddleware, ContaController.updateTransacao);
+
 // Fatura cartão de crédito
 router.get('/faturacartaocredito', FaturaCartaoCreditoController.getAll)
 router.get('/faturacartaocredito/:id', FaturaCartaoCreditoController.get)
@@ -72,13 +77,6 @@ router.get('/lancamentocartaocredito/:id', LancamentoCartaoCreditoController.get
 router.post('/lancamentocartaocredito', LancamentoCartaoCreditoController.create)
 router.delete('/lancamentocartaocredito/:id', LancamentoCartaoCreditoController.delete)
 router.put('/lancamentocartaocredito/:id', LancamentoCartaoCreditoController.update)
-
-// Transação
-router.get('/transacao', TransacaoController.getAll)
-router.get('/transacao/:id', TransacaoController.get)
-router.post('/transacao', TransacaoController.create)
-router.delete('/transacao/:id', TransacaoController.delete)
-router.put('/transacao/:id', TransacaoController.update)
 
 // Usuário
 router.get('/usuario', UsuarioController.getAll)

@@ -39,7 +39,6 @@ export default function Pagina({ titulo, children }) {
                             <Nav.Link href="/pages/dashboard" className="fw-bolder fs-5">Dashboard</Nav.Link>
                             <Nav.Link href="/pages/contasBancarias" className="fw-bolder fs-5">Contas</Nav.Link>
                             <Nav.Link href="/pages/cartoesDeCredito" className="fw-bolder fs-5">Cartões</Nav.Link>
-                            <Nav.Link href="/pages/transacoes" className="fw-bolder fs-5">Transações</Nav.Link>
                             <Nav.Link href="/pages/investimentos" className="fw-bolder fs-5">Investimentos</Nav.Link>
                             <Nav.Link href="/pages/categorias" className="fw-bolder fs-5">Categorias</Nav.Link>
                             <Nav.Link href="/pages/relatorios" className="fw-bolder fs-5">Relatórios</Nav.Link>
