@@ -10,6 +10,7 @@ import Api_avaliacao_2DB from "app/services/Api_avaliacao_2DB";
 import Swal from 'sweetalert2';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+import * as XLSX from 'xlsx';
 
 const validationSchema = Yup.object().shape({
     data: Yup.date().required('Data é obrigatória'),
@@ -143,6 +144,102 @@ export default function Page({ params }) {
         }
     };
 
+    const handleFileUpload = async (event) => {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+
+        reader.onload = async (e) => {
+            try {
+                const csvText = e.target.result;
+                const rows = csvText.split('\n');
+                
+                // Encontra a linha que contém o cabeçalho das transações
+                const headerIndex = rows.findIndex(row => 
+                    row.includes('Data Lançamento;Histórico;Descrição;Valor;Saldo'));
+                
+                if (headerIndex === -1) {
+                    throw new Error('Formato do arquivo inválido');
+                }
+
+                // Pega apenas as linhas com dados das transações
+                const transactionRows = rows.slice(headerIndex + 1)
+                    .filter(row => row.trim().length > 0);
+
+                const transacoes = transactionRows.map(row => {
+                    const [dataLancamento, historico, descricao, valor] = row.split(';');
+
+                    // Trata a data
+                    const [dia, mes, ano] = dataLancamento.trim().split('/');
+                    const dataTransacao = new Date(ano, mes - 1, dia);
+
+                    // Trata o valor
+                    const valorString = valor.trim()
+                        .replace('R$', '')
+                        .replace(/\./g, '')
+                        .replace(',', '.')
+                        .trim();
+                    const valorNumerico = parseFloat(valorString);
+
+                    return {
+                        data: dataTransacao,
+                        descricao: descricao.trim() || historico.trim(), // Usa histórico se descrição estiver vazia
+                        tipo_transacao: valorNumerico > 0 ? 'Entrada' : 'Saída',
+                        tipo_pagamento: detectarTipoPagamento(historico.trim().toLowerCase()),
+                        valor: Math.abs(valorNumerico)
+                    };
+                });
+
+                // Confirmação antes de importar
+                const result = await Swal.fire({
+                    title: 'Confirmar importação',
+                    text: `Foram encontradas ${transacoes.length} transações. Deseja importar?`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sim, importar',
+                    cancelButtonText: 'Cancelar'
+                });
+
+                if (result.isConfirmed) {
+                    let importadas = 0;
+                    for (const transacao of transacoes) {
+                        await Api_avaliacao_2DB.post(`/conta/${id[0]}/transacao`, transacao);
+                        importadas++;
+                    }
+
+                    await carregarConta();
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Sucesso!',
+                        text: `${importadas} transações foram importadas com sucesso!`
+                    });
+                }
+            } catch (error) {
+                console.error('Erro ao importar arquivo:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erro!',
+                    text: 'Erro ao importar as transações. Verifique o formato do arquivo.'
+                });
+            }
+        };
+
+        reader.readAsText(file);
+    };
+
+    // Função auxiliar para detectar o tipo de pagamento
+    const detectarTipoPagamento = (historico) => {
+        if (historico.includes('pix')) {
+            return 'Pix';
+        } else if (historico.includes('débito')) {
+            return 'Débito';
+        } else if (historico.includes('aplicação')) {
+            return 'Aplicação';
+        } else {
+            return 'Outros';
+        }
+    };
+
     if (!conta) return <div>Carregando...</div>;
 
     return (
@@ -155,15 +252,31 @@ export default function Page({ params }) {
                 <Card className="mb-4">
                     <Card.Header className="d-flex justify-content-between align-items-center">
                         <h5 className="mb-0">Transações</h5>
-                        <Button 
-                            variant="success" 
-                            onClick={() => {
-                                setEditingTransacao(null);
-                                setShowForm(!showForm);
-                            }}
-                        >
-                            <MdAdd /> Nova Transação
-                        </Button>
+                        <div>
+                            <input
+                                type="file"
+                                id="fileInput"
+                                accept=".xlsx,.xls,.csv"
+                                style={{ display: 'none' }}
+                                onChange={handleFileUpload}
+                            />
+                            <Button 
+                                variant="info" 
+                                className="me-2"
+                                onClick={() => document.getElementById('fileInput').click()}
+                            >
+                                <MdAdd /> Importar Excel
+                            </Button>
+                            <Button 
+                                variant="success" 
+                                onClick={() => {
+                                    setEditingTransacao(null);
+                                    setShowForm(!showForm);
+                                }}
+                            >
+                                <MdAdd /> Nova Transação
+                            </Button>
+                        </div>
                     </Card.Header>
 
                     {showForm && (
