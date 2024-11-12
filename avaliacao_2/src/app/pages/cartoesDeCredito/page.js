@@ -2,8 +2,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Button, Image } from 'react-bootstrap';
-import { FaPlus, FaCreditCard, FaEdit, FaTrash } from 'react-icons/fa';
+import { Container, Row, Col, Card, Button, Image, Accordion, Badge } from 'react-bootstrap';
+import { FaPlus, FaCreditCard, FaEdit, FaTrash, FaReceipt, FaCalendar } from 'react-icons/fa';
 import Link from 'next/link';
 import Api_avaliacao_2DB from "app/services/Api_avaliacao_2DB";
 import Pagina from "app/components/Pagina";
@@ -136,19 +136,21 @@ export default function CartoesDeCredito() {
     });
   }
 
-
   return (
     <Pagina titulo="Cartões de Crédito">
       {cartoes.length > 0 &&
         <Container>
-          {cartoes.map(cartao => (
-            <CardCartao
-              key={cartao._id}
-              cartao={cartao}
-              onExcluir={excluir}
-            />
-          ))}
-          <div className="d-flex justify-content-end mb-4">
+          <Accordion defaultActiveKey="0">
+            {cartoes.map((cartao, index) => (
+              <CardCartao
+                key={cartao._id}
+                cartao={cartao}
+                onExcluir={excluir}
+                index={index}
+              />
+            ))}
+          </Accordion>
+          <div className="d-flex justify-content-end mt-4 mb-4">
             <Link href="/pages/cartoesDeCredito/form" passHref className="btn btn-primary">
               <FaPlus className="me-2" /> Novo Cartão
             </Link>
@@ -159,75 +161,146 @@ export default function CartoesDeCredito() {
   );
 }
 
-function CardCartao({ cartao, onExcluir }) {
+function CardCartao({ cartao, onExcluir, index }) {
   const ultimosDigitos = cartao.numero.slice(-4);
+  const [totaisMes, setTotaisMes] = useState({ parcelado: 0, aVista: 0, total: 0 });
+  const mesAtual = new Date().getMonth();
+  const anoAtual = new Date().getFullYear();
+
+  useEffect(() => {
+    calcularTotalMes();
+  }, [cartao]);
+
+  function calcularTotalMes() {
+    if (!cartao) return;
+
+    const comprasParceladasMes = cartao.comprasParceladas?.filter(compra => {
+      const dataCompra = new Date(compra.dataCompra);
+      return dataCompra.getMonth() === mesAtual && dataCompra.getFullYear() === anoAtual;
+    }) || [];
+
+    const comprasAVistaMes = cartao.comprasAVista?.filter(compra => {
+      const dataCompra = new Date(compra.dataCompra);
+      return dataCompra.getMonth() === mesAtual && dataCompra.getFullYear() === anoAtual;
+    }) || [];
+
+    const totalParcelado = comprasParceladasMes.reduce((acc, compra) =>
+      acc + (compra.valor * compra.parcelas), 0);
+    const totalAVista = comprasAVistaMes.reduce((acc, compra) =>
+      acc + compra.valor, 0);
+
+    setTotaisMes({
+      parcelado: totalParcelado,
+      aVista: totalAVista,
+      total: totalParcelado + totalAVista
+    });
+  }
 
   return (
-    <Card className="mb-3">
-      <Row className="g-0">
-        <Col xs={12} md={4} className="d-flex align-items-center justify-content-center p-3">
-          <Link href={`/pages/cartoesDeCredito/detalhes/${cartao._id}`} passHref>
+    <Accordion.Item eventKey={index.toString()}>
+      <Accordion.Header>
+        <div className="d-flex align-items-center w-100">
+          <div className="me-3">
             {cartao.imagemCartao ? (
               <Image
                 src={cartao.imagemCartao}
                 alt={`Cartão ${cartao.nome}`}
-                className="img-fluid rounded"
-                style={{ maxWidth: '200px' }}
+                style={{ width: '60px', height: 'auto' }}
+                className="rounded"
               />
             ) : (
-              <div className="card-placeholder d-flex align-items-center justify-content-center bg-light rounded"
-                style={{ width: '200px', height: '126px' }}>
-                <FaCreditCard size={48} className="text-muted" />
-              </div>
+              <FaCreditCard size={40} className="text-muted" />
             )}
-          </Link>
-        </Col>
-        <Col xs={12} md={7}>
-          <Card.Body>
-            <div className="d-flex justify-content-between align-items-start">
-              <div>
-                <Card.Title>{cartao.bancoEmissor}</Card.Title>
-                <Card.Subtitle className="mb-2 text-muted">
-                  {cartao.bandeira} •••• {ultimosDigitos}
-                </Card.Subtitle>
-              </div>
-            </div>
+          </div>
+          <div className="flex-grow-1">
+            <h5 className="mb-0">{cartao.bancoEmissor}</h5>
+            <small className="text-muted">
+              {cartao.bandeira} •••• {ultimosDigitos}
+            </small>
+          </div>
+          <div className="text-end me-3">
+            <div>Limite Disponível</div>
+            <strong>R$ {(cartao.limite - cartao.limiteUtilizado).toFixed(2)}</strong>
+          </div>
+        </div>
+      </Accordion.Header>
+      <Accordion.Body>
+        <Row>
+          <Col md={8}>
+            <Card className="mb-3">
+              <Card.Header className="bg-light">
+                <FaReceipt className="me-2" />
+                Resumo do Mês Atual
+              </Card.Header>
+              <Card.Body>
+                <Row>
+                  <Col md={4}>
+                    <small className="text-muted d-block">Total Parcelado</small>
+                    <strong>R$ {totaisMes.parcelado.toFixed(2)}</strong>
+                  </Col>
+                  <Col md={4}>
+                    <small className="text-muted d-block">Total à Vista</small>
+                    <strong>R$ {totaisMes.aVista.toFixed(2)}</strong>
+                  </Col>
+                  <Col md={4}>
+                    <small className="text-muted d-block">Total Geral</small>
+                    <strong>R$ {totaisMes.total.toFixed(2)}</strong>
+                  </Col>
+                </Row>
+              </Card.Body>
+            </Card>
 
-            <div className="mt-3">
-              <Row>
-                <Col xs={6} md={3}>
-                  <small className="text-muted d-block">Fechamento</small>
-                  <strong>Dia {cartao.diaFechamento}</strong>
-                </Col>
-                <Col xs={6} md={3}>
-                  <small className="text-muted d-block">Vencimento</small>
-                  <strong>Dia {cartao.diaVencimento}</strong>
-                </Col>
-                <Col xs={6} md={3}>
-                  <small className="text-muted d-block">Limite Total</small>
-                  <strong>R$ {cartao.limite.toFixed(2)}</strong>
-                </Col>
-                <Col xs={6} md={3}>
-                  <small className="text-muted d-block">Comprometido</small>
-                  <strong>R$ {cartao.limiteUtilizado.toFixed(2)}</strong>
-                </Col>
-              </Row>
+            <Card>
+              <Card.Header className="bg-light">
+                <FaCalendar className="me-2" />
+                Informações do Cartão
+              </Card.Header>
+              <Card.Body>
+                <Row>
+                  <Col md={3}>
+                    <small className="text-muted d-block">Fechamento</small>
+                    <strong>Dia {cartao.diaFechamento}</strong>
+                  </Col>
+                  <Col md={3}>
+                    <small className="text-muted d-block">Vencimento</small>
+                    <strong>Dia {cartao.diaVencimento}</strong>
+                  </Col>
+                  <Col md={3}>
+                    <small className="text-muted d-block">Limite Total</small>
+                    <strong>R$ {cartao.limite.toFixed(2)}</strong>
+                  </Col>
+                  <Col md={3}>
+                    <small className="text-muted d-block">Comprometido</small>
+                    <strong>R$ {cartao.limiteUtilizado.toFixed(2)}</strong>
+                  </Col>
+                </Row>
+              </Card.Body>
+            </Card>
+          </Col>
+          <Col md={4}>
+            <div className="d-flex flex-column gap-2">
+              <Link 
+                href={`/pages/cartoesDeCredito/detalhes/${cartao._id}`}
+                className="btn btn-primary"
+              >
+                Ver Detalhes
+              </Link>
+              <Link 
+                href={`/pages/cartoesDeCredito/form/${cartao._id}`}
+                className="btn btn-outline-primary"
+              >
+                <FaEdit className="me-1" /> Editar
+              </Link>
+              <Button 
+                variant="outline-danger"
+                onClick={() => onExcluir(cartao._id)}
+              >
+                <FaTrash className="me-1" /> Excluir
+              </Button>
             </div>
-          </Card.Body>
-        </Col>
-        <Col xs={12} md={1} className="d-flex flex-md-column justify-content-end align-items-center p-3">
-          <Link href={`/pages/cartoesDeCredito/form/${cartao._id}`}
-
-            className="btn btn-outline-primary btn-sm mb-md-2 me-2 me-md-0">
-            <FaEdit className="me-1" />  Editar
-          </Link>
-          <Button variant="outline-danger" size="sm"
-            onClick={() => onExcluir(cartao._id)}
-            className="btn btn-outline-primary btn-sm mb-md-2 me-2 me-md-0">
-            <FaTrash className="me-1" /> Excluir
-          </Button>
-        </Col>
-      </Row>
-    </Card>
+          </Col>
+        </Row>
+      </Accordion.Body>
+    </Accordion.Item>
   );
 }

@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const Api_avaliacao_2DB = axios.create({
-    baseURL: 'http://192.168.1.45:3001/', // Certifique-se de que o IP está correto
+    baseURL: 'http://192.168.1.8:3001/', // Certifique-se de que o IP está correto
     withCredentials: true, // Habilita o envio de cookies e credenciais
 });
 // Interceptor para adicionar o token em todas as requisições
