@@ -4,6 +4,7 @@
 import { Container, Nav, Navbar, Button, Image } from 'react-bootstrap';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import ProtectedRoute from './ProtectedRoute';
 
 export default function Pagina({ titulo, children }) {
     const [userName, setUserName] = useState('');
@@ -35,23 +36,29 @@ export default function Pagina({ titulo, children }) {
                 <Navbar.Toggle onClick={() => setExpanded(!expanded)} />
                 <Navbar.Collapse>
                     {userName && (
-                        <Nav className="mx-auto container d-flex ">
-                            <Nav.Link href="/pages/dashboard" className="fw-bolder fs-5">Dashboard</Nav.Link>
-                            <Nav.Link href="/pages/contasBancarias" className="fw-bolder fs-5">Contas</Nav.Link>
-                            <Nav.Link href="/pages/cartoesDeCredito" className="fw-bolder fs-5">Cartões</Nav.Link>
-                            <Nav.Link href="/pages/investimentos" className="fw-bolder fs-5">Investimentos</Nav.Link>
-                            <Nav.Link href="/pages/categorias" className="fw-bolder fs-5">Categorias</Nav.Link>
-                            <Nav.Link href="/pages/relatorios" className="fw-bolder fs-5">Relatórios</Nav.Link>
-                        </Nav>
+                        <ProtectedRoute>
+                            <Nav className="mx-auto container d-flex ">
+                                <Nav.Link href="/pages/dashboard" className="fw-bolder fs-5">Dashboard</Nav.Link>
+                                <Nav.Link href="/pages/contasBancarias" className="fw-bolder fs-5">Contas</Nav.Link>
+                                <Nav.Link href="/pages/cartoesDeCredito" className="fw-bolder fs-5">Cartões</Nav.Link>
+                                <Nav.Link href="/pages/investimentos" className="fw-bolder fs-5">Investimentos</Nav.Link>
+                                <Nav.Link href="/pages/categorias" className="fw-bolder fs-5">Categorias</Nav.Link>
+                                <Nav.Link href="/pages/relatorios" className="fw-bolder fs-5">Relatórios</Nav.Link>
+                            </Nav>
+                        </ProtectedRoute>
+
                     )}
                     <Nav className='ms-auto'>
                         {userName ? (
-                            <div className="d-flex align-items-center">
-                                <span className="me-3">Olá, {userName}</span>
-                                <Button variant="outline-danger" onClick={handleLogout}>
-                                    Sair
-                                </Button>
-                            </div>
+                            <ProtectedRoute>
+                                <div className="d-flex align-items-center">
+                                    <span className="me-3">Olá, {userName}</span>
+                                    <Button variant="outline-danger" onClick={handleLogout}>
+                                        Sair
+                                    </Button>
+                                </div>
+                            </ProtectedRoute>
+
                         ) : (
                             <Nav.Link href="/pages/login" >Entrar/Cadastrar</Nav.Link>
                         )}

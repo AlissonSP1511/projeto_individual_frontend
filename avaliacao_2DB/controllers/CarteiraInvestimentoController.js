@@ -1,12 +1,22 @@
-// avaliacao_2DB/controllers/CarteiraInvestimentosController.js
+// avaliacao_2DB/controllers/CarteiraInvestimentoController.js
 const CarteiraInvestimento = require('../models/CarteiraInvestimento'); // Modelo de carteira de investimentos
 
 const CarteiraInvestimentoController = {
     getAll: async (req, res) => {
         try {
-            const carteiras = await CarteiraInvestimento.find().populate('conta_id'); // Populando a referência para mostrar dados da conta
+            const carteiras = await CarteiraInvestimento.find()
+                .populate({
+                    path: 'conta_id',
+                    select: 'tipo_conta banco usuario_id'
+                });
+                
+            if (!carteiras) {
+                return res.status(404).json({ error: "Nenhuma carteira encontrada" });
+            }
+            
             res.json(carteiras);
         } catch (error) {
+            console.error('Erro ao buscar carteiras:', error);
             res.status(500).json({ error: "Erro ao buscar carteiras de investimentos" });
         }
     },

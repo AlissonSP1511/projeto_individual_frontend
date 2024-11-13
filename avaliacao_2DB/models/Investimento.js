@@ -2,26 +2,42 @@
 const mongoose = require('mongoose');
 
 const InvestimentoSchema = new mongoose.Schema({
-  carteira_investimento_id: {
+  carteira_investimentos_id: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'CarteiraInvestimento', // Referência ao modelo CarteiraInvestimento
+    ref: 'CarteiraInvestimento',
     required: true
   },
   tipo: {
     type: String,
-    required: true
+    required: true,
+    enum: ['Ações', 'Renda Fixa', 'Fundos', 'Tesouro Direto']
   },
   valor: {
-    type: mongoose.Schema.Types.Decimal128, // Tipo Decimal para valores
+    type: mongoose.Schema.Types.Decimal128,
     required: true
   },
-  data: {
-    type: Date,
-    default: Date.now // Data da compra do investimento
+  taxa_juros: {
+    type: Number,
+    required: true
   },
-  rendimento: {
-    type: mongoose.Schema.Types.Decimal128, // Tipo Decimal para o rendimento
-    default: 0.00
+  tipo_juros: {
+    type: String,
+    enum: ['Simples', 'Composto'],
+    required: true
+  },
+  prazo_meses: {
+    type: Number,
+    required: true,
+    min: 1,
+    max: 480
+  },
+  descricao: {
+    type: String,
+    maxlength: 200
+  },
+  data_criacao: {
+    type: Date,
+    default: Date.now
   }
 });
 
@@ -40,9 +56,18 @@ module.exports = Investimento;
 // valor:
 
 // Tipo Decimal128, utilizado para valores monetários, representando o valor do investimento.
-// data:
+// taxa_juros:
+
+// Tipo Number, obrigatória, representando a taxa de juros do investimento.
+// tipo_juros:
+
+// Tipo String, obrigatória, representando o tipo de juros do investimento.
+// prazo_meses:
+
+// Tipo Number, obrigatória, representando o prazo do investimento em meses.
+// descricao:
+
+// Tipo String, opcional, representando a descrição do investimento.
+// data_criacao:
 
 // Tipo Date, com valor padrão atual (Date.now), para registrar a data da compra do investimento.
-// rendimento:
-
-// Tipo Decimal128, para armazenar o rendimento do investimento até o momento, com valor padrão de 0.

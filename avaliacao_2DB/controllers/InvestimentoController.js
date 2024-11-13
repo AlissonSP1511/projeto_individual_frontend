@@ -24,14 +24,31 @@ const InvestimentoController = {
     },
 
     create: async (req, res) => {
-        const { carteira_investimentos_id, tipo, valor } = req.body; // Campos necessários
-        if (!carteira_investimentos_id || !tipo || valor === undefined) {
-            return res.status(400).json({ error: "Os campos carteira_investimentos_id, tipo e valor são obrigatórios." });
+        const { carteira_investimento_id, tipo, valor, taxa_juros, tipo_juros, prazo_meses } = req.body;
+        
+        if (!carteira_investimento_id || !tipo || !valor || !taxa_juros || !tipo_juros || !prazo_meses) {
+            return res.status(400).json({ 
+                error: "Todos os campos obrigatórios devem ser preenchidos." 
+            });
         }
+        
         try {
-            const novoInvestimento = await Investimento.create(req.body); // Cria novo investimento
-            res.status(201).json(novoInvestimento);
+            const novoInvestimento = await Investimento.create({
+                carteira_investimentos_id: carteira_investimento_id, // Convertendo para o nome correto do campo
+                tipo,
+                valor,
+                taxa_juros,
+                tipo_juros,
+                prazo_meses,
+                descricao: req.body.descricao || ''
+            });
+            
+            const investimentoPopulado = await Investimento.findById(novoInvestimento._id)
+                .populate('carteira_investimentos_id');
+                
+            res.status(201).json(investimentoPopulado);
         } catch (error) {
+            console.error('Erro ao criar investimento:', error);
             res.status(400).json({ error: "Erro ao criar o investimento." });
         }
     },

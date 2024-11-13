@@ -11,62 +11,76 @@ import { Card, Form, Row, Col } from "react-bootstrap";
 import { FaSave } from "react-icons/fa";
 import { MdOutlineArrowBack } from "react-icons/md";
 import * as Yup from 'yup';
+import { use } from 'react';
 
 const validationSchema = Yup.object().shape({
     carteira_investimento_id: Yup.string().required('Carteira é obrigatória'),
     tipo: Yup.string().required('Tipo é obrigatório'),
     valor: Yup.number().min(0, 'Valor não pode ser negativo').required('Valor é obrigatório'),
-    rendimento: Yup.number().required('Rendimento é obrigatório'),
+    taxa_juros: Yup.number().required('Taxa de juros é obrigatória'),
+    tipo_juros: Yup.string().required('Tipo de juros é obrigatório'),
+    prazo_meses: Yup.number().required('Prazo é obrigatório')
 });
 
 export default function Page({ params }) {
-    const route = useRouter();
+    const router = useRouter();
+    const id = use(params)?.id?.[0];
+    const [carteiras, setCarteiras] = useState([]);
     const [investimento, setInvestimento] = useState({
         carteira_investimento_id: '',
         tipo: '',
-        valor: 0,
-        rendimento: 0
+        valor: '',
+        taxa_juros: '',
+        tipo_juros: 'Simples',
+        prazo_meses: '',
+        descricao: ''
     });
-    const [carteiras, setCarteiras] = useState([]);
-    const { id } = params?.id ? params : { id: null };
 
     useEffect(() => {
-        // Carregar lista de carteiras
-        Api_avaliacao_2DB.get('/carteirainvestimento')
-            .then(result => {
-                setCarteiras(result.data);
-            })
-            .catch(error => {
-                console.error('Erro ao carregar carteiras:', error);
-            });
-
-        // Carregar dados do investimento se for edição
+        carregarCarteiras();
         if (id) {
-            Api_avaliacao_2DB.get(`/investimento/${id}`)
-                .then(result => {
-                    setInvestimento(result.data);
-                })
-                .catch(error => {
-                    console.error('Erro ao carregar investimento:', error);
-                });
+            carregarInvestimento();
         }
     }, [id]);
 
-    function salvar(dados) {
-        const endpoint = id ? `/investimento/${id}` : '/investimento';
-        const method = id ? 'put' : 'post';
+    const carregarCarteiras = async () => {
+        try {
+            const response = await Api_avaliacao_2DB.get('/carteirainvestimento');
+            setCarteiras(response.data);
+        } catch (error) {
+            console.error('Erro ao carregar carteiras:', error);
+        }
+    };
 
-        Api_avaliacao_2DB[method](endpoint, dados)
-            .then(() => {
-                route.push('/pages/investimentos');
-            })
-            .catch(error => {
-                console.error('Erro ao salvar investimento:', error);
+    const carregarInvestimento = async () => {
+        try {
+            const response = await Api_avaliacao_2DB.get(`/investimento/${id}`);
+            const dados = response.data;
+            setInvestimento({
+                ...dados,
+                valor: typeof dados.valor === 'object' ? dados.valor.$numberDecimal : dados.valor
             });
-    }
+        } catch (error) {
+            console.error('Erro ao carregar investimento:', error);
+        }
+    };
+
+    const handleSubmit = async (values, { setSubmitting }) => {
+        try {
+            if (id) {
+                await Api_avaliacao_2DB.put(`/investimento/${id}`, values);
+            } else {
+                await Api_avaliacao_2DB.post('/investimento', values);
+            }
+            router.push('/pages/investimentos');
+        } catch (error) {
+            console.error('Erro ao salvar:', error);
+        }
+        setSubmitting(false);
+    };
 
     return (
-        <Pagina titulo="Investimento">
+        <Pagina titulo={id ? "Editar Investimento" : "Novo Investimento"}>
             <Card className="card-primary">
                 <Card.Header>
                     <Card.Title>{id ? 'Editar Investimento' : 'Novo Investimento'}</Card.Title>
@@ -75,7 +89,7 @@ export default function Page({ params }) {
                     initialValues={investimento}
                     enableReinitialize={true}
                     validationSchema={validationSchema}
-                    onSubmit={values => salvar(values)}
+                    onSubmit={handleSubmit}
                 >
                     {({
                         values,
@@ -148,17 +162,53 @@ export default function Page({ params }) {
                                     </Col>
                                     <Col md={6}>
                                         <Form.Group className="mb-3">
-                                            <Form.Label>Rendimento (%)</Form.Label>
+                                            <Form.Label>Taxa de Juros (%)</Form.Label>
                                             <Form.Control
                                                 type="number"
                                                 step="0.01"
-                                                name="rendimento"
-                                                value={values.rendimento}
+                                                name="taxa_juros"
+                                                value={values.taxa_juros}
                                                 onChange={handleChange}
-                                                isInvalid={touched.rendimento && errors.rendimento}
+                                                isInvalid={touched.taxa_juros && errors.taxa_juros}
                                             />
                                             <Form.Control.Feedback type="invalid">
-                                                {errors.rendimento}
+                                                {errors.taxa_juros}
+                                            </Form.Control.Feedback>
+                                        </Form.Group>
+                                    </Col>
+                                </Row>
+                                <Row>
+                                    <Col md={6}>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label>Tipo de Juros</Form.Label>
+                                            <Form.Select
+                                                name="tipo_juros"
+                                                value={values.tipo_juros}
+                                                onChange={handleChange}
+                                                isInvalid={touched.tipo_juros && errors.tipo_juros}
+                                            >
+                                                <option value="">Selecione o tipo de juros</option>
+                                                <option value="Simples">Simples</option>
+                                                <option value="Composto">Composto</option>
+                                            </Form.Select>
+                                            <Form.Control.Feedback type="invalid">
+                                                {errors.tipo_juros}
+                                            </Form.Control.Feedback>
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={6}>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label>Prazo (meses)</Form.Label>
+                                            <Form.Control
+                                                type="number"
+                                                step="1"
+                                                name="prazo_meses"
+                                                value={values.prazo_meses}
+                                                onChange={handleChange}
+                                                isInvalid={touched.prazo_meses && errors.prazo_meses}
+                                            />
+                                            <Form.Control.Feedback type="invalid">
+                                                {errors.prazo_meses}
                                             </Form.Control.Feedback>
                                         </Form.Group>
                                     </Col>
