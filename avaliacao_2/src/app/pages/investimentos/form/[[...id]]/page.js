@@ -1,4 +1,4 @@
-// avaliacao_2/src/app/pages/investimentos/form/[[...id]]/page.js
+//avaliacao_2/src/app/pages/investimentos/form/[[...id]]/page.js
 'use client'
 
 import Pagina from "app/components/Pagina";
@@ -58,7 +58,8 @@ export default function Page({ params }) {
             const dados = response.data;
             setInvestimento({
                 ...dados,
-                valor: typeof dados.valor === 'object' ? dados.valor.$numberDecimal : dados.valor
+                valor: parseFloat(dados.valor) || 0, // Garantir que seja um número
+                taxa_juros: parseFloat(dados.taxa_juros) || 0, // Garantir que seja um número
             });
         } catch (error) {
             console.error('Erro ao carregar investimento:', error);
@@ -66,6 +67,7 @@ export default function Page({ params }) {
     };
 
     const handleSubmit = async (values, { setSubmitting }) => {
+        console.log('Enviando dados:', values); // Log para depuração
         try {
             if (id) {
                 await Api_avaliacao_2DB.put(`/investimento/${id}`, values);
@@ -86,7 +88,11 @@ export default function Page({ params }) {
                     <Card.Title>{id ? 'Editar Investimento' : 'Novo Investimento'}</Card.Title>
                 </Card.Header>
                 <Formik
-                    initialValues={investimento}
+                    initialValues={{
+                        ...investimento,
+                        valor: parseFloat(investimento.valor) || 0,
+                        taxa_juros: parseFloat(investimento.taxa_juros) || 0
+                    }}
                     enableReinitialize={true}
                     validationSchema={validationSchema}
                     onSubmit={handleSubmit}
