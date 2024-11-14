@@ -1,7 +1,7 @@
 //avaliacao_2/src/app/pages/investimentos/page.js
 'use client'
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Accordion, Card, Button, Modal, Form, Row, Col } from 'react-bootstrap';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
@@ -12,6 +12,7 @@ import { MdDelete } from "react-icons/md";
 import Swal from 'sweetalert2';
 import { useRouter } from 'next/navigation';
 
+// Registra os componentes do ChartJS
 ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -22,10 +23,15 @@ ChartJS.register(
     Legend
 );
 
+// Hook personalizado para debounce - evita atualizações excessivas do estado
+// aguardando um período de inatividade antes de atualizar
 const useDebouncedState = (initialValue, delay = 300) => {
     const [value, setValue] = useState(initialValue);
     const [debouncedValue, setDebouncedValue] = useState(initialValue);
-
+    // explicação do hook debounce
+    // O hook useDebouncedState é usado para evitar atualizações excessivas do estado.
+    // Ele aguarda um período de inatividade antes de atualizar o valor do estado,
+    // o que é útil para evitar atualizações frequentes que podem ser desnecessárias.
     useEffect(() => {
         const handler = setTimeout(() => {
             setDebouncedValue(value);
@@ -39,6 +45,152 @@ const useDebouncedState = (initialValue, delay = 300) => {
     return [debouncedValue, setValue];
 };
 
+const PeriodoSelector = ({ periodoVisualizacao, setPeriodoVisualizacao, unidadeTempo, setUnidadeTempo }) => {
+    const [showTooltip, setShowTooltip] = useState(false);
+    const [tooltipValue, setTooltipValue] = useState(periodoVisualizacao);
+    const sliderRef = useRef(null);
+
+    const handleSliderChange = (e) => {
+        const newValue = parseInt(e.target.value);
+        setPeriodoVisualizacao(newValue);
+        setTooltipValue(newValue);
+    };
+
+    const handleMouseMove = (e) => {
+        if (sliderRef.current && showTooltip) {
+            const rect = sliderRef.current.getBoundingClientRect();
+            const max = unidadeTempo === 'anos' ? 60 : 720;
+            const position = ((e.clientX - rect.left) / rect.width);
+            const value = Math.round(position * max);
+
+            if (value >= 1 && value <= max) {
+                setTooltipValue(value);
+            }
+        }
+    };
+
+    return (
+        <Form.Group className="position-relative">
+            <Form.Label>
+                Período de visualização: {periodoVisualizacao} {unidadeTempo}
+            </Form.Label>
+            <div className="d-flex align-items-center gap-3">
+                <div
+                    className="position-relative"
+                    style={{ flex: 1 }}
+                    onMouseEnter={() => setShowTooltip(true)}
+                    onMouseLeave={() => setShowTooltip(false)}
+                    onMouseMove={handleMouseMove}
+                >
+                    <Form.Range
+                        ref={sliderRef}
+                        value={periodoVisualizacao}
+                        onChange={handleSliderChange}
+                        min={1}
+                        max={unidadeTempo === 'anos' ? 60 : 720}
+                        step={1}
+                        style={{ cursor: 'pointer' }}
+                    />
+                    {showTooltip && (
+                        <div
+                            style={{
+                                position: 'absolute',
+                                top: '-30px',
+                                left: `${(periodoVisualizacao / (unidadeTempo === 'anos' ? 60 : 720)) * 100}%`,
+                                transform: 'translateX(-50%)',
+                                backgroundColor: '#333',
+                                color: 'white',
+                                padding: '2px 6px',
+                                borderRadius: '4px',
+                                fontSize: '12px',
+                                pointerEvents: 'none',
+                                whiteSpace: 'nowrap',
+                                zIndex: 1000,
+                                transition: 'left 0.1s ease-out'
+                            }}
+                        >
+                            {tooltipValue} {unidadeTempo}
+                        </div>
+                    )}
+                </div>
+                <Form.Select
+                    value={unidadeTempo}
+                    onChange={(e) => {
+                        const novaUnidade = e.target.value;
+                        setUnidadeTempo(novaUnidade);
+                        if (novaUnidade === 'anos') {
+                            const novoValor = Math.min(Math.ceil(periodoVisualizacao / 12), 60);
+                            setPeriodoVisualizacao(novoValor);
+                            setTooltipValue(novoValor);
+                        } else {
+                            const novoValor = Math.min(periodoVisualizacao * 12, 720);
+                            setPeriodoVisualizacao(novoValor);
+                            setTooltipValue(novoValor);
+                        }
+                    }}
+                    style={{ width: '100px' }}
+                >
+                    <option value="meses">Meses</option>
+                    <option value="anos">Anos</option>
+                </Form.Select>
+            </div>
+        </Form.Group>
+    );
+};
+
+// Estilos CSS para melhorar a aparência do slider
+const styles = `
+    input[type="range"] {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 8px;
+        border-radius: 4px;
+        background: #e9ecef;
+        outline: none;
+        opacity: 0.7;
+        transition: opacity .2s;
+    }
+
+    input[type="range"]:hover {
+        opacity: 1;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #0d6efd;
+        cursor: pointer;
+        box-shadow: 0 0 4px rgba(0,0,0,0.2);
+        transition: all .2s ease-in-out;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+        background: #0b5ed7;
+        box-shadow: 0 0 6px rgba(0,0,0,0.3);
+        transform: scale(1.1);
+    }
+
+    input[type="range"]::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+        border: 0;
+        border-radius: 50%;
+        background: #0d6efd;
+        cursor: pointer;
+        box-shadow: 0 0 4px rgba(0,0,0,0.2);
+        transition: all .2s ease-in-out;
+    }
+
+    input[type="range"]::-moz-range-thumb:hover {
+        background: #0b5ed7;
+        box-shadow: 0 0 6px rgba(0,0,0,0.3);
+        transform: scale(1.1);
+    }
+`;
+
 export default function Investimentos() {
     const router = useRouter();
     const [investimentos, setInvestimentos] = useState([]);
@@ -51,7 +203,7 @@ export default function Investimentos() {
         taxa_juros: '',
         tipo_juros: 'Simples',
         prazo_meses: '',
-        periodo_taxa: 'ano',
+        periodo_taxa: 'mes',
         periodo_prazo: 'mes',
         descricao: ''
     });
@@ -100,43 +252,42 @@ export default function Investimentos() {
         }
     };
 
-    const converterTaxaParaAnual = (taxa, periodo) => {
-        // Converter taxa para decimal
-        const taxaDecimal = parseFloat(taxa) / 100;
+    // const converterTaxaParaAnual = (taxa, periodo) => {
+    //     // Converter taxa para decimal
+    //     const taxaDecimal = parseFloat(taxa) / 100;
 
-        // Validar entrada
-        if (isNaN(taxaDecimal) || taxaDecimal < 0) {
-            throw new Error("Taxa inválida. Por favor, insira um número positivo.");
-        }
+    //     // Validar entrada
+    //     if (isNaN(taxaDecimal) || taxaDecimal < 0) {
+    //         throw new Error("Taxa inválida. Por favor, insira um número positivo.");
+    //     }
 
-        // Cálculo conforme o período
-        switch (periodo) {
-            case 'dia': return (Math.pow(1 + taxaDecimal, 365) - 1) * 100;
-            case 'mes': return (Math.pow(1 + taxaDecimal, 12) - 1) * 100;
-            case 'bimestre': return (Math.pow(1 + taxaDecimal, 6) - 1) * 100;
-            case 'trimestre': return (Math.pow(1 + taxaDecimal, 4) - 1) * 100;
-            case 'quadrimestre': return (Math.pow(1 + taxaDecimal, 3) - 1) * 100;
-            case 'semestre': return (Math.pow(1 + taxaDecimal, 2) - 1) * 100;
-            case 'ano': return taxaDecimal * 100;
-            default: return taxaDecimal * 100;
-        }
-    };
+    //     // Cálculo conforme o período
+    //     switch (periodo) {
+    //         case 'dia': return (Math.pow(1 + taxaDecimal, 365) - 1) * 100;
+    //         case 'mes': return (Math.pow(1 + taxaDecimal, 12) - 1) * 100;
+    //         case 'bimestre': return (Math.pow(1 + taxaDecimal, 6) - 1) * 100;
+    //         case 'trimestre': return (Math.pow(1 + taxaDecimal, 4) - 1) * 100;
+    //         case 'quadrimestre': return (Math.pow(1 + taxaDecimal, 3) - 1) * 100;
+    //         case 'semestre': return (Math.pow(1 + taxaDecimal, 2) - 1) * 100;
+    //         case 'ano': return taxaDecimal * 100;
+    //         default: return taxaDecimal * 100;
+    //     }
+    // };
 
-    const converterPrazoParaDias = (prazo, periodo) => {
-        switch (periodo) {
-            case 'dia': return prazo;
-            case 'mes': return prazo * 30;
-            case 'bimestre': return prazo * 60;
-            case 'trimestre': return prazo * 90;
-            case 'quadrimestre': return prazo * 120;
-            case 'semestre': return prazo * 180;
-            case 'ano': return prazo * 365;
-            default: return prazo;
-        }
-    };
+    // const converterPrazoParaDias = (prazo, periodo) => {
+    //     switch (periodo) {
+    //         case 'dia': return prazo;
+    //         case 'mes': return prazo * 30;
+    //         case 'bimestre': return prazo * 60;
+    //         case 'trimestre': return prazo * 90;
+    //         case 'quadrimestre': return prazo * 120;
+    //         case 'semestre': return prazo * 180;
+    //         case 'ano': return prazo * 365;
+    //         default: return prazo;
+    //     }
+    // };
 
     const calcularRendimentoEsperado = (investimento) => {
-        console.log('Iniciando cálculo para investimento:', investimento);
 
         if (!investimento) {
             console.warn('Investimento inválido ou nulo');
@@ -148,13 +299,14 @@ export default function Investimentos() {
             taxa_juros,
             tipo_juros,
             prazo_meses,
-            periodo_taxa = 'mes',
+            periodo_taxa,
         } = investimento;
+
 
         // Tratamento do valor inicial
         const valorInicial = parseFloat(
-            typeof valor === 'object' && valor.$numberDecimal 
-                ? valor.$numberDecimal 
+            typeof valor === 'object' && valor.$numberDecimal
+                ? valor.$numberDecimal
                 : typeof valor === 'string'
                     ? valor
                     : typeof valor === 'number'
@@ -169,18 +321,15 @@ export default function Investimentos() {
 
         // Taxa mensal em decimal
         const taxaMensal = parseFloat(taxa_juros) / 100;
-        console.log('Taxa mensal em decimal:', taxaMensal);
 
         let rendimentoFinal;
-        
+
         if (tipo_juros === 'Simples') {
             // Juros Simples: M = P * (1 + i * t)
             rendimentoFinal = valorInicial * (1 + taxaMensal * prazo_meses);
-            console.log('Rendimento final (Juros Simples):', rendimentoFinal);
         } else {
             // Juros Compostos: M = P * (1 + i)^t
             rendimentoFinal = valorInicial * Math.pow(1 + taxaMensal, prazo_meses);
-            console.log('Rendimento final (Juros Compostos):', rendimentoFinal);
         }
 
         return rendimentoFinal;
@@ -191,14 +340,13 @@ export default function Investimentos() {
     };
 
     const gerarDadosGrafico = (investimento) => {
-        console.log('Gerando dados do gráfico para investimento:', investimento);
 
         const totalMeses = converterParaMeses(periodoVisualizacao, unidadeTempo);
         const meses = Array.from({ length: totalMeses }, (_, i) => i + 1);
-        
+
         const valorInicial = parseFloat(
-            typeof investimento.valor === 'object' && investimento.valor.$numberDecimal 
-                ? investimento.valor.$numberDecimal 
+            typeof investimento.valor === 'object' && investimento.valor.$numberDecimal
+                ? investimento.valor.$numberDecimal
                 : typeof investimento.valor === 'string'
                     ? investimento.valor
                     : typeof investimento.valor === 'number'
@@ -207,9 +355,9 @@ export default function Investimentos() {
         );
 
         const dados = meses.map(mes => {
-            const inv = { 
-                ...investimento, 
-                prazo_meses: mes 
+            const inv = {
+                ...investimento,
+                prazo_meses: mes
             };
             const rendimento = calcularRendimentoEsperado(inv);
             const rendimentoLiquido = rendimento - valorInicial;
@@ -400,43 +548,18 @@ export default function Investimentos() {
                                     <Accordion.Body>
                                         <Row className="mb-3">
                                             <Col md={8}>
-                                                <Form.Group>
-                                                    <Form.Label>
-                                                        Período de visualização: {periodoVisualizacao} {unidadeTempo}
-                                                    </Form.Label>
-                                                    <div className="d-flex align-items-center gap-3">
-                                                        <Form.Range
-                                                            value={periodoVisualizacao}
-                                                            onChange={(e) => setPeriodoVisualizacao(parseInt(e.target.value))}
-                                                            min={1}
-                                                            max={unidadeTempo === 'anos' ? 60 : 720}
-                                                            step={1}
-                                                            style={{ flex: 1 }}
-                                                        />
-                                                        <Form.Select 
-                                                            value={unidadeTempo}
-                                                            onChange={(e) => {
-                                                                const novaUnidade = e.target.value;
-                                                                setUnidadeTempo(novaUnidade);
-                                                                if (novaUnidade === 'anos') {
-                                                                    setPeriodoVisualizacao(Math.min(Math.ceil(periodoVisualizacao / 12), 60));
-                                                                } else {
-                                                                    setPeriodoVisualizacao(Math.min(periodoVisualizacao * 12, 720));
-                                                                }
-                                                            }}
-                                                            style={{ width: '100px' }}
-                                                        >
-                                                            <option value="meses">Meses</option>
-                                                            <option value="anos">Anos</option>
-                                                        </Form.Select>
-                                                    </div>
-                                                </Form.Group>
+                                                <PeriodoSelector
+                                                    periodoVisualizacao={periodoVisualizacao}
+                                                    setPeriodoVisualizacao={setPeriodoVisualizacao}
+                                                    unidadeTempo={unidadeTempo}
+                                                    setUnidadeTempo={setUnidadeTempo}
+                                                />
                                             </Col>
                                         </Row>
                                         <Row>
                                             <Col md={8}>
-                                                <Line 
-                                                    data={gerarDadosGrafico(investimento)} 
+                                                <Line
+                                                    data={gerarDadosGrafico(investimento)}
                                                     options={{
                                                         responsive: true,
                                                         plugins: {
@@ -449,7 +572,7 @@ export default function Investimentos() {
                                                             },
                                                             tooltip: {
                                                                 callbacks: {
-                                                                    label: function(context) {
+                                                                    label: function (context) {
                                                                         const value = context.raw;
                                                                         return 'R$ ' + value.toLocaleString('pt-BR', {
                                                                             minimumFractionDigits: 2,
@@ -463,7 +586,7 @@ export default function Investimentos() {
                                                             y: {
                                                                 beginAtZero: true,
                                                                 ticks: {
-                                                                    callback: function(value) {
+                                                                    callback: function (value) {
                                                                         return 'R$ ' + value.toLocaleString('pt-BR', {
                                                                             minimumFractionDigits: 2,
                                                                             maximumFractionDigits: 2
@@ -480,8 +603,8 @@ export default function Investimentos() {
                                                         },
                                                         maintainAspectRatio: false
                                                     }}
-                                                    style={{ 
-                                                        height: '300px', 
+                                                    style={{
+                                                        height: '300px',
                                                         maxHeight: '300px'
                                                     }}
                                                 />
@@ -504,7 +627,7 @@ export default function Investimentos() {
                                                 }</p>
                                                 <p><strong>Taxa de Juros:</strong> {investimento.taxa_juros}%</p>
                                                 <p><strong>Tipo de Juros:</strong> {investimento.tipo_juros}</p>
-                                                <p><strong>Prazo:</strong> {investimento.prazo_meses} meses</p>
+                                                <p><strong>Prazo Investimento:</strong> {investimento.prazo_meses} meses</p>
                                                 <p><strong>Descrição:</strong> {investimento.descricao}</p>
                                                 <div className="mt-3">
                                                     <Button
