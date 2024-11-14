@@ -22,6 +22,23 @@ ChartJS.register(
     Legend
 );
 
+const useDebouncedState = (initialValue, delay = 300) => {
+    const [value, setValue] = useState(initialValue);
+    const [debouncedValue, setDebouncedValue] = useState(initialValue);
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedValue(value);
+        }, delay);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [value, delay]);
+
+    return [debouncedValue, setValue];
+};
+
 export default function Investimentos() {
     const router = useRouter();
     const [investimentos, setInvestimentos] = useState([]);
@@ -43,6 +60,8 @@ export default function Investimentos() {
     const [carteiraForm, setCarteiraForm] = useState({
         conta_id: ''
     });
+    const [periodoVisualizacao, setPeriodoVisualizacao] = useDebouncedState(12);
+    const [unidadeTempo, setUnidadeTempo] = useState('meses');
 
     useEffect(() => {
         carregarDados();
@@ -167,12 +186,16 @@ export default function Investimentos() {
         return rendimentoFinal;
     };
 
+    const converterParaMeses = (valor, unidade) => {
+        return unidade === 'anos' ? valor * 12 : valor;
+    };
+
     const gerarDadosGrafico = (investimento) => {
         console.log('Gerando dados do gráfico para investimento:', investimento);
 
-        const meses = Array.from({ length: 12 }, (_, i) => i + 1);
+        const totalMeses = converterParaMeses(periodoVisualizacao, unidadeTempo);
+        const meses = Array.from({ length: totalMeses }, (_, i) => i + 1);
         
-        // Calcula o valor inicial para referência
         const valorInicial = parseFloat(
             typeof investimento.valor === 'object' && investimento.valor.$numberDecimal 
                 ? investimento.valor.$numberDecimal 
@@ -183,62 +206,33 @@ export default function Investimentos() {
                         : '0'
         );
 
-        // Gera dados para cada mês
         const dados = meses.map(mes => {
             const inv = { 
                 ...investimento, 
                 prazo_meses: mes 
             };
             const rendimento = calcularRendimentoEsperado(inv);
-            // Calcula apenas o rendimento (sem o capital inicial)
             const rendimentoLiquido = rendimento - valorInicial;
-            console.log(`Mês ${mes}:`, {
-                valorInicial,
-                rendimentoTotal: rendimento,
-                rendimentoLiquido
-            });
             return rendimentoLiquido;
         });
 
-        console.log('Dados completos do gráfico:', dados);
-
         return {
-            labels: meses.map(mes => `Mês ${mes}`),
-            datasets: [
-                {
-                    label: 'Rendimento Líquido (R$)',
-                    data: dados,
-                    borderColor: 'rgb(75, 192, 192)',
-                    tension: 0.1,
-                    fill: true,
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)'
+            labels: meses.map(mes => {
+                if (unidadeTempo === 'anos') {
+                    const ano = Math.floor((mes - 1) / 12) + 1;
+                    const mesDoAno = ((mes - 1) % 12) + 1;
+                    return `Ano ${ano}, Mês ${mesDoAno}`;
                 }
-            ],
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    title: {
-                        display: true,
-                        text: 'Evolução do Rendimento'
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return 'R$ ' + value.toLocaleString('pt-BR', {
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2
-                                });
-                            }
-                        }
-                    }
-                }
-            }
+                return `Mês ${mes}`;
+            }),
+            datasets: [{
+                label: 'Rendimento Líquido (R$)',
+                data: dados,
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1,
+                fill: true,
+                backgroundColor: 'rgba(75, 192, 192, 0.2)'
+            }]
         };
     };
 
@@ -404,6 +398,41 @@ export default function Investimentos() {
                                         </div>
                                     </Accordion.Header>
                                     <Accordion.Body>
+                                        <Row className="mb-3">
+                                            <Col md={8}>
+                                                <Form.Group>
+                                                    <Form.Label>
+                                                        Período de visualização: {periodoVisualizacao} {unidadeTempo}
+                                                    </Form.Label>
+                                                    <div className="d-flex align-items-center gap-3">
+                                                        <Form.Range
+                                                            value={periodoVisualizacao}
+                                                            onChange={(e) => setPeriodoVisualizacao(parseInt(e.target.value))}
+                                                            min={1}
+                                                            max={unidadeTempo === 'anos' ? 60 : 720}
+                                                            step={1}
+                                                            style={{ flex: 1 }}
+                                                        />
+                                                        <Form.Select 
+                                                            value={unidadeTempo}
+                                                            onChange={(e) => {
+                                                                const novaUnidade = e.target.value;
+                                                                setUnidadeTempo(novaUnidade);
+                                                                if (novaUnidade === 'anos') {
+                                                                    setPeriodoVisualizacao(Math.min(Math.ceil(periodoVisualizacao / 12), 60));
+                                                                } else {
+                                                                    setPeriodoVisualizacao(Math.min(periodoVisualizacao * 12, 720));
+                                                                }
+                                                            }}
+                                                            style={{ width: '100px' }}
+                                                        >
+                                                            <option value="meses">Meses</option>
+                                                            <option value="anos">Anos</option>
+                                                        </Form.Select>
+                                                    </div>
+                                                </Form.Group>
+                                            </Col>
+                                        </Row>
                                         <Row>
                                             <Col md={8}>
                                                 <Line 
@@ -417,6 +446,17 @@ export default function Investimentos() {
                                                             title: {
                                                                 display: true,
                                                                 text: 'Evolução do Rendimento'
+                                                            },
+                                                            tooltip: {
+                                                                callbacks: {
+                                                                    label: function(context) {
+                                                                        const value = context.raw;
+                                                                        return 'R$ ' + value.toLocaleString('pt-BR', {
+                                                                            minimumFractionDigits: 2,
+                                                                            maximumFractionDigits: 2
+                                                                        });
+                                                                    }
+                                                                }
                                                             }
                                                         },
                                                         scales: {
@@ -430,8 +470,19 @@ export default function Investimentos() {
                                                                         });
                                                                     }
                                                                 }
+                                                            },
+                                                            x: {
+                                                                ticks: {
+                                                                    maxRotation: 45,
+                                                                    minRotation: 45
+                                                                }
                                                             }
-                                                        }
+                                                        },
+                                                        maintainAspectRatio: false
+                                                    }}
+                                                    style={{ 
+                                                        height: '300px', 
+                                                        maxHeight: '300px'
                                                     }}
                                                 />
                                             </Col>
