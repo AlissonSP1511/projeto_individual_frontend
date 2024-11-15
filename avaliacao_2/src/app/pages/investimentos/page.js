@@ -1,16 +1,16 @@
 // projeto_individual_frontend/avaliacao_2/src/app/pages/investimentos/page.js
 'use client'
 
-import { useState, useEffect, useRef } from 'react';
-import { Accordion, Card, Button, Modal, Form, Row, Col } from 'react-bootstrap';
-import { Line } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
+import { CategoryScale, Chart as ChartJS, Filler, Legend, LinearScale, LineElement, PointElement, Title, Tooltip } from 'chart.js';
 import Pagina from 'components/Pagina';
-import Api_avaliacao_2DB from 'services/Api_avaliacao_2DB';
-import { FaPlusCircle, FaEdit } from "react-icons/fa";
-import { MdDelete } from "react-icons/md";
-import Swal from 'sweetalert2';
 import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
+import { Accordion, Button, Card, Col, Form, Modal, Row } from 'react-bootstrap';
+import { Line } from 'react-chartjs-2';
+import { FaEdit, FaPlusCircle } from "react-icons/fa";
+import { MdDelete } from "react-icons/md";
+import Api_avaliacao_2DB from 'services/Api_avaliacao_2DB';
+import Swal from 'sweetalert2';
 
 // Registra os componentes do ChartJS
 ChartJS.register(
@@ -140,57 +140,6 @@ const PeriodoSelector = ({ periodoVisualizacao, setPeriodoVisualizacao, unidadeT
 };
 
 // Estilos CSS para melhorar a aparência do slider
-const styles = `
-    input[type="range"] {
-        -webkit-appearance: none;
-        width: 100%;
-        height: 8px;
-        border-radius: 4px;
-        background: #e9ecef;
-        outline: none;
-        opacity: 0.7;
-        transition: opacity .2s;
-    }
-
-    input[type="range"]:hover {
-        opacity: 1;
-    }
-
-    input[type="range"]::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 18px;
-        height: 18px;
-        border-radius: 50%;
-        background: #0d6efd;
-        cursor: pointer;
-        box-shadow: 0 0 4px rgba(0,0,0,0.2);
-        transition: all .2s ease-in-out;
-    }
-
-    input[type="range"]::-webkit-slider-thumb:hover {
-        background: #0b5ed7;
-        box-shadow: 0 0 6px rgba(0,0,0,0.3);
-        transform: scale(1.1);
-    }
-
-    input[type="range"]::-moz-range-thumb {
-        width: 18px;
-        height: 18px;
-        border: 0;
-        border-radius: 50%;
-        background: #0d6efd;
-        cursor: pointer;
-        box-shadow: 0 0 4px rgba(0,0,0,0.2);
-        transition: all .2s ease-in-out;
-    }
-
-    input[type="range"]::-moz-range-thumb:hover {
-        background: #0b5ed7;
-        box-shadow: 0 0 6px rgba(0,0,0,0.3);
-        transform: scale(1.1);
-    }
-`;
 
 export default function Investimentos() {
     const router = useRouter();
@@ -300,7 +249,6 @@ export default function Investimentos() {
             taxa_juros,
             tipo_juros,
             prazo_meses,
-            periodo_taxa,
         } = investimento;
 
 
@@ -883,3 +831,4 @@ export default function Investimentos() {
         </Pagina>
     );
 }
+
