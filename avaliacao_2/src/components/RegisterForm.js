@@ -4,8 +4,8 @@ import { Formik, Field, Form } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
-import Api_avaliacao_2DB from '../../services/Api_avaliacao_2DB';
 import { TextField, Button, Box, Alert } from '@mui/material';
+import Api_avaliacao_2DB from 'services/Api_avaliacao_2DB';
 
 const RegisterForm = () => {
   const router = useRouter();

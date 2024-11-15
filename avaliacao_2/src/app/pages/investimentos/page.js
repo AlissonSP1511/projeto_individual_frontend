@@ -4,7 +4,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Accordion, Card, Button, Modal, Form, Row, Col } from 'react-bootstrap';
 import { Line } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
 import Pagina from "app/components/Pagina";
 import Api_avaliacao_2DB from "app/services/Api_avaliacao_2DB";
 import { FaPlusCircle, FaEdit } from "react-icons/fa";
@@ -20,7 +20,8 @@ ChartJS.register(
     LineElement,
     Title,
     Tooltip,
-    Legend
+    Legend,
+    Filler
 );
 
 // Hook personalizado para debounce - evita atualizações excessivas do estado
@@ -374,12 +375,20 @@ export default function Investimentos() {
                 return `Mês ${mes}`;
             }),
             datasets: [{
-                label: 'Rendimento Líquido (R$)',
+                label: 'Rendimento Líquido',
                 data: dados,
-                borderColor: 'rgb(75, 192, 192)',
+                borderColor: '#2563eb',
+                borderWidth: 3,
                 tension: 0.1,
                 fill: true,
-                backgroundColor: 'rgba(75, 192, 192, 0.2)'
+                backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                pointRadius: 4,
+                pointHoverRadius: 8,
+                pointBackgroundColor: '#2563eb',
+                pointHoverBackgroundColor: '#1e40af',
+                pointBorderColor: '#ffffff',
+                pointHoverBorderColor: '#ffffff',
+                pointBorderWidth: 2,
             }]
         };
     };
@@ -571,16 +580,44 @@ export default function Investimentos() {
                                                                 text: 'Evolução do Rendimento'
                                                             },
                                                             tooltip: {
+                                                                mode: 'index',
+                                                                intersect: false,
                                                                 callbacks: {
-                                                                    label: function (context) {
-                                                                        const value = context.raw;
-                                                                        return 'R$ ' + value.toLocaleString('pt-BR', {
-                                                                            minimumFractionDigits: 2,
-                                                                            maximumFractionDigits: 2
+                                                                    title: function(tooltipItems) {
+                                                                        return tooltipItems[0].label;
+                                                                    },
+                                                                    label: function(context) {
+                                                                        const valorTotal = calcularRendimentoEsperado({
+                                                                            ...investimento,
+                                                                            prazo_meses: context.dataIndex + 1
                                                                         });
+                                                                        const valorInicial = parseFloat(
+                                                                            typeof investimento.valor === 'object' && investimento.valor.$numberDecimal
+                                                                                ? investimento.valor.$numberDecimal
+                                                                                : investimento.valor
+                                                                        );
+                                                                        
+                                                                        return [
+                                                                            `Rendimento Líquido: R$ ${context.raw.toLocaleString('pt-BR', {
+                                                                                minimumFractionDigits: 2,
+                                                                                maximumFractionDigits: 2
+                                                                            })}`,
+                                                                            `Valor Total: R$ ${valorTotal.toLocaleString('pt-BR', {
+                                                                                minimumFractionDigits: 2,
+                                                                                maximumFractionDigits: 2
+                                                                            })}`,
+                                                                            `Valor Inicial: R$ ${valorInicial.toLocaleString('pt-BR', {
+                                                                                minimumFractionDigits: 2,
+                                                                                maximumFractionDigits: 2
+                                                                            })}`
+                                                                        ];
                                                                     }
                                                                 }
                                                             }
+                                                        },
+                                                        interaction: {
+                                                            mode: 'index',
+                                                            intersect: false,
                                                         },
                                                         scales: {
                                                             y: {

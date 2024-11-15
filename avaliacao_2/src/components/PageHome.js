@@ -3,13 +3,13 @@
 
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import Pagina from 'app/components/Pagina';
 import createCache from '@emotion/cache';
 import { MaterialUIControllerProvider } from 'context';
 import theme from 'assets/theme';
 import MDPagination from 'components/MDPagination';
 import { MdOutlineKeyboardArrowLeft, MdOutlineKeyboardArrowRight } from 'react-icons/md';
 import { Card, Carousel, Col, Image, Row } from 'react-bootstrap';
+import Pagina from './Pagina';
 
 export default function App() {
     // Criação de cache padrão do Emotion
