@@ -1,4 +1,4 @@
-// avaliacao_2/src/app/components/Cabecalho.js
+// projeto_individual_frontend/avaliacao_2/src/components/Cabecalho.js
 export default function Cabecalho(props){
     return (
         <>

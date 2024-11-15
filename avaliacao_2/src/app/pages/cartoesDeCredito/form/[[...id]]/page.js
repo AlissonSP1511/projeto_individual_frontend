@@ -9,8 +9,8 @@ import { FaSave } from 'react-icons/fa';
 import { MdOutlineArrowBack } from 'react-icons/md';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import Pagina from "app/components/Pagina";
-import Api_avaliacao_2DB from "app/services/Api_avaliacao_2DB";
+import Pagina from 'components/Pagina';
+import Api_avaliacao_2DB from 'services/Api_avaliacao_2DB';
 import Swal from 'sweetalert2';
 
 const validationSchema = Yup.object().shape({

@@ -1,4 +1,4 @@
-// avaliacao_2/src/app/components/NomeUsuario.js
+// projeto_individual_frontend/avaliacao_2/src/components/NomeUsuario.js
 'use client'
 import { useEffect, useState } from 'react'
 

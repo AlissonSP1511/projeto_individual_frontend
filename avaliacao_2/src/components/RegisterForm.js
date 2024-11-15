@@ -1,4 +1,4 @@
-// avaliacao_2/src/app/components/RegisterForm.js
+// projeto_individual_frontend/avaliacao_2/src/components/RegisterForm.js
 "use client"
 import { Formik, Field, Form } from 'formik';
 import * as Yup from 'yup';

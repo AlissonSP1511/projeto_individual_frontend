@@ -1,8 +1,8 @@
-// avaliacao_2/src/app/pages/relatorios/form/[[...id]]/page.js
+// projeto_individual_frontend/avaliacao_2/src/app/pages/relatorios/form/[[...id]]/page.js
 'use client'
 
-import Pagina from "app/components/Pagina";
-import Api_avaliacao_2DB from "app/services/Api_avaliacao_2DB";
+import Pagina from 'components/Pagina';
+import Api_avaliacao_2DB from 'services/Api_avaliacao_2DB';
 import { Formik } from "formik";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

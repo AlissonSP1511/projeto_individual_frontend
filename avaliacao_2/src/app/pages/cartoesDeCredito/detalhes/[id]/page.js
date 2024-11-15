@@ -1,4 +1,4 @@
-// avaliacao_2/src/app/pages/cartoesDeCredito/detalhes/[id]/page.js
+// projeto_individual_frontend/avaliacao_2/src/app/pages/cartoesDeCredito/detalhes/[id]/page.js
 'use client'
 
 import React, { useEffect, useState } from 'react';
@@ -6,8 +6,8 @@ import { Card, Container, Table, Badge, Row, Col, Modal, Form, Button } from 're
 import { FaCreditCard, FaCalendar, FaReceipt, FaPlus, FaSave } from 'react-icons/fa';
 import { MdOutlineArrowBack } from 'react-icons/md';
 import Link from 'next/link';
-import Pagina from "app/components/Pagina";
-import Api_avaliacao_2DB from "app/services/Api_avaliacao_2DB";
+import Pagina from 'components/Pagina';
+import Api_avaliacao_2DB from 'services/Api_avaliacao_2DB';
 import Swal from 'sweetalert2';
 import { Formik } from 'formik';
 import * as Yup from 'yup';

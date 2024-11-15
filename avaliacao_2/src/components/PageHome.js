@@ -1,4 +1,4 @@
-// avaliacao_2/src/app/components/PageHome.js
+// projeto_individual_frontend/avaliacao_2/src/components/PageHome.js
 'use client';
 
 import { ThemeProvider } from '@mui/material/styles';

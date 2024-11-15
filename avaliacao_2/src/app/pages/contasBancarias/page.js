@@ -1,16 +1,16 @@
-// avaliacao_2/src/app/pages/contasBancarias/page.js
+// projeto_individual_frontend/avaliacao_2/src/app/pages/contasBancarias/page.js
 'use client'
 
 import { Button, Card, CardContent, CardHeader, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, IconButton, Paper, Chip, Box, Tooltip, Grid } from "@mui/material";
-import Pagina from "app/components/Pagina";
-import Api_avaliacao_2DB from "app/services/Api_avaliacao_2DB";
 import Link from "next/link"
 import { useEffect, useState } from "react";
 import { FaMoneyBillWave, FaPlusCircle, FaRegEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import Swal from 'sweetalert2'
 import { ResponsiveContainer, PieChart as RechartsePieChart, Pie, Cell } from 'recharts';
-import NomeUsuario from "app/components/NomeUsuario";
+import Pagina from "components/Pagina";
+import Api_avaliacao_2DB from "services/Api_avaliacao_2DB";
+import NomeUsuario from "components/NomeUsuario";
 
 export default function Page() {
     const [contas, setContas] = useState([])

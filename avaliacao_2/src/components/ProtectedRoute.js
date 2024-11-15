@@ -1,4 +1,4 @@
-// avaliacao_2/src/app/components/ProtectedRoute.js
+// projeto_individual_frontend/avaliacao_2/src/components/ProtectedRoute.js
 'use client'
 
 import { useEffect } from 'react';

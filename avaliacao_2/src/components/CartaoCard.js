@@ -1,4 +1,4 @@
-// avaliacao_2/src/app/components/CartaoCard.js
+// projeto_individual_frontend/avaliacao_2/src/components/CartaoCard.js
 'use client'
 
 import React from 'react';

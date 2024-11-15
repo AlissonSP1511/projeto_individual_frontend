@@ -1,9 +1,9 @@
-// avaliacao_2/src/app/pages/categorias/page.js
+// projeto_individual_frontend/avaliacao_2/src/app/pages/categorias/page.js
 'use client'
 
-import { Button, Card, CardContent, CardHeader, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, IconButton, Paper, Chip } from "@mui/material";
-import Pagina from "app/components/Pagina";
-import Api_avaliacao_2DB from "app/services/Api_avaliacao_2DB";
+import { Button, Card, CardContent, CardHeader, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, IconButton, Paper } from "@mui/material";
+import Pagina from 'components/Pagina';
+import Api_avaliacao_2DB from 'services/Api_avaliacao_2DB';
 import Link from "next/link"
 import { useEffect, useState } from "react";
 import { FaPlusCircle, FaRegEdit } from "react-icons/fa";

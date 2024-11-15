@@ -1,4 +1,4 @@
-// avaliacao_2/src/app/pages/login/page.js
+// projeto_individual_frontend/avaliacao_2/src/app/pages/login/page.js
 'use client';
 
 import { ThemeProvider } from '@mui/material/styles';
@@ -6,11 +6,10 @@ import CssBaseline from '@mui/material/CssBaseline';
 import createCache from '@emotion/cache';
 import { MaterialUIControllerProvider } from 'context';
 import theme from 'assets/theme';
-import LoginForm from 'app/components/LoginForm';
-import RegisterForm from 'app/components/RegisterForm';
 import { Container, Box, Paper, Typography } from '@mui/material';
 import Pagina from 'components/Pagina';
-
+import LoginForm from 'components/LoginForm';
+import RegisterForm from 'components/RegisterForm';
 export default function App() {
     const cache = createCache({ key: 'css' });
 

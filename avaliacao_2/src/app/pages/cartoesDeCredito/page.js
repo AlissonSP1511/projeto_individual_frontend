@@ -1,12 +1,12 @@
-// avaliacao_2/src/app/pages/cartoesDeCredito/page.js
+// projeto_individual_frontend/avaliacao_2/src/app/pages/cartoesDeCredito/page.js
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Image, Accordion, Badge } from 'react-bootstrap';
 import { FaPlus, FaCreditCard, FaEdit, FaTrash, FaReceipt, FaCalendar } from 'react-icons/fa';
 import Link from 'next/link';
-import Api_avaliacao_2DB from "app/services/Api_avaliacao_2DB";
-import Pagina from "app/components/Pagina";
+import Api_avaliacao_2DB from 'services/Api_avaliacao_2DB';
+import Pagina from 'components/Pagina';
 import Swal from 'sweetalert2';
 import { Box } from '@mui/material';
 

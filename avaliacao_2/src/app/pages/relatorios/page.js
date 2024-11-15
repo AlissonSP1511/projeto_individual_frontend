@@ -1,8 +1,7 @@
-// avaliacao_2/src/app/pages/relatorios/page.js
+// projeto_individual_frontend/avaliacao_2/src/app/pages/relatorios/page.js
 'use client'
-
-import Pagina from "app/components/Pagina";
-import Api_avaliacao_2DB from "app/services/Api_avaliacao_2DB";
+import Pagina from 'components/Pagina';
+import Api_avaliacao_2DB from 'services/Api_avaliacao_2DB';
 import Link from "next/link"
 import { useEffect, useState } from "react";
 import { Table } from "react-bootstrap"
