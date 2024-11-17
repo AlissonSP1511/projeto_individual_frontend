@@ -16,6 +16,7 @@ router.get('/', function (req, res) {
     res.json({})
 })
 
+
 // Rotas de autenticação (públicas)
 router.post('/login', UsuarioController.login);
 router.post('/register', UsuarioController.register);
@@ -55,7 +56,7 @@ router.put('/conta/:id', ContaController.update)
 router.post('/conta/:id/transacao', ContaController.addTransacao)
 router.delete('/conta/:contaId/transacao/:transacaoId', ContaController.removeTransacao)
 router.get('/conta/:id/transacoes', ContaController.getTransacoesPorPeriodo)
-router.patch('/conta/:id/transacao/:transacaoId', authMiddleware, ContaController.updateTransacao);
+router.patch('/conta/:id/transacao/:transacaoId', ContaController.updateTransacao);
 
 // Fatura cartão de crédito
 router.get('/faturacartaocredito', FaturaCartaoCreditoController.getAll)

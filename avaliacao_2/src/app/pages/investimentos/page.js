@@ -3,6 +3,7 @@
 
 import { CategoryScale, Chart as ChartJS, Filler, Legend, LinearScale, LineElement, PointElement, Title, Tooltip } from 'chart.js';
 import Pagina from 'components/Pagina';
+import PeriodoSelector from 'components/PeriodoSelector';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { Accordion, Button, Card, Col, Form, Modal, Row } from 'react-bootstrap';
@@ -12,7 +13,6 @@ import { MdDelete } from "react-icons/md";
 import Api_avaliacao_2DB from 'services/Api_avaliacao_2DB';
 import Swal from 'sweetalert2';
 
-// Registra os componentes do ChartJS
 ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -24,15 +24,10 @@ ChartJS.register(
     Filler
 );
 
-// Hook personalizado para debounce - evita atualizações excessivas do estado
-// aguardando um período de inatividade antes de atualizar
 const useDebouncedState = (initialValue, delay = 300) => {
     const [value, setValue] = useState(initialValue);
     const [debouncedValue, setDebouncedValue] = useState(initialValue);
-    // explicação do hook debounce
-    // O hook useDebouncedState é usado para evitar atualizações excessivas do estado.
-    // Ele aguarda um período de inatividade antes de atualizar o valor do estado,
-    // o que é útil para evitar atualizações frequentes que podem ser desnecessárias.
+
     useEffect(() => {
         const handler = setTimeout(() => {
             setDebouncedValue(value);
@@ -46,99 +41,6 @@ const useDebouncedState = (initialValue, delay = 300) => {
     return [debouncedValue, setValue];
 };
 
-const PeriodoSelector = ({ periodoVisualizacao, setPeriodoVisualizacao, unidadeTempo, setUnidadeTempo }) => {
-    const [showTooltip, setShowTooltip] = useState(false);
-    const [tooltipValue, setTooltipValue] = useState(periodoVisualizacao);
-    const sliderRef = useRef(null);
-
-    const handleSliderChange = (e) => {
-        const newValue = parseInt(e.target.value);
-        setPeriodoVisualizacao(newValue);
-        setTooltipValue(newValue);
-    };
-
-    const handleMouseMove = (e) => {
-        if (sliderRef.current && showTooltip) {
-            const rect = sliderRef.current.getBoundingClientRect();
-            const max = unidadeTempo === 'anos' ? 60 : 720;
-            const position = ((e.clientX - rect.left) / rect.width);
-            const value = Math.round(position * max);
-
-            if (value >= 1 && value <= max) {
-                setTooltipValue(value);
-            }
-        }
-    };
-
-    return (
-        <Form.Group className="position-relative">
-            <Form.Label>
-                Período de visualização: {periodoVisualizacao} {unidadeTempo}
-            </Form.Label>
-            <div className="d-flex align-items-center gap-3">
-                <div
-                    className="position-relative"
-                    style={{ flex: 1 }}
-                    onMouseEnter={() => setShowTooltip(true)}
-                    onMouseLeave={() => setShowTooltip(false)}
-                    onMouseMove={handleMouseMove}
-                >
-                    <Form.Range
-                        ref={sliderRef}
-                        value={periodoVisualizacao}
-                        onChange={handleSliderChange}
-                        min={1}
-                        max={unidadeTempo === 'anos' ? 60 : 720}
-                        step={1}
-                        style={{ cursor: 'pointer' }}
-                    />
-                    {showTooltip && (
-                        <div
-                            style={{
-                                position: 'absolute',
-                                top: '-30px',
-                                left: `${(periodoVisualizacao / (unidadeTempo === 'anos' ? 60 : 720)) * 100}%`,
-                                transform: 'translateX(-50%)',
-                                backgroundColor: '#333',
-                                color: 'white',
-                                padding: '2px 6px',
-                                borderRadius: '4px',
-                                fontSize: '12px',
-                                pointerEvents: 'none',
-                                whiteSpace: 'nowrap',
-                                zIndex: 1000,
-                                transition: 'left 0.1s ease-out'
-                            }}
-                        >
-                            {tooltipValue} {unidadeTempo}
-                        </div>
-                    )}
-                </div>
-                <Form.Select
-                    value={unidadeTempo}
-                    onChange={(e) => {
-                        const novaUnidade = e.target.value;
-                        setUnidadeTempo(novaUnidade);
-                        if (novaUnidade === 'anos') {
-                            const novoValor = Math.min(Math.ceil(periodoVisualizacao / 12), 60);
-                            setPeriodoVisualizacao(novoValor);
-                            setTooltipValue(novoValor);
-                        } else {
-                            const novoValor = Math.min(periodoVisualizacao * 12, 720);
-                            setPeriodoVisualizacao(novoValor);
-                            setTooltipValue(novoValor);
-                        }
-                    }}
-                    style={{ width: '100px' }}
-                >
-                    <option value="meses">Meses</option>
-                    <option value="anos">Anos</option>
-                </Form.Select>
-            </div>
-        </Form.Group>
-    );
-};
-
 // Estilos CSS para melhorar a aparência do slider
 
 export default function Investimentos() {
@@ -147,27 +49,27 @@ export default function Investimentos() {
     const [carteiras, setCarteiras] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [formData, setFormData] = useState({
-        carteira_investimento_id: '',
-        tipo: '',
-        valor: '',
+        carteira_id: '',
+        tipo_investimento: '',
+        valor_investido: '',
         taxa_juros: '',
         tipo_juros: 'Simples',
-        prazo_meses: '',
-        periodo_taxa: 'mes',
-        periodo_prazo: 'mes',
+        data: '',
+        frequencia_juros: 'Mensal',
+        periodo_investimento: '1',
         descricao: ''
     });
     const [showModalCarteira, setShowModalCarteira] = useState(false);
-    const [contas, setContas] = useState([]);
-    const [carteiraForm, setCarteiraForm] = useState({
-        conta_id: ''
+    const [novaCarteira, setNovaCarteira] = useState({
+        usuario_id: '',
+        nome_carteira: '',
+        objetivo_carteira_descricao: ''
     });
     const [periodoVisualizacao, setPeriodoVisualizacao] = useDebouncedState(12);
     const [unidadeTempo, setUnidadeTempo] = useState('meses');
 
     useEffect(() => {
         carregarDados();
-        carregarContas();
     }, []);
 
     async function carregarDados() {
@@ -178,64 +80,21 @@ export default function Investimentos() {
             ]);
 
             const investimentosData = Array.isArray(invResponse?.data) ? invResponse.data : [];
+            console.log('Investimentos:', invResponse.data);
             const carteirasData = Array.isArray(cartResponse?.data) ? cartResponse.data : [];
+            console.log('Carteiras:', cartResponse.data);
 
             setInvestimentos(investimentosData);
             setCarteiras(carteirasData);
 
         } catch (error) {
             console.error('Erro ao carregar dados:', error);
-            Swal.fire({
-                title: "Erro!",
-                text: "Não foi possível carregar os dados. Tente novamente mais tarde.",
-                icon: "error"
-            });
+            setInvestimentos([]);
+            setCarteiras([]);
         }
     }
 
-    const carregarContas = async () => {
-        try {
-            const response = await Api_avaliacao_2DB.get('/conta');
-            setContas(response.data);
-        } catch (error) {
-            console.error('Erro ao carregar contas:', error);
-        }
-    };
 
-    // const converterTaxaParaAnual = (taxa, periodo) => {
-    //     // Converter taxa para decimal
-    //     const taxaDecimal = parseFloat(taxa) / 100;
-
-    //     // Validar entrada
-    //     if (isNaN(taxaDecimal) || taxaDecimal < 0) {
-    //         throw new Error("Taxa inválida. Por favor, insira um número positivo.");
-    //     }
-
-    //     // Cálculo conforme o período
-    //     switch (periodo) {
-    //         case 'dia': return (Math.pow(1 + taxaDecimal, 365) - 1) * 100;
-    //         case 'mes': return (Math.pow(1 + taxaDecimal, 12) - 1) * 100;
-    //         case 'bimestre': return (Math.pow(1 + taxaDecimal, 6) - 1) * 100;
-    //         case 'trimestre': return (Math.pow(1 + taxaDecimal, 4) - 1) * 100;
-    //         case 'quadrimestre': return (Math.pow(1 + taxaDecimal, 3) - 1) * 100;
-    //         case 'semestre': return (Math.pow(1 + taxaDecimal, 2) - 1) * 100;
-    //         case 'ano': return taxaDecimal * 100;
-    //         default: return taxaDecimal * 100;
-    //     }
-    // };
-
-    // const converterPrazoParaDias = (prazo, periodo) => {
-    //     switch (periodo) {
-    //         case 'dia': return prazo;
-    //         case 'mes': return prazo * 30;
-    //         case 'bimestre': return prazo * 60;
-    //         case 'trimestre': return prazo * 90;
-    //         case 'quadrimestre': return prazo * 120;
-    //         case 'semestre': return prazo * 180;
-    //         case 'ano': return prazo * 365;
-    //         default: return prazo;
-    //     }
-    // };
 
     const calcularRendimentoEsperado = (investimento) => {
 
@@ -245,25 +104,23 @@ export default function Investimentos() {
         }
 
         const {
-            valor,
+            valor_investido,
             taxa_juros,
             tipo_juros,
-            prazo_meses,
+            data,
         } = investimento;
 
-
-        // Tratamento do valor inicial
         const valorInicial = parseFloat(
-            typeof valor === 'object' && valor.$numberDecimal
-                ? valor.$numberDecimal
-                : typeof valor === 'string'
-                    ? valor
-                    : typeof valor === 'number'
-                        ? valor.toString()
+            typeof valor_investido === 'object' && valor_investido.$numberDecimal
+                ? valor_investido.$numberDecimal
+                : typeof valor_investido === 'string'
+                    ? valor_investido
+                    : typeof valor_investido === 'number'
+                        ? valor_investido.toString()
                         : '0'
         );
 
-        if (isNaN(valorInicial) || !taxa_juros || !prazo_meses) {
+        if (isNaN(valorInicial) || !taxa_juros || !data) {
             console.warn('Dados inválidos para cálculo');
             return 0;
         }
@@ -275,17 +132,17 @@ export default function Investimentos() {
 
         if (tipo_juros === 'Simples') {
             // Juros Simples: M = P * (1 + i * t)
-            rendimentoFinal = valorInicial * (1 + taxaMensal * prazo_meses);
+            rendimentoFinal = valorInicial * (1 + taxaMensal * data);
         } else {
             // Juros Compostos: M = P * (1 + i)^t
-            rendimentoFinal = valorInicial * Math.pow(1 + taxaMensal, prazo_meses);
+            rendimentoFinal = valorInicial * Math.pow(1 + taxaMensal, data);
         }
 
         return rendimentoFinal;
     };
 
-    const converterParaMeses = (valor, unidade) => {
-        return unidade === 'anos' ? valor * 12 : valor;
+    const converterParaMeses = (valor_investido, unidade) => {
+        return unidade === 'anos' ? valor_investido * 12 : valor_investido;
     };
 
     const gerarDadosGrafico = (investimento) => {
@@ -294,19 +151,19 @@ export default function Investimentos() {
         const meses = Array.from({ length: totalMeses }, (_, i) => i + 1);
 
         const valorInicial = parseFloat(
-            typeof investimento.valor === 'object' && investimento.valor.$numberDecimal
-                ? investimento.valor.$numberDecimal
-                : typeof investimento.valor === 'string'
-                    ? investimento.valor
-                    : typeof investimento.valor === 'number'
-                        ? investimento.valor.toString()
+            typeof investimento.valor_investido === 'object' && investimento.valor_investido.$numberDecimal
+                ? investimento.valor_investido.$numberDecimal
+                : typeof investimento.valor_investido === 'string'
+                    ? investimento.valor_investido
+                    : typeof investimento.valor_investido === 'number'
+                        ? investimento.valor_investido.toString()
                         : '0'
         );
 
         const dados = meses.map(mes => {
             const inv = {
                 ...investimento,
-                prazo_meses: mes
+                data: mes
             };
             const rendimento = calcularRendimentoEsperado(inv);
             const rendimentoLiquido = rendimento - valorInicial;
@@ -346,45 +203,40 @@ export default function Investimentos() {
         try {
             const dadosFormatados = {
                 ...formData,
-                valor: parseFloat(formData.valor),
+                valor_investido: parseFloat(formData.valor_investido),
                 taxa_juros: parseFloat(formData.taxa_juros),
-                prazo_meses: parseInt(formData.prazo_meses)
+                data: formData.data,
+                periodo_investimento: parseInt(formData.periodo_investimento),
+                frequencia_juros: formData.frequencia_juros,
             };
+
+            if (!dadosFormatados.carteira_id || !dadosFormatados.tipo_investimento || isNaN(dadosFormatados.valor_investido) || isNaN(dadosFormatados.taxa_juros)) {
+                throw new Error("Todos os campos obrigatórios devem ser preenchidos corretamente.");
+            }
 
             await Api_avaliacao_2DB.post('/investimento', dadosFormatados);
             setShowModal(false);
             carregarDados();
             setFormData({
-                carteira_investimento_id: '',
-                tipo: '',
-                valor: '',
+                carteira_id: '',
+                tipo_investimento: '',
+                valor_investido: '',
                 taxa_juros: '',
                 tipo_juros: 'Simples',
-                prazo_meses: '',
-                periodo_taxa: 'ano',
-                periodo_prazo: 'mes',
+                data: '',
+                frequencia_juros: 'Mensal',
+                periodo_investimento: '1',
                 descricao: ''
-            });
-
-            Swal.fire({
-                title: "Sucesso!",
-                text: "Investimento registrado com sucesso",
-                icon: "success"
             });
         } catch (error) {
             console.error('Erro ao salvar:', error.response?.data || error);
-            Swal.fire({
-                title: "Erro!",
-                text: error.response?.data?.error || "Erro ao registrar investimento",
-                icon: "error"
-            });
         }
     };
 
     const handleSubmitCarteira = async (e) => {
         e.preventDefault();
         try {
-            await Api_avaliacao_2DB.post('/carteirainvestimento', carteiraForm);
+            await Api_avaliacao_2DB.post('/carteirainvestimento', novaCarteira);
             setShowModalCarteira(false);
             carregarDados();
             Swal.fire({
@@ -392,7 +244,11 @@ export default function Investimentos() {
                 text: "Carteira criada com sucesso",
                 icon: "success"
             });
-            setCarteiraForm({ conta_id: '' });
+            setNovaCarteira({
+                usuario_id: '',
+                nome_carteira: '',
+                objetivo_carteira_descricao: ''
+            });
         } catch (error) {
             console.error('Erro ao salvar:', error);
             Swal.fire({
@@ -443,7 +299,7 @@ export default function Investimentos() {
         <Pagina titulo="Investimentos">
             <Card>
                 <Card.Header className="d-flex justify-content-between align-items-center">
-                    <h4>Meus Investimentos</h4>
+                    <h4>Carteiras de Investimentos</h4>
                     <div>
                         <Button
                             variant="success"
@@ -451,12 +307,6 @@ export default function Investimentos() {
                             className="me-2"
                         >
                             <FaPlusCircle /> Nova Carteira
-                        </Button>
-                        <Button
-                            variant="primary"
-                            onClick={() => setShowModal(true)}
-                        >
-                            <FaPlusCircle /> Novo Investimento
                         </Button>
                     </div>
                 </Card.Header>
@@ -473,169 +323,201 @@ export default function Investimentos() {
                         </div>
                     ) : (
                         <Accordion>
-                            {investimentos.map((investimento, index) => (
-                                <Accordion.Item key={investimento._id} eventKey={index.toString()}>
+                            {carteiras.map((carteira, index) => (
+                                <Accordion.Item key={carteira._id} eventKey={index.toString()}>
                                     <Accordion.Header>
                                         <div className="d-flex justify-content-between w-100 me-3">
                                             <span>
-                                                {investimento.tipo} - R$ {
-                                                    typeof investimento.valor === 'object' && investimento.valor.$numberDecimal
-                                                        ? parseFloat(investimento.valor.$numberDecimal).toLocaleString('pt-BR', {
-                                                            minimumFractionDigits: 2,
-                                                            maximumFractionDigits: 2
-                                                        })
-                                                        : typeof investimento.valor === 'number'
-                                                            ? investimento.valor.toLocaleString('pt-BR', {
-                                                                minimumFractionDigits: 2,
-                                                                maximumFractionDigits: 2
-                                                            })
-                                                            : '0,00'
-                                                }
+                                                {carteira.nome_carteira}
                                             </span>
                                             <span>
-                                                Rendimento Esperado: R$ {
-                                                    calcularRendimentoEsperado(investimento).toLocaleString('pt-BR', {
-                                                        minimumFractionDigits: 2,
-                                                        maximumFractionDigits: 2
-                                                    })
-                                                }
+                                                {carteira.objetivo_carteira_descricao}
                                             </span>
                                         </div>
                                     </Accordion.Header>
                                     <Accordion.Body>
-                                        <Row className="mb-3">
-                                            <Col md={8}>
-                                                <PeriodoSelector
-                                                    periodoVisualizacao={periodoVisualizacao}
-                                                    setPeriodoVisualizacao={setPeriodoVisualizacao}
-                                                    unidadeTempo={unidadeTempo}
-                                                    setUnidadeTempo={setUnidadeTempo}
-                                                />
-                                            </Col>
-                                        </Row>
-                                        <Row>
-                                            <Col md={8}>
-                                                <Line
-                                                    data={gerarDadosGrafico(investimento)}
-                                                    options={{
-                                                        responsive: true,
-                                                        plugins: {
-                                                            legend: {
-                                                                position: 'top',
-                                                            },
-                                                            title: {
-                                                                display: true,
-                                                                text: 'Evolução do Rendimento'
-                                                            },
-                                                            tooltip: {
-                                                                mode: 'index',
-                                                                intersect: false,
-                                                                callbacks: {
-                                                                    title: function(tooltipItems) {
-                                                                        return tooltipItems[0].label;
-                                                                    },
-                                                                    label: function(context) {
-                                                                        const valorTotal = calcularRendimentoEsperado({
-                                                                            ...investimento,
-                                                                            prazo_meses: context.dataIndex + 1
-                                                                        });
-                                                                        const valorInicial = parseFloat(
-                                                                            typeof investimento.valor === 'object' && investimento.valor.$numberDecimal
-                                                                                ? investimento.valor.$numberDecimal
-                                                                                : investimento.valor
-                                                                        );
-                                                                        
-                                                                        return [
-                                                                            `Rendimento Líquido: R$ ${context.raw.toLocaleString('pt-BR', {
+                                        <Button
+                                            variant="primary"
+                                            onClick={() => setShowModal(true)}
+                                        >
+                                            <FaPlusCircle /> Novo Investimento
+                                        </Button>
+                                        <Accordion>
+                                            {investimentos
+                                                .filter((investimento) =>
+                                                    String(investimento.carteira_id._id || investimento.carteira_id) === String(carteira._id)
+                                                )
+                                                .map((investimento, indexInvestimento) => (
+                                                    <Accordion.Item key={investimento._id} eventKey={indexInvestimento.toString()}>
+                                                        <Accordion.Header>
+                                                            <div className="d-flex justify-content-between w-100 me-3">
+                                                                <span>
+                                                                    {investimento.tipo_investimento} - R$ {
+                                                                        typeof investimento.valor_investido === 'object' && investimento.valor_investido.$numberDecimal
+                                                                            ? parseFloat(investimento.valor_investido.$numberDecimal).toLocaleString('pt-BR', {
                                                                                 minimumFractionDigits: 2,
                                                                                 maximumFractionDigits: 2
-                                                                            })}`,
-                                                                            `Valor Total: R$ ${valorTotal.toLocaleString('pt-BR', {
-                                                                                minimumFractionDigits: 2,
-                                                                                maximumFractionDigits: 2
-                                                                            })}`,
-                                                                            `Valor Inicial: R$ ${valorInicial.toLocaleString('pt-BR', {
-                                                                                minimumFractionDigits: 2,
-                                                                                maximumFractionDigits: 2
-                                                                            })}`
-                                                                        ];
+                                                                            })
+                                                                            : typeof investimento.valor_investido === 'number'
+                                                                                ? investimento.valor_investido.toLocaleString('pt-BR', {
+                                                                                    minimumFractionDigits: 2,
+                                                                                    maximumFractionDigits: 2
+                                                                                })
+                                                                                : '0,00'
                                                                     }
-                                                                }
-                                                            }
-                                                        },
-                                                        interaction: {
-                                                            mode: 'index',
-                                                            intersect: false,
-                                                        },
-                                                        scales: {
-                                                            y: {
-                                                                beginAtZero: true,
-                                                                ticks: {
-                                                                    callback: function (value) {
-                                                                        return 'R$ ' + value.toLocaleString('pt-BR', {
+                                                                </span>
+                                                                <span>
+                                                                    Rendimento Esperado: R$ {
+                                                                        calcularRendimentoEsperado(investimento).toLocaleString('pt-BR', {
                                                                             minimumFractionDigits: 2,
                                                                             maximumFractionDigits: 2
-                                                                        });
+                                                                        })
                                                                     }
-                                                                }
-                                                            },
-                                                            x: {
-                                                                ticks: {
-                                                                    maxRotation: 45,
-                                                                    minRotation: 45
-                                                                }
-                                                            }
-                                                        },
-                                                        maintainAspectRatio: false
-                                                    }}
-                                                    style={{
-                                                        height: '300px',
-                                                        maxHeight: '300px'
-                                                    }}
-                                                />
-                                            </Col>
-                                            <Col md={4}>
-                                                <h5>Detalhes do Investimento</h5>
-                                                <p><strong>Tipo:</strong> {investimento.tipo}</p>
-                                                <p><strong>Valor:</strong> R$ {
-                                                    typeof investimento.valor === 'object' && investimento.valor.$numberDecimal
-                                                        ? parseFloat(investimento.valor.$numberDecimal).toLocaleString('pt-BR', {
-                                                            minimumFractionDigits: 2,
-                                                            maximumFractionDigits: 2
-                                                        })
-                                                        : typeof investimento.valor === 'number'
-                                                            ? investimento.valor.toLocaleString('pt-BR', {
-                                                                minimumFractionDigits: 2,
-                                                                maximumFractionDigits: 2
-                                                            })
-                                                            : '0,00'
-                                                }</p>
-                                                <p><strong>Taxa de Juros:</strong> {investimento.taxa_juros}%</p>
-                                                <p><strong>Tipo de Juros:</strong> {investimento.tipo_juros}</p>
-                                                <p><strong>Prazo Investimento:</strong> {investimento.prazo_meses} meses</p>
-                                                <p><strong>Descrição:</strong> {investimento.descricao}</p>
-                                                <div className="mt-3">
-                                                    <Button
-                                                        variant="warning"
-                                                        size="sm"
-                                                        className="me-2"
-                                                        onClick={() => handleEdit(investimento._id)}
-                                                    >
-                                                        <FaEdit /> Editar
-                                                    </Button>
-                                                    <Button
-                                                        variant="danger"
-                                                        size="sm"
-                                                        onClick={() => handleDelete(investimento._id)}
-                                                    >
-                                                        <MdDelete /> Excluir
-                                                    </Button>
-                                                </div>
-                                            </Col>
-                                        </Row>
+                                                                </span>
+                                                            </div>
+                                                        </Accordion.Header>
+                                                        <Accordion.Body>
+                                                            <Row className="mb-3">
+                                                                <Col md={8}>
+                                                                    <PeriodoSelector
+                                                                        periodoVisualizacao={periodoVisualizacao}
+                                                                        setPeriodoVisualizacao={setPeriodoVisualizacao}
+                                                                        unidadeTempo={unidadeTempo}
+                                                                        setUnidadeTempo={setUnidadeTempo}
+                                                                    />
+                                                                </Col>
+                                                            </Row>
+                                                            <Row>
+                                                                <Col md={8}>
+                                                                    <Line
+                                                                        data={gerarDadosGrafico(investimento)}
+                                                                        options={{
+                                                                            responsive: true,
+                                                                            plugins: {
+                                                                                legend: {
+                                                                                    position: 'top',
+                                                                                },
+                                                                                title: {
+                                                                                    display: true,
+                                                                                    text: 'Evolução do Rendimento'
+                                                                                },
+                                                                                tooltip: {
+                                                                                    mode: 'index',
+                                                                                    intersect: false,
+                                                                                    callbacks: {
+                                                                                        title: function (tooltipItems) {
+                                                                                            return tooltipItems[0].label;
+                                                                                        },
+                                                                                        label: function (context) {
+                                                                                            const valorTotal = calcularRendimentoEsperado({
+                                                                                                ...investimento,
+                                                                                                data: context.dataIndex + 1
+                                                                                            });
+                                                                                            const valorInicial = parseFloat(
+                                                                                                typeof investimento.valor_investido === 'object' && investimento.valor_investido.$numberDecimal
+                                                                                                    ? investimento.valor_investido.$numberDecimal
+                                                                                                    : investimento.valor_investido
+                                                                                            );
+
+                                                                                            return [
+                                                                                                `Rendimento Líquido: R$ ${context.raw.toLocaleString('pt-BR', {
+                                                                                                    minimumFractionDigits: 2,
+                                                                                                    maximumFractionDigits: 2
+                                                                                                })}`,
+                                                                                                `Valor Total: R$ ${valorTotal.toLocaleString('pt-BR', {
+                                                                                                    minimumFractionDigits: 2,
+                                                                                                    maximumFractionDigits: 2
+                                                                                                })}`,
+                                                                                                `Valor Inicial: R$ ${valorInicial.toLocaleString('pt-BR', {
+                                                                                                    minimumFractionDigits: 2,
+                                                                                                    maximumFractionDigits: 2
+                                                                                                })}`
+                                                                                            ];
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            interaction: {
+                                                                                mode: 'index',
+                                                                                intersect: false,
+                                                                            },
+                                                                            scales: {
+                                                                                y: {
+                                                                                    beginAtZero: true,
+                                                                                    ticks: {
+                                                                                        callback: function (value) {
+                                                                                            return 'R$ ' + value.toLocaleString('pt-BR', {
+                                                                                                minimumFractionDigits: 2,
+                                                                                                maximumFractionDigits: 2
+                                                                                            });
+                                                                                        }
+                                                                                    }
+                                                                                },
+                                                                                x: {
+                                                                                    ticks: {
+                                                                                        maxRotation: 45,
+                                                                                        minRotation: 45
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            maintainAspectRatio: false
+                                                                        }}
+                                                                        style={{
+                                                                            height: '300px',
+                                                                            maxHeight: '300px'
+                                                                        }}
+                                                                    />
+                                                                </Col>
+                                                                <Col md={4}>
+                                                                    <h5>Detalhes do Investimento</h5>
+                                                                    <p><strong>Tipo:</strong> {investimento.tipo_investimento}</p>
+                                                                    <p><strong>Valor:</strong> R$ {
+                                                                        typeof investimento.valor_investido === 'object' && investimento.valor_investido.$numberDecimal
+                                                                            ? parseFloat(investimento.valor_investido.$numberDecimal).toLocaleString('pt-BR', {
+                                                                                minimumFractionDigits: 2,
+                                                                                maximumFractionDigits: 2
+                                                                            })
+                                                                            : typeof investimento.valor_investido === 'number'
+                                                                                ? investimento.valor_investido.toLocaleString('pt-BR', {
+                                                                                    minimumFractionDigits: 2,
+                                                                                    maximumFractionDigits: 2
+                                                                                })
+                                                                                : '0,00'
+                                                                    }</p>
+                                                                    <p><strong>Taxa de Juros:</strong> {investimento.taxa_juros}%</p>
+                                                                    <p><strong>Tipo de Juros:</strong> {investimento.tipo_juros}</p>
+                                                                    <p><strong>Prazo Investimento:</strong> {investimento.data} meses</p>
+                                                                    <p><strong>Descrição:</strong> {investimento.descricao}</p>
+                                                                    <div className="mt-3">
+                                                                        <Button
+                                                                            variant="warning"
+                                                                            size="sm"
+                                                                            className="me-2"
+                                                                            onClick={() => handleEdit(investimento.carteiras_id)}
+                                                                        >
+                                                                            <FaEdit /> Editar
+                                                                        </Button>
+                                                                        <Button
+                                                                            variant="danger"
+                                                                            size="sm"
+                                                                            onClick={() => handleDelete(investimento.carteiras_id)}
+                                                                        >
+                                                                            <MdDelete /> Excluir
+                                                                        </Button>
+                                                                    </div>
+                                                                </Col>
+                                                            </Row>
+                                                        </Accordion.Body>
+                                                    </Accordion.Item>
+                                                ))}
+                                        </Accordion>
+                                        {/* <CardInvestimento carteira={carteira} onEdit={handleEdit} onDelete={handleDelete} /> */}
                                     </Accordion.Body>
                                 </Accordion.Item>
                             ))}
+
+
+
                         </Accordion>
                     )}
                 </Card.Body>
@@ -653,13 +535,13 @@ export default function Investimentos() {
                                     <Form.Label>Carteira</Form.Label>
                                     <Form.Select
                                         required
-                                        value={formData.carteira_investimento_id}
-                                        onChange={(e) => setFormData({ ...formData, carteira_investimento_id: e.target.value })}
+                                        value={formData.carteira_id}
+                                        onChange={(e) => setFormData({ ...formData, carteira_id: e.target.value })}
                                     >
                                         <option value="">Selecione uma carteira</option>
                                         {carteiras.map(carteira => (
                                             <option key={carteira._id} value={carteira._id}>
-                                                {carteira.conta_id?.tipo_conta || 'Carteira sem conta'}
+                                                {carteira.nome_carteira || 'Carteira sem nome'}
                                             </option>
                                         ))}
                                     </Form.Select>
@@ -670,14 +552,26 @@ export default function Investimentos() {
                                     <Form.Label>Tipo de Investimento</Form.Label>
                                     <Form.Select
                                         required
-                                        value={formData.tipo}
-                                        onChange={(e) => setFormData({ ...formData, tipo: e.target.value })}
+                                        value={formData.tipo_investimento}
+                                        onChange={(e) => setFormData({ ...formData, tipo_investimento: e.target.value })}
                                     >
-                                        <option value="">Selecione o tipo</option>
+                                        <option value="">Selecione o tipo de investimento</option>
                                         <option value="Ações">Ações</option>
+                                        <option value="CDB">CDB</option>
+                                        <option value="Debentures">Debentures</option>
                                         <option value="Renda Fixa">Renda Fixa</option>
                                         <option value="Fundos">Fundos</option>
                                         <option value="Tesouro Direto">Tesouro Direto</option>
+                                        <option value="Cryptomoeda">Cryptomoeda</option>
+                                        <option value="LCI">LCI</option>
+                                        <option value="LCA">LCA</option>
+                                        <option value="Fundo Imobiliário">Fundo Imobiliário</option>
+                                        <option value="ETF">ETF</option>
+                                        <option value="Fundo Multimercado">Fundo Multimercado</option>
+                                        <option value="Poupança">Poupança</option>
+                                        <option value="Previdência Privada">Previdência Privada</option>
+                                        <option value="Commodities">Commodities</option>
+                                        <option value="Moeda Estrangeira">Moeda Estrangeira</option>
                                     </Form.Select>
                                 </Form.Group>
                             </Col>
@@ -686,14 +580,14 @@ export default function Investimentos() {
                         <Row>
                             <Col md={4}>
                                 <Form.Group className="mb-3">
-                                    <Form.Label>Valor</Form.Label>
+                                    <Form.Label>Valor Investido</Form.Label>
                                     <Form.Control
                                         type="number"
                                         required
                                         min="0"
                                         step="0.01"
-                                        value={formData.valor}
-                                        onChange={(e) => setFormData({ ...formData, valor: e.target.value })}
+                                        value={formData.valor_investido}
+                                        onChange={(e) => setFormData({ ...formData, valor_investido: e.target.value })}
                                     />
                                 </Form.Group>
                             </Col>
@@ -709,21 +603,16 @@ export default function Investimentos() {
                                     />
                                 </Form.Group>
                             </Col>
-                            <Col md={2}>
+                            <Col md={4}>
                                 <Form.Group className="mb-3">
-                                    <Form.Label>Período Taxa</Form.Label>
+                                    <Form.Label>Tipo de Juros</Form.Label>
                                     <Form.Select
                                         required
-                                        value={formData.periodo_taxa}
-                                        onChange={(e) => setFormData({ ...formData, periodo_taxa: e.target.value })}
+                                        value={formData.tipo_juros}
+                                        onChange={(e) => setFormData({ ...formData, tipo_juros: e.target.value })}
                                     >
-                                        <option value="dia">Dia</option>
-                                        <option value="mes">Mês</option>
-                                        <option value="bimestre">Bimestre</option>
-                                        <option value="trimestre">Trimestre</option>
-                                        <option value="quadrimestre">Quadrimestre</option>
-                                        <option value="semestre">Semestre</option>
-                                        <option value="ano">Ano</option>
+                                        <option value="Simples">Juros Simples</option>
+                                        <option value="Composto">Juros Compostos</option>
                                     </Form.Select>
                                 </Form.Group>
                             </Col>
@@ -732,48 +621,41 @@ export default function Investimentos() {
                         <Row>
                             <Col md={4}>
                                 <Form.Group className="mb-3">
-                                    <Form.Label>Prazo (meses)</Form.Label>
+                                    <Form.Label>Data</Form.Label>
+                                    <Form.Control
+                                        type="date"
+                                        required
+                                        value={formData.data}
+                                        onChange={(e) => setFormData({ ...formData, data: e.target.value })}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col md={4}>
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Frequência de Juros</Form.Label>
+                                    <Form.Select
+                                        required
+                                        value={formData.frequencia_juros}
+                                        onChange={(e) => setFormData({ ...formData, frequencia_juros: e.target.value })}
+                                    >
+                                        <option value="Mensal">Mensal</option>
+                                        <option value="Anual">Anual</option>
+                                    </Form.Select>
+                                </Form.Group>
+                            </Col>
+                            <Col md={4}>
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Período de Investimento (meses)</Form.Label>
                                     <Form.Control
                                         type="number"
                                         required
                                         min="1"
-                                        max="480"
-                                        value={formData.prazo_meses}
-                                        onChange={(e) => setFormData({ ...formData, prazo_meses: e.target.value })}
+                                        value={formData.periodo_investimento}
+                                        onChange={(e) => setFormData({ ...formData, periodo_investimento: e.target.value })}
                                     />
                                 </Form.Group>
                             </Col>
-                            <Col md={2}>
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Período Prazo</Form.Label>
-                                    <Form.Select
-                                        required
-                                        value={formData.periodo_prazo}
-                                        onChange={(e) => setFormData({ ...formData, periodo_prazo: e.target.value })}
-                                    >
-                                        <option value="dia">Dias</option>
-                                        <option value="mes">Meses</option>
-                                        <option value="bimestre">Bimestres</option>
-                                        <option value="trimestre">Trimestres</option>
-                                        <option value="quadrimestre">Quadrimestres</option>
-                                        <option value="semestre">Semestres</option>
-                                        <option value="ano">Anos</option>
-                                    </Form.Select>
-                                </Form.Group>
-                            </Col>
                         </Row>
-
-                        <Form.Group className="mb-3">
-                            <Form.Label>Tipo de Juros</Form.Label>
-                            <Form.Select
-                                required
-                                value={formData.tipo_juros}
-                                onChange={(e) => setFormData({ ...formData, tipo_juros: e.target.value })}
-                            >
-                                <option value="Simples">Juros Simples</option>
-                                <option value="Composto">Juros Compostos</option>
-                            </Form.Select>
-                        </Form.Group>
 
                         <Form.Group className="mb-3">
                             <Form.Label>Descrição</Form.Label>
@@ -796,39 +678,42 @@ export default function Investimentos() {
                 </Form>
             </Modal>
 
-            <Modal show={showModalCarteira} onHide={() => setShowModalCarteira(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Nova Carteira de Investimentos</Modal.Title>
-                </Modal.Header>
-                <Form onSubmit={handleSubmitCarteira}>
-                    <Modal.Body>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Conta</Form.Label>
-                            <Form.Select
-                                required
-                                value={carteiraForm.conta_id}
-                                onChange={(e) => setCarteiraForm({ ...carteiraForm, conta_id: e.target.value })}
-                            >
-                                <option value="">Selecione uma conta</option>
-                                {contas.map(conta => (
-                                    <option key={conta._id} value={conta._id}>
-                                        {conta.tipo_conta} - {conta.banco}
-                                    </option>
-                                ))}
-                            </Form.Select>
-                        </Form.Group>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={() => setShowModalCarteira(false)}>
-                            Cancelar
-                        </Button>
-                        <Button variant="success" type="submit">
-                            Criar Carteira
-                        </Button>
-                    </Modal.Footer>
-                </Form>
-            </Modal>
-        </Pagina>
+            {
+                showModalCarteira && (
+                    <Modal show={showModalCarteira} onHide={() => setShowModalCarteira(false)}>
+                        <Modal.Header closeButton>
+                            <Modal.Title>Criar Carteira de Investimentos</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <form onSubmit={handleSubmitCarteira}>
+                                <div className="mb-3">
+                                    <label htmlFor="nomeCarteira" className="form-label">Nome da Carteira</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        id="nomeCarteira"
+                                        value={novaCarteira.nome_carteira}
+                                        onChange={(e) => setNovaCarteira({ ...novaCarteira, nome_carteira: e.target.value })}
+                                        required
+                                    />
+                                </div>
+                                <div className="mb-3">
+                                    <label htmlFor="objetivoDescricao" className="form-label">Descrição do Objetivo</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        id="objetivoDescricao"
+                                        value={novaCarteira.objetivo_carteira_descricao}
+                                        onChange={(e) => setNovaCarteira({ ...novaCarteira, objetivo_carteira_descricao: e.target.value })}
+                                    />
+                                </div>
+                                <Button type="submit" variant="primary">Criar Carteira</Button>
+                            </form>
+                        </Modal.Body>
+                    </Modal>
+                )
+            }
+        </Pagina >
     );
 }
 

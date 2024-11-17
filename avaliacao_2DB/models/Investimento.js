@@ -2,72 +2,75 @@
 const mongoose = require('mongoose');
 
 const InvestimentoSchema = new mongoose.Schema({
-  carteira_investimentos_id: {
+  carteira_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'CarteiraInvestimento',
     required: true
   },
-  tipo: {
-    type: String,
-    required: true,
-    enum: ['Ações', 'Renda Fixa', 'Fundos', 'Tesouro Direto']
-  },
-  valor: {
-    type: mongoose.Schema.Types.Decimal128,
+  usuario_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Usuario',
     required: true
+  },
+  data: {
+    type: Date,
+    required: true,
+    default: Date.now
+  },
+  tipo_investimento: {
+    type: String,
+    enum: [
+      'Ações',
+      'CDB',
+      'Debentures',
+      'Renda Fixa',
+      'Fundos',
+      'Tesouro Direto',
+      'Cryptomoeda',
+      'LCI',
+      'LCA',
+      'Fundo Imobiliário',
+      'ETF',
+      'Fundo Multimercado',
+      'Poupança',
+      'Previdência Privada',
+      'Commodities',
+      'Moeda Estrangeira'
+    ],
+    required: true
+  },
+  descricao: {
+    type: String,
+    maxlength: 200
+  },
+  valor_investido: {
+    type: Number,
+    required: true,
+    min: [0, 'O valor investido deve ser positivo.']
   },
   taxa_juros: {
     type: Number,
-    required: true
+    required: true,
+    min: [0, 'A taxa de juros deve ser positiva.']
   },
   tipo_juros: {
     type: String,
     enum: ['Simples', 'Composto'],
     required: true
   },
-  prazo_meses: {
+  periodo_investimento: {
     type: Number,
-    required: true,
-    min: 1,
-    max: 480
+    required: false,
+    min: [1, 'O período mínimo é 1.'],
+    max: [1000, 'O período máximo é 1000.']
   },
-  descricao: {
+  frequencia_juros: {
     type: String,
-    maxlength: 200
-  },
-  data_criacao: {
-    type: Date,
-    default: Date.now
+    enum: ['Diário', 'Mensal', 'Bimestral', 'Trimestral', 'Quadrimestral', 'Semestral', 'Anual'],
+    required: true
   }
-});
+}, { timestamps: true });
 
 const Investimento = mongoose.model('Investimento', InvestimentoSchema);
-
 module.exports = Investimento;
 
-
-// Explicação:
-// carteira_investimentos_id:
-
-// Tipo ObjectId, referenciando o modelo CarteiraInvestimentos, garantindo a ligação entre o investimento e a carteira associada.
-// tipo:
-
-// Tipo String, obrigatória, representando o tipo de investimento (ex.: Ações, Renda Fixa).
-// valor:
-
-// Tipo Decimal128, utilizado para valores monetários, representando o valor do investimento.
-// taxa_juros:
-
-// Tipo Number, obrigatória, representando a taxa de juros do investimento.
-// tipo_juros:
-
-// Tipo String, obrigatória, representando o tipo de juros do investimento.
-// prazo_meses:
-
-// Tipo Number, obrigatória, representando o prazo do investimento em meses.
-// descricao:
-
-// Tipo String, opcional, representando a descrição do investimento.
-// data_criacao:
-
-// Tipo Date, com valor padrão atual (Date.now), para registrar a data da compra do investimento.

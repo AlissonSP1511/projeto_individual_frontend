@@ -2,27 +2,20 @@
 const mongoose = require('mongoose');
 
 const CarteiraInvestimentoSchema = new mongoose.Schema({
-  conta_id: {
+  usuario_id: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Conta',
+    ref: 'Usuario',
     required: true
   },
-  saldo_total: {
-    type: Number,
-    default: 0
+  nome_carteira: {
+    type: String,
+    maxlength: 50,
+    required: true
   },
-  data_criacao: {
-    type: Date,
-    default: Date.now
+  objetivo_carteira_descricao: {
+    type: String,
+    maxlength: 200
   }
-});
+}, { timestamps: true });
 
-const CarteiraInvestimento = mongoose.model('CarteiraInvestimento', CarteiraInvestimentoSchema);
-
-module.exports = CarteiraInvestimento;
-
-
-// Explicação:
-// conta_id:
-// Tipo ObjectId, referenciando o modelo Conta. É obrigatório (required: true), representando a associação da carteira de investimentos a uma conta corrente, equivalente à chave estrangeira INT REFERENCES Contas(id) no SQL.
-// Esse modelo será usado para armazenar a carteira de investimentos associada a uma conta corrente específica.
+module.exports = mongoose.model('CarteiraInvestimento', CarteiraInvestimentoSchema);
