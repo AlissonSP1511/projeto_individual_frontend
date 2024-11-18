@@ -2,7 +2,7 @@
 'use client'
 
 import React, { useEffect, useState } from "react";
-import { Card, Container, Table, Form, Row, Col, Button } from 'react-bootstrap';
+import { Card, Container, Table, Form, Row, Col, Button, Modal } from 'react-bootstrap';
 import { MdOutlineArrowBack, MdAdd, MdDelete, MdEdit } from 'react-icons/md';
 import { FaMoneyBillWave } from 'react-icons/fa';
 import Link from 'next/link';
@@ -31,6 +31,12 @@ export default function Page({ params }) {
     const [sortField, setSortField] = useState('data');
     const [sortDirection, setSortDirection] = useState('desc');
     const [carregando, setCarregando] = useState(true);
+    const [filtroAno, setFiltroAno] = useState('');
+    const [filtroMes, setFiltroMes] = useState('');
+    const [filtroTipoTransacao, setFiltroTipoTransacao] = useState('');
+    const [filtroFormaPagamento, setFiltroFormaPagamento] = useState('');
+    const [anosDisponiveis, setAnosDisponiveis] = useState([]);
+    const [mesesDisponiveis, setMesesDisponiveis] = useState([]);
 
     useEffect(() => {
         if (id) {
@@ -44,6 +50,20 @@ export default function Page({ params }) {
         try {
             const response = await Api_avaliacao_2DB.get(`/conta/${id[0]}`);
             setConta(response.data);
+
+            // Extrair anos e meses disponíveis
+            const transacoes = response.data.transacoes || [];
+            const anos = new Set();
+            const meses = new Set();
+
+            transacoes.forEach(transacao => {
+                const dataTransacao = new Date(transacao.data);
+                anos.add(dataTransacao.getFullYear());
+                meses.add(dataTransacao.getMonth() + 1); // Meses começam em 0
+            });
+
+            setAnosDisponiveis(Array.from(anos).sort((a, b) => b - a)); // Anos em ordem decrescente
+            setMesesDisponiveis(Array.from(meses).sort((a, b) => a - b)); // Meses em ordem crescente
         } catch (error) {
             console.error('Erro ao carregar conta:', error);
             Swal.fire({
@@ -152,6 +172,21 @@ export default function Page({ params }) {
         }
     };
 
+    const filtrarTransacoes = (transacoes) => {
+        return transacoes.filter(transacao => {
+            const dataTransacao = new Date(transacao.data);
+            const ano = dataTransacao.getFullYear();
+            const mes = dataTransacao.getMonth() + 1; // Meses começam em 0
+
+            const anoValido = filtroAno ? ano === parseInt(filtroAno) : true;
+            const mesValido = filtroMes ? (filtroMes === 'todos' || mes === parseInt(filtroMes)) : true;
+            const tipoValido = filtroTipoTransacao ? transacao.tipo_transacao === filtroTipoTransacao : true;
+            const formaValida = filtroFormaPagamento ? transacao.tipo_pagamento === filtroFormaPagamento : true;
+
+            return anoValido && mesValido && tipoValido && formaValida;
+        });
+    };
+
     if (!conta) return <div>Carregando...</div>;
 
     return (
@@ -175,8 +210,11 @@ export default function Page({ params }) {
                         </Button>
                     </Card.Header>
 
-                    {showForm && (
-                        <Card.Body>
+                    <Modal show={showForm} onHide={() => setShowForm(false)}>
+                        <Modal.Header closeButton>
+                            <Modal.Title>{editingTransacao ? 'Editar Transação' : 'Nova Transação'}</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
                             <Formik
                                 initialValues={{
                                     data: editingTransacao
@@ -292,10 +330,48 @@ export default function Page({ params }) {
                                     </Form>
                                 )}
                             </Formik>
-                        </Card.Body>
-                    )}
+                        </Modal.Body>
+                    </Modal>
 
                     <Card.Body>
+                        <Row className="mb-3">
+                            <Col md={3}>
+                                <Form.Select onChange={(e) => setFiltroAno(e.target.value)} value={filtroAno}>
+                                    <option value="">Todos os anos</option>
+                                    {anosDisponiveis.map(ano => (
+                                        <option key={ano} value={ano}>{ano}</option>
+                                    ))}
+                                </Form.Select>
+                            </Col>
+                            <Col md={3}>
+                                <Form.Select onChange={(e) => setFiltroMes(e.target.value)} value={filtroMes}>
+                                    <option value="todos">Todos os mêses</option>
+                                    {mesesDisponiveis.map(mes => (
+                                        <option key={mes} value={mes}>{mes}</option>
+                                    ))}
+                                </Form.Select>
+                            </Col>
+                            <Col md={3}>
+                                <Form.Select onChange={(e) => setFiltroTipoTransacao(e.target.value)} value={filtroTipoTransacao}>
+                                    <option value="">Tipos de Transação</option>
+                                    <option value="Entrada">Entrada</option>
+                                    <option value="Saída">Saída</option>
+                                </Form.Select>
+                            </Col>
+                            <Col md={3}>
+                                <Form.Select onChange={(e) => setFiltroFormaPagamento(e.target.value)} value={filtroFormaPagamento}>
+                                    <option value="">Formas de Pagamento</option>
+                                    <option value="Boleto">Boleto</option>
+                                    <option value="Cartão Débito">Cartão Débito</option>
+                                    <option value="Pix">Pix</option>
+                                    <option value="Transferência">Transferência</option>
+                                    <option value="Dinheiro">Dinheiro</option>
+                                    <option value="Cheque">Cheque</option>
+                                    <option value="Depósito">Depósito</option>
+                                </Form.Select>
+                            </Col>
+                        </Row>
+
                         <Table responsive striped hover>
                             <thead>
                                 <tr>
@@ -312,7 +388,7 @@ export default function Page({ params }) {
                                 </tr>
                             </thead>
                             <tbody>
-                                {sortTransactions(conta.transacoes).map((transacao) => (
+                                {sortTransactions(filtrarTransacoes(conta.transacoes)).map((transacao) => (
                                     <tr key={transacao._id}>
                                         <td>{new Date(transacao.data).toLocaleDateString('pt-BR')}</td>
                                         <td>{transacao.descricao}</td>
