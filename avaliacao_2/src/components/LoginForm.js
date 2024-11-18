@@ -60,6 +60,7 @@ const LoginForm = () => {
               onBlur={handleBlur}
               error={touched.email && Boolean(errors.email)}
               helperText={touched.email && errors.email}
+              autoComplete="email" // Adicionado para autocompletar o email
             />
 
             <TextField
@@ -71,6 +72,7 @@ const LoginForm = () => {
               onBlur={handleBlur}
               error={touched.password && Boolean(errors.password)}
               helperText={touched.password && errors.password}
+              autoComplete="current-password" // Adicionado para autocompletar a senha
             />
 
             <Button

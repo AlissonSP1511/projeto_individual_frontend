@@ -44,6 +44,7 @@ const RegisterForm = () => {
               onBlur={handleBlur}
               error={touched.nome && Boolean(errors.nome)}
               helperText={touched.nome && errors.nome}
+              autoComplete="name" // Adicionado
             />
 
             <TextField
@@ -55,6 +56,7 @@ const RegisterForm = () => {
               onBlur={handleBlur}
               error={touched.email && Boolean(errors.email)}
               helperText={touched.email && errors.email}
+              autoComplete="email" // Adicionado
             />
 
             <TextField
@@ -66,6 +68,7 @@ const RegisterForm = () => {
               onBlur={handleBlur}
               error={touched.password && Boolean(errors.password)}
               helperText={touched.password && errors.password}
+              autoComplete="current-password" // Adicionado para o autocomplete do navegador
             />
 
             <Button 
