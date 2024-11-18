@@ -11,6 +11,7 @@ import Api_avaliacao_2DB from 'services/Api_avaliacao_2DB';
 import Swal from 'sweetalert2';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+import Carregando from "components/Carregando";
 
 const validationSchema = Yup.object().shape({
     data: Yup.date().required('Data é obrigatória'),
@@ -29,6 +30,7 @@ export default function Page({ params }) {
     const [categorias, setCategorias] = useState([]);
     const [sortField, setSortField] = useState('data');
     const [sortDirection, setSortDirection] = useState('desc');
+    const [carregando, setCarregando] = useState(true);
 
     useEffect(() => {
         if (id) {
@@ -38,6 +40,7 @@ export default function Page({ params }) {
     }, [id]);
 
     async function carregarConta() {
+        setCarregando(true);
         try {
             const response = await Api_avaliacao_2DB.get(`/conta/${id[0]}`);
             setConta(response.data);
@@ -48,7 +51,12 @@ export default function Page({ params }) {
                 title: 'Erro!',
                 text: 'Não foi possível carregar os detalhes da conta.'
             });
+        } finally {
+            setCarregando(false);
         }
+    }
+    if (carregando) {
+        return <Carregando />;
     }
 
     async function carregarCategorias() {
@@ -66,31 +74,31 @@ export default function Page({ params }) {
                 ...values,
                 categoria_id: values.categoria_id || undefined
             };
-    
+
             if (editingTransacao) {
                 // Atualiza transação existente
                 await Api_avaliacao_2DB.patch(  // Mudando de put para patch
-                    `/conta/${id[0]}/transacao/${editingTransacao._id}`, 
+                    `/conta/${id[0]}/transacao/${editingTransacao._id}`,
                     dadosParaEnviar
                 );
             } else {
                 // Cria nova transação
                 await Api_avaliacao_2DB.post(
-                    `/conta/${id[0]}/transacao`, 
+                    `/conta/${id[0]}/transacao`,
                     dadosParaEnviar
                 );
             }
-    
+
             await carregarConta();
             setShowForm(false);
             setEditingTransacao(null);
             resetForm();
-            
+
             Swal.fire({
                 icon: 'success',
                 title: 'Sucesso!',
-                text: editingTransacao 
-                    ? 'Transação atualizada com sucesso!' 
+                text: editingTransacao
+                    ? 'Transação atualizada com sucesso!'
                     : 'Transação registrada com sucesso!'
             });
         } catch (error) {
@@ -156,8 +164,8 @@ export default function Page({ params }) {
                 <Card className="mb-4">
                     <Card.Header className="d-flex justify-content-between align-items-center">
                         <h5 className="mb-0">Transações</h5>
-                        <Button 
-                            variant="success" 
+                        <Button
+                            variant="success"
                             onClick={() => {
                                 setEditingTransacao(null);
                                 setShowForm(!showForm);
@@ -171,7 +179,7 @@ export default function Page({ params }) {
                         <Card.Body>
                             <Formik
                                 initialValues={{
-                                    data: editingTransacao 
+                                    data: editingTransacao
                                         ? new Date(editingTransacao.data).toISOString().split('T')[0]
                                         : '',
                                     descricao: editingTransacao?.descricao || '',
@@ -314,9 +322,9 @@ export default function Page({ params }) {
                                             {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(transacao.valor)}
                                         </td>
                                         <td>
-                                            <Button 
-                                                variant="primary" 
-                                                size="sm" 
+                                            <Button
+                                                variant="primary"
+                                                size="sm"
                                                 className="me-2"
                                                 onClick={() => {
                                                     setEditingTransacao(transacao);
@@ -325,9 +333,9 @@ export default function Page({ params }) {
                                             >
                                                 <MdEdit />
                                             </Button>
-                                            <Button 
-                                                variant="danger" 
-                                                size="sm" 
+                                            <Button
+                                                variant="danger"
+                                                size="sm"
                                                 onClick={() => handleDelete(transacao._id)}
                                             >
                                                 <MdDelete />

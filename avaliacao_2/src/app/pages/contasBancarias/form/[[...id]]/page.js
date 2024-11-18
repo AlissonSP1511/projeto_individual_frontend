@@ -11,7 +11,7 @@ import { Card, Form, Row, Col } from "react-bootstrap";
 import { FaCheck, FaSave } from "react-icons/fa";
 import { MdOutlineArrowBack } from "react-icons/md";
 import * as Yup from 'yup';
-import { use } from 'react';
+import Carregando from 'components/Carregando';
 
 const validationSchema = Yup.object().shape({
     usuario_id: Yup.string().required('Usuário é obrigatório'),
@@ -25,6 +25,7 @@ const validationSchema = Yup.object().shape({
 
 export default function Page({ params }) {
     const route = useRouter();
+    const [carregando, setCarregando] = useState(true);
     const [conta, setConta] = useState({
         usuario_id: '',
         saldo: '',
@@ -35,7 +36,7 @@ export default function Page({ params }) {
     const [userName, setUserName] = useState('');
     const [initialUserId, setInitialUserId] = useState('');
 
-    const resolvedParams = use(params);
+    const resolvedParams = React.use(params);
     const id = resolvedParams?.id ? resolvedParams.id[0] : null;
 
     useEffect(() => {
@@ -65,6 +66,7 @@ export default function Page({ params }) {
                     console.error('Erro ao carregar conta:', error);
                 });
         }
+        setCarregando(false);
     }, [id]);
 
     async function salvar(dados) {
@@ -110,6 +112,10 @@ export default function Page({ params }) {
             console.error('Erro ao salvar:', error);
             alert('Erro ao salvar a conta. Por favor, tente novamente.');
         }
+    }
+
+    if (carregando) {
+        return <Carregando />;
     }
 
     return (
@@ -180,7 +186,7 @@ export default function Page({ params }) {
                                     <Row>
                                         <Col md={12}>
                                             <Form.Group className="mb-3">
-                                                <Form.Label>nome_banco</Form.Label>
+                                                <Form.Label>Nome do Banco</Form.Label>
                                                 <Form.Control
                                                     type="text"
                                                     name="nome_banco"

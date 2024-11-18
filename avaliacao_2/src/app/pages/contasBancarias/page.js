@@ -11,9 +11,11 @@ import { ResponsiveContainer, PieChart as RechartsePieChart, Pie, Cell } from 'r
 import Pagina from "components/Pagina";
 import Api_avaliacao_2DB from "services/Api_avaliacao_2DB";
 import NomeUsuario from "components/NomeUsuario";
+import Carregando from "components/Carregando";
 
 export default function Page() {
     const [contas, setContas] = useState([])
+    const [carregando, setCarregando] = useState(true);
     console.log(contas)
 
     useEffect(() => {
@@ -21,13 +23,20 @@ export default function Page() {
     }, [])
 
     async function carregarContas() {
+        setCarregando(true);
         try {
             const response = await Api_avaliacao_2DB.get('/conta');
             setContas(response.data || []);
         } catch (error) {
             console.error('Erro ao carregar contas:', error);
             setContas([]);
+        } finally {
+            setCarregando(false);
         }
+    }
+
+    if (carregando) {
+        return <Carregando />;
     }
 
     function excluir(id) {
@@ -113,13 +122,13 @@ export default function Page() {
                                             </IconButton>
                                         </TableCell>
                                         <TableCell>
-                                                <Chip
-                                                    href={`/pages/contasBancarias/extrato/${item._id}`}
-                                                    label={item.nome_banco}
-                                                    color="default"
-                                                    size="small"
-                                                    className="fs-5"
-                                                />
+                                            <Chip
+                                                href={`/pages/contasBancarias/extrato/${item._id}`}
+                                                label={item.nome_banco}
+                                                color="default"
+                                                size="small"
+                                                className="fs-5"
+                                            />
                                         </TableCell>
                                         <TableCell>
                                             <Chip

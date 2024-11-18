@@ -9,6 +9,7 @@ import Api_avaliacao_2DB from 'services/Api_avaliacao_2DB';
 import Pagina from 'components/Pagina';
 import Swal from 'sweetalert2';
 import { Box } from '@mui/material';
+import Carregando from 'components/Carregando';
 
 export default function CartoesDeCredito() {
   const [cartoes, setCartoes] = useState([]);
@@ -63,29 +64,7 @@ export default function CartoesDeCredito() {
   }, []);
 
   if (carregando) {
-    return (
-      <Pagina titulo="Cartões de Crédito">
-
-        <div className="preloader d-flex flex-column justify-content-center align-items-center min-vh-100">
-          <Box
-            component="img"
-            sx={{
-              animation: 'shake 1.5s infinite',
-              '@keyframes shake': {
-                '0%, 100%': { transform: 'translateX(0)' },
-                '25%': { transform: 'translateX(-10px)' },
-                '75%': { transform: 'translateX(10px)' }
-              },
-              height: 100,
-              width: 600
-            }}
-            src="../LOGOAPP.png"
-            alt="Bank"
-          />
-          <h3 className="mt-3">Carregando...</h3>
-        </div>
-      </Pagina>
-    );
+    return <Carregando />;
   }
 
   if (cartoes.length === 0) {

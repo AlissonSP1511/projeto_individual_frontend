@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation';
 import Pagina from 'components/Pagina';
 import Api_avaliacao_2DB from 'services/Api_avaliacao_2DB';
 import Swal from 'sweetalert2';
+import Carregando from 'components/Carregando';
 
 const validationSchema = Yup.object().shape({
   bancoEmissor: Yup.string()
@@ -56,6 +57,7 @@ export default function CartaoCreditoForm({ params }) {
     usuario_id: ''
   });
 
+
   const id = React.use(params)?.id?.[0] || null;
   console.log('ID recebido nos parâmetros:', id);
 
@@ -75,7 +77,27 @@ export default function CartaoCreditoForm({ params }) {
         const response = await Api_avaliacao_2DB.get(`/cartaocredito/${id}`, {
           params: { usuario_id: storedUserId }
         });
+        
+        const [carregando, setCarregando] = useState(true);
 
+        async function carregarDados() {
+          try {
+            setCarregando(true);
+            await fetchCartao();
+          } finally {
+            setCarregando(false);
+          }
+
+        }
+
+        useEffect(() => {
+          carregarDados();
+        }, []);
+
+        if (carregando) {
+          return <Carregando />;
+        }
+        
         console.log('Resposta da API:', response.data);
 
         if (!response.data) {
@@ -131,9 +153,11 @@ export default function CartaoCreditoForm({ params }) {
     fetchCartao();
   }, [id]);
 
+
+
   async function salvar(dados) {
     const usuarioLogado = localStorage.getItem('userId');
-    
+
     if (!usuarioLogado) {
       Swal.fire({
         icon: 'error',
@@ -163,7 +187,7 @@ export default function CartaoCreditoForm({ params }) {
       const endpoint = id ? `/cartaocredito/${id}` : '/cartaocredito';
       const method = id ? 'put' : 'post';
       const response = await Api_avaliacao_2DB[method](endpoint, dadosParaSalvar);
-      
+
       console.log('Resposta da API:', response.data);
 
       Swal.fire({
@@ -177,10 +201,10 @@ export default function CartaoCreditoForm({ params }) {
       route.push('/pages/cartoesDeCredito');
     } catch (error) {
       console.error('Erro ao salvar cartão:', error);
-      
+
       // Tratamento específico das mensagens de erro do backend
       let mensagemErro = 'Não foi possível salvar o cartão.';
-      
+
       if (error.response) {
         // Se o backend retornou uma resposta com erro
         if (error.response.data && error.response.data.error) {
