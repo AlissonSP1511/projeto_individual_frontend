@@ -4,7 +4,6 @@
 import React, { useEffect, useState } from "react";
 import { Card, Container, Table, Form, Row, Col, Button, Modal } from 'react-bootstrap';
 import { MdOutlineArrowBack, MdAdd, MdDelete, MdEdit } from 'react-icons/md';
-import { FaMoneyBillWave } from 'react-icons/fa';
 import Link from 'next/link';
 import Pagina from 'components/Pagina';
 import Api_avaliacao_2DB from 'services/Api_avaliacao_2DB';

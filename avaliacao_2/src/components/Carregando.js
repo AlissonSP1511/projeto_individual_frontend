@@ -18,8 +18,8 @@ const Carregando = () => {
             height: 100,
             width: 600
           }}
-          src="../LOGOAPP.png"
-          alt="Bank"
+          src="/LOGOAPP.png"
+          alt="Financas Pessoais"
         />
         <h3 className="mt-3">Carregando...</h3>
       </div>

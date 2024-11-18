@@ -13,6 +13,7 @@ import { FaEdit, FaPlusCircle } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import Api_avaliacao_2DB from 'services/Api_avaliacao_2DB';
 import Swal from 'sweetalert2';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip } from 'recharts';
 
 ChartJS.register(
     CategoryScale,
@@ -529,6 +530,49 @@ export default function Investimentos() {
 
                         </Accordion>
                     )}
+                </Card.Body>
+            </Card>
+
+            {/* Gráfico de Pizza por Tipo de Investimento */}
+            <Card className="mt-4">
+                <Card.Header>
+                    <h5>Distribuição dos Investido por Tipo</h5>
+                </Card.Header>
+                <Card.Body>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <PieChart>
+                            <Pie
+                                data={investimentos.reduce((acc, investimento) => {
+                                    const tipo = investimento.tipo_investimento;
+                                    const valor = parseFloat(
+                                        typeof investimento.valor_investido === 'object' && investimento.valor_investido.$numberDecimal
+                                            ? investimento.valor_investido.$numberDecimal
+                                            : investimento.valor_investido
+                                    );
+
+                                    const existing = acc.find(item => item.name === tipo);
+                                    if (existing) {
+                                        existing.value += valor;
+                                    } else {
+                                        acc.push({ name: tipo, value: valor });
+                                    }
+                                    return acc;
+                                }, [])}
+                                dataKey="value"
+                                nameKey="name"
+                                cx="50%"
+                                cy="50%"
+                                outerRadius={100}
+                                fill="#8884d8"
+                                label={({ name, value }) => `${name}: R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                            >
+                                {investimentos.map((_, index) => (
+                                    <Cell key={`cell-${index}`} fill={['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'][index % 5]} />
+                                ))}
+                            </Pie>
+                            <RechartsTooltip formatter={(value) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} />
+                        </PieChart>
+                    </ResponsiveContainer>
                 </Card.Body>
             </Card>
 

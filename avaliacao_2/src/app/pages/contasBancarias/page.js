@@ -69,7 +69,7 @@ export default function Page() {
 
     return (
         <Pagina titulo="Contas Bancárias">
-            <Card sx={{ mt: 2 }}>
+            <Card >
                 <CardHeader
                     title={<>Contas Bancárias de <NomeUsuario /></>}
                     className=" text-dark p-2 rounded" sx={{ backgroundColor: '#e3f2fd', fontSize: '1.2rem' }}

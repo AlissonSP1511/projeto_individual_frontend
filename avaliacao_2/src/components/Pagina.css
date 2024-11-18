@@ -1,0 +1,14 @@
+/* Garante que o footer fique no final da view */
+.page-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.content-container {
+    flex: 1; /* Faz o conteúdo crescer para ocupar o espaço disponível */
+}
+
+footer {
+    flex-shrink: 0; /* Garante que o footer não encolha */
+}
