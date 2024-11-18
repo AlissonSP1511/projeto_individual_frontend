@@ -165,13 +165,13 @@ export default function Page({ params }) {
                     <Card.Header className="d-flex justify-content-between align-items-center">
                         <h5 className="mb-0">Transações</h5>
                         <Button
-                            variant="success"
+                            variant="primary"
                             onClick={() => {
                                 setEditingTransacao(null);
                                 setShowForm(!showForm);
                             }}
                         >
-                            <MdAdd /> Nova Transação
+                            <MdAdd className="me-2 justify-content-center align-items-center fs-5"/> Nova Transação
                         </Button>
                     </Card.Header>
 
@@ -346,6 +346,13 @@ export default function Page({ params }) {
                             </tbody>
                         </Table>
                     </Card.Body>
+                    <Card.Footer>
+                        <div className="text-end">
+                            <Button variant="primary" onClick={() => setShowForm(true)}>
+                                <MdAdd className="me-2 justify-content-center align-items-center fs-5"/>Nova Transação
+                            </Button>
+                        </div>
+                    </Card.Footer>
                 </Card>
             </Container>
         </Pagina>

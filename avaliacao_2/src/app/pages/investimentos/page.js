@@ -2,6 +2,7 @@
 'use client'
 
 import { CategoryScale, Chart as ChartJS, Filler, Legend, LinearScale, LineElement, PointElement, Title, Tooltip } from 'chart.js';
+import Carregando from 'components/Carregando';
 import Pagina from 'components/Pagina';
 import PeriodoSelector from 'components/PeriodoSelector';
 import { useRouter } from 'next/navigation';
@@ -67,6 +68,7 @@ export default function Investimentos() {
     });
     const [periodoVisualizacao, setPeriodoVisualizacao] = useDebouncedState(12);
     const [unidadeTempo, setUnidadeTempo] = useState('meses');
+    const [carregando, setCarregando] = useState(true);
 
     useEffect(() => {
         carregarDados();
@@ -74,6 +76,7 @@ export default function Investimentos() {
 
     async function carregarDados() {
         try {
+            setCarregando(true);
             const [invResponse, cartResponse] = await Promise.all([
                 Api_avaliacao_2DB.get('/investimento'),
                 Api_avaliacao_2DB.get('/carteirainvestimento')
@@ -91,7 +94,13 @@ export default function Investimentos() {
             console.error('Erro ao carregar dados:', error);
             setInvestimentos([]);
             setCarteiras([]);
+        } finally {
+            setCarregando(false);
         }
+    }
+
+    if (carregando) {
+        return <Carregando />;
     }
 
 

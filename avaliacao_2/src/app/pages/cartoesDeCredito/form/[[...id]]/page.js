@@ -62,98 +62,32 @@ export default function CartaoCreditoForm({ params }) {
   console.log('ID recebido nos parâmetros:', id);
 
   useEffect(() => {
-    const storedUserId = localStorage.getItem('userId');
-    setInitialUserId(storedUserId);
-
-    if (!id) {
-      console.log('Nenhum ID encontrado - modo criação');
-      return;
+    if (id) {
+      carregarCartao(id);
     }
-
-    const fetchCartao = async () => {
-      console.log('Buscando cartão - ID:', id, 'UserID:', storedUserId);
-
-      try {
-        const response = await Api_avaliacao_2DB.get(`/cartaocredito/${id}`, {
-          params: { usuario_id: storedUserId }
-        });
-        
-        const [carregando, setCarregando] = useState(true);
-
-        async function carregarDados() {
-          try {
-            setCarregando(true);
-            await fetchCartao();
-          } finally {
-            setCarregando(false);
-          }
-
-        }
-
-        useEffect(() => {
-          carregarDados();
-        }, []);
-
-        if (carregando) {
-          return <Carregando />;
-        }
-        
-        console.log('Resposta da API:', response.data);
-
-        if (!response.data) {
-          console.log('caiu no if !response.data')
-          throw new Error('Dados do cartão não encontrados');
-        }
-
-        const cartaoData = response.data;
-        if (cartaoData.usuario_id !== storedUserId) {
-          console.log('caiu no if cartaoData.usuario_id !== storedUserId')
-          throw new Error('Acesso não autorizado a este cartão');
-        }
-
-        setCartao({
-          _id: cartaoData._id,
-          numero: cartaoData.numero || '',
-          nome: cartaoData.nome || '',
-          bancoEmissor: cartaoData.bancoEmissor || '',
-          bandeira: cartaoData.bandeira || '',
-          imagemCartao: cartaoData.imagemCartao || '',
-          limite: Number(cartaoData.limite || 0),
-          diaFechamento: Number(cartaoData.diaFechamento || 1),
-          diaVencimento: Number(cartaoData.diaVencimento || 1),
-          limiteUtilizado: Number(cartaoData.limiteUtilizado || 0),
-          comprasParceladas: cartaoData.comprasParceladas || [],
-          comprasAVista: cartaoData.comprasAVista || [],
-          usuario_id: cartaoData.usuario_id
-        });
-
-      } catch (error) {
-        let mensagemErro = 'Não foi possível carregar os dados do cartão.';
-        if (error.response?.status === 500) {
-          mensagemErro = 'Erro interno do servidor. Por favor, tente novamente mais tarde.';
-        }
-
-        console.error('Erro ao carregar cartão:', {
-          tipo: error.name,
-          mensagem: error.message,
-          status: error.response?.status,
-          resposta: error.response?.data,
-          cartaoId: id,
-          userId: storedUserId
-        });
-
-        Swal.fire({
-          icon: 'error',
-          title: 'Erro ao carregar cartão',
-          text: mensagemErro
-        });
-      }
-    };
-
-    fetchCartao();
   }, [id]);
 
-
+  async function carregarCartao(cartaoId) {
+    try {
+      const userId = localStorage.getItem('userId');
+      const response = await Api_avaliacao_2DB.get(`/cartaocredito/${cartaoId}`, {
+        params: { usuario_id: userId }
+      });
+      
+      if (response.data) {
+        setCartao(response.data);
+      } else {
+        throw new Error('Cartão não encontrado');
+      }
+    } catch (error) {
+      console.error('Erro ao carregar cartão:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro!',
+        text: 'Não foi possível carregar o cartão.'
+      });
+    }
+  }
 
   async function salvar(dados) {
     const usuarioLogado = localStorage.getItem('userId');

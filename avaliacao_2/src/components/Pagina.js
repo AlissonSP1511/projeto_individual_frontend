@@ -52,7 +52,7 @@ export default function Pagina({ titulo, children }) {
                         {userName ? (
                             <ProtectedRoute>
                                 <div className="d-flex align-items-center">
-                                    <span className="me-3">Olá, {userName}</span>
+                                    <span className="me-3 fw-bolder text-black opacity-75 fs-6">Olá, {userName}</span>
                                     <Button variant="outline-danger" onClick={handleLogout}>
                                         Sair
                                     </Button>

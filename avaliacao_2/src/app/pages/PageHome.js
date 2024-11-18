@@ -9,7 +9,7 @@ import theme from 'assets/theme';
 import MDPagination from 'components/MDPagination';
 import { MdOutlineKeyboardArrowLeft, MdOutlineKeyboardArrowRight } from 'react-icons/md';
 import { Card, Carousel, Col, Image, Row } from 'react-bootstrap';
-import Pagina from './Pagina';
+import Pagina from 'components/Pagina';
 
 export default function App() {
     // Criação de cache padrão do Emotion
@@ -41,7 +41,7 @@ export default function App() {
                         </Col>
                         <Col className="justify-content-center mt-5 mb-4">
                             <div>
-                                <h4>Bem-vindo ao [Nome do App]!</h4>
+                                <h4 style={{ textAlign: 'center' }}>Bem-vindo ao Finanças Pessoais!</h4>
                                 <p style={{ textAlign: 'center' }}>Sabemos que a vida financeira é um dos pilares para uma vida mais tranquila e segura, e manter as finanças organizadas é essencial para alcançar suas metas e realizar sonhos. Com o nosso aplicativo, você não apenas acompanha suas receitas e despesas, mas também enxerga uma visão completa de onde está indo o seu dinheiro, identificando oportunidades para economizar e planejar melhor o futuro.</p>
                             </div>
                         </Col>
@@ -53,98 +53,93 @@ export default function App() {
                         </div>
                         que a planilha não te oferece
                     </h1>
-                    <Row className='d-flex justify-content-center row-cols-1 row-cols-lg-3 g-4 mt-5'  >
-                        <Col style={{ display: 'flex', justifyContent: 'center' }} >
+                    <Row className='d-flex justify-content-center row-cols-1 row-cols-lg-3 g-4 mt-5' >
+                        <Col style={{ display: 'flex', justifyContent: 'center' ,height: '220px'}} >
                             <Card border="info" className="bg-primary bg-opacity-10">
-                                <Card.Header >Controle Total e Simplicidade</Card.Header>
+                                <Card.Header>Controle Total e Simplicidade</Card.Header>
                                 <Card.Body>
                                     <Card.Text>
-                                        Cuidar do seu dinheiro não precisa ser complicado. O [Nome do App] foi projetado para ser fácil de usar, com uma interface intuitiva que ajuda você a gerenciar todas as suas contas, cartões de crédito, investimentos e despesas em um só lugar. Tudo isso, sem a complexidade de outras ferramentas e com a facilidade de acesso a qualquer momento.
+                                        Cuidar do seu dinheiro não precisa ser complicado. O Finanças Pessoais foi projetado para ser fácil de usar, com uma interface intuitiva que ajuda você a gerenciar todas as suas contas, cartões de crédito, investimentos e despesas em um só lugar.
                                     </Card.Text>
                                 </Card.Body>
                             </Card>
                         </Col>
-                        <Col style={{ display: 'flex', justifyContent: 'center' }}>
-                            <Card border="info" >
-                                <Card.Header className="bg-primary bg-opacity-10">Visão Clara da Sua Saúde Financeira</Card.Header>
-                                <Card.Body className="bg-primary bg-opacity-10">
+                        <Col style={{ display: 'flex', justifyContent: 'center' ,height: '220px'}}>
+                            <Card border="info" className="bg-primary bg-opacity-25">
+                                <Card.Header>Visão Clara da Sua Saúde Financeira</Card.Header>
+                                <Card.Body>
                                     <Card.Text>
-                                        Com gráficos interativos, dashboards completos e relatórios detalhados, você terá uma visão clara e precisa de como estão as suas finanças. Desde categorias de gastos até o saldo consolidado de todas as contas, o [Nome do App] oferece insights que facilitam suas decisões financeiras, permitindo entender para onde o dinheiro está indo e como melhor aproveitá-lo
+                                        Com gráficos interativos e relatórios detalhados, você terá uma visão completa das suas finanças. Desde categorias de gastos até o saldo consolidado, tome decisões informadas e otimize o uso do seu dinheiro.
                                     </Card.Text>
                                 </Card.Body>
                             </Card>
                         </Col>
-                        <Col style={{ display: 'flex', justifyContent: 'center' }}>
+                        <Col style={{ display: 'flex', justifyContent: 'center' ,height: '220px'}}>
                             <Card border="info" className="bg-primary bg-opacity-10">
                                 <Card.Header>Defina e Alcance Suas Metas</Card.Header>
                                 <Card.Body>
                                     <Card.Text>
-                                        Todos nós temos metas financeiras: pagar uma dívida, economizar para uma viagem ou simplesmente manter um orçamento. Nosso app permite que você categorize gastos, controle investimentos e acompanhe as metas de poupança, ajudando a transformar seus objetivos em realidade. Cada transação é um passo a mais rumo ao seu sucesso financeiro!
+                                        Com o Finanças Pessoais, você pode criar metas financeiras claras, como economizar para uma viagem ou organizar seus gastos mensais. Acompanhe seu progresso e transforme seus objetivos em realidade.
                                     </Card.Text>
                                 </Card.Body>
                             </Card>
                         </Col>
-                        <Col style={{ display: 'flex', justifyContent: 'center' }}>
-                            <Card border="info" >
-                                <Card.Header className="bg-primary bg-opacity-10">Segurança e Privacidade</Card.Header>
-                                <Card.Body className="bg-primary bg-opacity-10">
-                                    <Card.Text>
-                                        Sabemos que a sua privacidade é fundamental. No [Nome do App], tratamos suas informações financeiras com o máximo de segurança e confidencialidade. Você pode organizar e monitorar seu dinheiro sabendo que seus dados estão protegidos.
-                                    </Card.Text>
-                                </Card.Body>
-                            </Card>
-                        </Col>
-                        <Col style={{ display: 'flex', justifyContent: 'center' }}>
-                            <Card border="info" className="bg-primary bg-opacity-10">
-                                <Card.Header>Flexível e Personalizável</Card.Header>
+                        <Col style={{ display: 'flex', justifyContent: 'center' ,height: '220px'}}>
+                            <Card border="info" className="bg-primary bg-opacity-25">
+                                <Card.Header>Segurança e Privacidade</Card.Header>
                                 <Card.Body>
-                                    <Card.Title>Info Card Title</Card.Title>
                                     <Card.Text>
-                                        Cada pessoa lida com o dinheiro de uma forma diferente, e por isso, o [Nome do App] permite que você personalize categorias, configure lembretes, e ajuste o app conforme a sua necessidade. É a ferramenta certa para organizar suas finanças do jeito que você prefere.
+                                        Seus dados financeiros estão seguros. O Finanças Pessoais utiliza práticas avançadas de segurança para garantir que suas informações permaneçam protegidas e confidenciais.
                                     </Card.Text>
                                 </Card.Body>
                             </Card>
                         </Col>
-                        <Col style={{ display: 'flex', justifyContent: 'center' }}>
-                            <Card border="info"  >
-                                <Card.Header className="bg-primary bg-opacity-10">Flexível e Personalizável</Card.Header>
-                                <Card.Body className="bg-primary bg-opacity-10">
-                                    <Card.Title>Info Card Title</Card.Title>
-                                    <Card.Text>
-                                        Cada pessoa lida com o dinheiro de uma forma diferente, e por isso, o [Nome do App] permite que você personalize categorias, configure lembretes, e ajuste o app conforme a sua necessidade. É a ferramenta certa para organizar suas finanças do jeito que você prefere.
-                                    </Card.Text>
-                                </Card.Body>
-                            </Card>
-                        </Col>
-                        <Col style={{ display: 'flex', justifyContent: 'center' }}>
+                        <Col style={{ display: 'flex', justifyContent: 'center' ,height: '220px'}}>
                             <Card border="info" className="bg-primary bg-opacity-10">
-                                <Card.Header>Flexível e Personalizável</Card.Header>
+                                <Card.Header>Personalização Total</Card.Header>
                                 <Card.Body>
-                                    <Card.Title>Info Card Title</Card.Title>
                                     <Card.Text>
-                                        Cada pessoa lida com o dinheiro de uma forma diferente, e por isso, o [Nome do App] permite que você personalize categorias, configure lembretes, e ajuste o app conforme a sua necessidade. É a ferramenta certa para organizar suas finanças do jeito que você prefere.
+                                        Adapte o aplicativo às suas necessidades! Categorize seus gastos, configure alertas e crie filtros personalizados para acompanhar suas despesas do jeito que preferir.
                                     </Card.Text>
                                 </Card.Body>
                             </Card>
                         </Col>
-                        <Col style={{ display: 'flex', justifyContent: 'center' }}>
-                            <Card border="info" >
-                                <Card.Header className="bg-primary bg-opacity-10">Flexível e Personalizável</Card.Header>
-                                <Card.Body className="bg-primary bg-opacity-10">
-                                    <Card.Title>Info Card Title</Card.Title>
+                        <Col style={{ display: 'flex', justifyContent: 'center' ,height: '220px'}}>
+                            <Card border="info" className="bg-primary bg-opacity-25">
+                                <Card.Header>Controle de Cartões de Crédito</Card.Header>
+                                <Card.Body>
                                     <Card.Text>
-                                        Cada pessoa lida com o dinheiro de uma forma diferente, e por isso, o [Nome do App] permite que você personalize categorias, configure lembretes, e ajuste o app conforme a sua necessidade. É a ferramenta certa para organizar suas finanças do jeito que você prefere.
+                                        Nunca mais perca o controle das suas faturas. Com o Finanças Pessoais, você organiza os gastos por cartão, monitora limites e planeja pagamentos para evitar juros.
                                     </Card.Text>
                                 </Card.Body>
                             </Card>
                         </Col>
-                        <Col style={{ display: 'flex', justifyContent: 'center' }}>
+                        <Col style={{ display: 'flex', justifyContent: 'center' ,height: '220px'}}>
                             <Card border="info" className="bg-primary bg-opacity-10">
-                                <Card.Header>Flexível e Personalizável</Card.Header>
+                                <Card.Header>Gerenciamento de Investimentos</Card.Header>
                                 <Card.Body>
-                                    <Card.Title>Info Card Title</Card.Title>
                                     <Card.Text>
-                                        Cada pessoa lida com o dinheiro de uma forma diferente, e por isso, o [Nome do App] permite que você personalize categorias, configure lembretes, e ajuste o app conforme a sua necessidade. É a ferramenta certa para organizar suas finanças do jeito que você prefere.
+                                        Acompanhe seus investimentos de maneira simples e prática. Registre suas aplicações, monitore rendimentos e tenha uma visão completa do seu portfólio financeiro.
+                                    </Card.Text>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                        <Col style={{ display: 'flex', justifyContent: 'center' ,height: '220px'}}>
+                            <Card border="info" className="bg-primary bg-opacity-25">
+                                <Card.Header>Relatórios Detalhados</Card.Header>
+                                <Card.Body>
+                                    <Card.Text>
+                                        Gere relatórios financeiros personalizados em PDF. Analise suas finanças, compare períodos e planeje seus próximos passos com informações detalhadas.
+                                    </Card.Text>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                        <Col style={{ display: 'flex', justifyContent: 'center' ,height: '220px'}}>
+                            <Card border="info" className="bg-primary bg-opacity-10">
+                                <Card.Header>Suporte Completo</Card.Header>
+                                <Card.Body>
+                                    <Card.Text>
+                                        Precisa de ajuda? Nossa equipe está disponível para garantir que você aproveite ao máximo o aplicativo. Explore tutoriais e recursos para dominar suas finanças.
                                     </Card.Text>
                                 </Card.Body>
                             </Card>
@@ -169,7 +164,7 @@ export default function App() {
             </ThemeProvider>
             {/* </CacheProvider> */}
             <style jsx>{`
-                .carousel-image-wrapper {
+.carousel-image-wrapper {
   height: 400px; /* Defina a altura que você deseja */
   overflow: hidden; /* Oculta qualquer conteúdo que ultrapasse a altura */
   display: flex; /* Usado para centralizar */
