@@ -705,7 +705,7 @@ export default function Investimentos() {
                         <Col md={4}>
                             <ul>
                                 {gerarDadosDistribuicaoPorCarteiras().map((carteira, index) => (
-                                    <li key={index} style={{ color: ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'][index % 5] }}>
+                                    <li key={index} style={{ color: ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#FF5733', '#C70039', '#900C3F', '#581845', '#FFC300'][index % 10] }}>
                                         {carteira.name}: R$ {carteira.value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                     </li>
                                 ))}
@@ -724,7 +724,7 @@ export default function Investimentos() {
                                         fill="#8884d8"
                                     >
                                         {gerarDadosDistribuicaoPorCarteiras().map((_, index) => (
-                                            <Cell key={`cell-${index}`} fill={['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'][index % 5]} />
+                                            <Cell key={`cell-${index}`} fill={['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#FF5733', '#C70039', '#900C3F', '#581845', '#FFC300'][index % 5]} />
                                         ))}
                                     </Pie>
                                     <RechartsTooltip
