@@ -305,6 +305,26 @@ export default function Investimentos() {
         }
     };
 
+    const gerarDadosDistribuicaoPorCarteiras = () => {
+        return carteiras.map(carteira => {
+            const totalInvestido = investimentos
+                .filter(investimento => String(investimento.carteira_id._id || investimento.carteira_id) === String(carteira._id))
+                .reduce((acc, investimento) => {
+                    const valor = parseFloat(
+                        typeof investimento.valor_investido === 'object' && investimento.valor_investido.$numberDecimal
+                            ? investimento.valor_investido.$numberDecimal
+                            : investimento.valor_investido
+                    );
+                    return acc + valor;
+                }, 0);
+
+            return {
+                name: carteira.nome_carteira || 'Sem Nome',
+                value: totalInvestido
+            };
+        });
+    };
+
     return (
         <Pagina titulo="Investimentos">
             <Card>
@@ -536,13 +556,13 @@ export default function Investimentos() {
             {/* Gráfico de Pizza por Tipo de Investimento */}
             <Card className="mt-4">
                 <Card.Header>
-                    <h5>Distribuição dos Investido por Tipo</h5>
+                    <h5>Distribuição dos Investimentos por Tipo</h5>
                 </Card.Header>
                 <Card.Body>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <PieChart>
-                            <Pie
-                                data={investimentos.reduce((acc, investimento) => {
+                    <Row>
+                        <Col md={4}>
+                            <ul>
+                                {investimentos.reduce((acc, investimento) => {
                                     const tipo = investimento.tipo_investimento;
                                     const valor = parseFloat(
                                         typeof investimento.valor_investido === 'object' && investimento.valor_investido.$numberDecimal
@@ -557,22 +577,108 @@ export default function Investimentos() {
                                         acc.push({ name: tipo, value: valor });
                                     }
                                     return acc;
-                                }, [])}
-                                dataKey="value"
-                                nameKey="name"
-                                cx="50%"
-                                cy="50%"
-                                outerRadius={100}
-                                fill="#8884d8"
-                                label={({ name, value }) => `${name}: R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-                            >
-                                {investimentos.map((_, index) => (
-                                    <Cell key={`cell-${index}`} fill={['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'][index % 5]} />
+                                }, []).map((item, index) => (
+                                    <li key={index} style={{ color: ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'][index % 5] }}>
+                                        {item.name}: R$ {item.value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    </li>
                                 ))}
-                            </Pie>
-                            <RechartsTooltip formatter={(value) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} />
-                        </PieChart>
-                    </ResponsiveContainer>
+                            </ul>
+                        </Col>
+                        <Col md={8}>
+                            <ResponsiveContainer width="100%" height={300}>
+                                <PieChart>
+                                    <Pie
+                                        data={investimentos.reduce((acc, investimento) => {
+                                            const tipo = investimento.tipo_investimento;
+                                            const valor = parseFloat(
+                                                typeof investimento.valor_investido === 'object' && investimento.valor_investido.$numberDecimal
+                                                    ? investimento.valor_investido.$numberDecimal
+                                                    : investimento.valor_investido
+                                            );
+
+                                            const existing = acc.find(item => item.name === tipo);
+                                            if (existing) {
+                                                existing.value += valor;
+                                            } else {
+                                                acc.push({ name: tipo, value: valor });
+                                            }
+                                            return acc;
+                                        }, [])}
+                                        dataKey="value"
+                                        nameKey="name"
+                                        cx="50%"
+                                        cy="50%"
+                                        outerRadius={100}
+                                        fill="#8884d8"
+                                    >
+                                        {investimentos.map((_, index) => (
+                                            <Cell key={`cell-${index}`} fill={['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'][index % 5]} />
+                                        ))}
+                                    </Pie>
+                                    <RechartsTooltip 
+                                        formatter={(value, name) => {
+                                            const total = investimentos.reduce((acc, investimento) => {
+                                                const valor = parseFloat(
+                                                    typeof investimento.valor_investido === 'object' && investimento.valor_investido.$numberDecimal
+                                                        ? investimento.valor_investido.$numberDecimal
+                                                        : investimento.valor_investido
+                                                );
+                                                return acc + valor;
+                                            }, 0);
+                                            const percentage = ((value / total) * 100).toFixed(2);
+                                            return [`R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, `${name}: ${percentage}%`];
+                                        }} 
+                                    />
+                                </PieChart>
+                            </ResponsiveContainer>
+                        </Col>
+                    </Row>
+                </Card.Body>
+            </Card>
+
+            {/* Renderização do gráfico de distribuição por carteiras */}
+            <Card className="mt-4">
+                <Card.Header>
+                    <h5>Distribuição dos Investimentos por Carteira</h5>
+                </Card.Header>
+                <Card.Body>
+                    <Row>
+                        <Col md={4}>
+                            <ul>
+                                {gerarDadosDistribuicaoPorCarteiras().map((carteira, index) => (
+                                    <li key={index} style={{ color: ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'][index % 5] }}>
+                                        {carteira.name}: R$ {carteira.value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    </li>
+                                ))}
+                            </ul>
+                        </Col>
+                        <Col md={8}>
+                            <ResponsiveContainer width="100%" height={300}>
+                                <PieChart>
+                                    <Pie
+                                        data={gerarDadosDistribuicaoPorCarteiras()}
+                                        dataKey="value"
+                                        nameKey="name"
+                                        cx="50%"
+                                        cy="50%"
+                                        outerRadius={100}
+                                        fill="#8884d8"
+                                    >
+                                        {gerarDadosDistribuicaoPorCarteiras().map((_, index) => (
+                                            <Cell key={`cell-${index}`} fill={['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'][index % 5]} />
+                                        ))}
+                                    </Pie>
+                                    <RechartsTooltip 
+                                        formatter={(value, name) => {
+                                            const total = gerarDadosDistribuicaoPorCarteiras().reduce((acc, item) => acc + item.value, 0);
+                                            const percentage = ((value / total) * 100).toFixed(2);
+                                            return [`R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, `${name}: ${percentage}%`];
+                                        }} 
+                                    />
+                                </PieChart>
+                            </ResponsiveContainer>
+                        </Col>
+                    </Row>
                 </Card.Body>
             </Card>
 

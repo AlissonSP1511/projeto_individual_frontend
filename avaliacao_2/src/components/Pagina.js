@@ -63,7 +63,10 @@ export default function Pagina({ titulo, children }) {
             </Navbar>
 
             <div className="content-container mb-5 mt-4 ">
-                {children}
+                <Container>
+
+                    {children}
+                </Container>
             </div>
 
             <footer className="bg-primary bg-opacity-25 text-black py-3 fs-6">
