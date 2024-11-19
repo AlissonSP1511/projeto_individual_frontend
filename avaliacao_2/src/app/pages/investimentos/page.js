@@ -269,11 +269,11 @@ export default function Investimentos() {
         }
     };
 
-    const handleEdit = (id) => {
+    const handleEditInvestimento = (id) => {
         router.push(`/pages/investimentos/form/${id}`);
     };
 
-    const handleDelete = async (id) => {
+    const handleDeleteInvestimento = async (id) => {
         const result = await Swal.fire({
             title: 'Tem certeza?',
             text: "Esta ação não poderá ser revertida!",
@@ -304,7 +304,38 @@ export default function Investimentos() {
             }
         }
     };
+    const handleDeleteCarteira = async (id) => {
+        const result = await Swal.fire({
+            title: 'Tem certeza?',
+            text: "Esta ação não poderá ser revertida!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sim, excluir!',
+            cancelButtonText: 'Cancelar'
+        });
 
+        if (result.isConfirmed) {
+            try {
+                await Api_avaliacao_2DB.delete(`/carteirainvestimento/${id}`);
+                carregarDados();
+                Swal.fire({
+                    title: 'Excluído!',
+                    text: 'O investimento foi excluído com sucesso.',
+                    icon: 'success'
+                });
+            } catch (error) {
+                console.error('Erro ao excluir:', error);
+                Swal.fire({
+                    title: 'Erro!',
+                    text: 'Não foi possível excluir o investimento.',
+                    icon: 'error'
+                });
+            }
+        }
+    };
+    
     const gerarDadosDistribuicaoPorCarteiras = () => {
         return carteiras.map(carteira => {
             const totalInvestido = investimentos
@@ -323,6 +354,19 @@ export default function Investimentos() {
                 value: totalInvestido
             };
         });
+    };
+
+    const calcularTotalInvestimentosCarteira = (carteiraId) => {
+        return investimentos
+            .filter(investimento => String(investimento.carteira_id._id || investimento.carteira_id) === String(carteiraId))
+            .reduce((acc, investimento) => {
+                const valor = parseFloat(
+                    typeof investimento.valor_investido === 'object' && investimento.valor_investido.$numberDecimal
+                        ? investimento.valor_investido.$numberDecimal
+                        : investimento.valor_investido
+                );
+                return acc + valor;
+            }, 0);
     };
 
     return (
@@ -352,203 +396,218 @@ export default function Investimentos() {
                             </Button>
                         </div>
                     ) : (
-                        <Accordion>
-                            {carteiras.map((carteira, index) => (
-                                <Accordion.Item key={carteira._id} eventKey={index.toString()}>
-                                    <Accordion.Header>
-                                        <div className="d-flex justify-content-between w-100 me-3">
-                                            <span>
-                                                {carteira.nome_carteira}
-                                            </span>
-                                            <span>
-                                                {carteira.objetivo_carteira_descricao}
-                                            </span>
-                                        </div>
-                                    </Accordion.Header>
-                                    <Accordion.Body>
-                                        <Button
-                                            variant="primary"
-                                            onClick={() => setShowModal(true)}
-                                        >
-                                            <FaPlusCircle /> Novo Investimento
-                                        </Button>
-                                        <Accordion>
-                                            {investimentos
-                                                .filter((investimento) =>
-                                                    String(investimento.carteira_id._id || investimento.carteira_id) === String(carteira._id)
-                                                )
-                                                .map((investimento, indexInvestimento) => (
-                                                    <Accordion.Item key={investimento._id} eventKey={indexInvestimento.toString()}>
-                                                        <Accordion.Header>
-                                                            <div className="d-flex justify-content-between w-100 me-3">
-                                                                <span>
-                                                                    {investimento.tipo_investimento} - R$ {
-                                                                        typeof investimento.valor_investido === 'object' && investimento.valor_investido.$numberDecimal
-                                                                            ? parseFloat(investimento.valor_investido.$numberDecimal).toLocaleString('pt-BR', {
-                                                                                minimumFractionDigits: 2,
-                                                                                maximumFractionDigits: 2
-                                                                            })
-                                                                            : typeof investimento.valor_investido === 'number'
-                                                                                ? investimento.valor_investido.toLocaleString('pt-BR', {
+                        <>
+                            <div className='d-flex justify-content-between mb-2'>
+                                <span >
+                                    <h5>nomes</h5>
+                                </span>
+                                <span >
+                                    <h5>Total carteiras</h5>
+                                </span>
+                            </div>
+                            <Accordion>
+                                {carteiras.map((carteira, index) => (
+                                    <Accordion.Item key={carteira._id} eventKey={index.toString()}>
+                                        <Accordion.Header>
+                                            <div className="d-flex justify-content-between w-100 me-3 fw-bold">
+                                                <span>
+                                                    {carteira.nome_carteira}
+                                                </span>
+                                                <span>
+                                                    R$ {calcularTotalInvestimentosCarteira(carteira._id).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                </span>
+                                            </div>
+                                        </Accordion.Header>
+                                        <Accordion.Body>
+                                            <Button
+                                                variant="primary"
+                                                onClick={() => setShowModal(true)}
+                                            >
+                                                <FaPlusCircle /> Novo Investimento
+                                            </Button>
+                                            <Accordion>
+                                                {investimentos
+                                                    .filter((investimento) =>
+                                                        String(investimento.carteira_id._id || investimento.carteira_id) === String(carteira._id)
+                                                    )
+                                                    .map((investimento, indexInvestimento) => (
+                                                        <Accordion.Item key={investimento._id} eventKey={indexInvestimento.toString()}>
+                                                            <Accordion.Header>
+                                                                <div className="d-flex justify-content-between w-100 me-3">
+                                                                    <span>
+                                                                        {investimento.tipo_investimento} - R$ {
+                                                                            typeof investimento.valor_investido === 'object' && investimento.valor_investido.$numberDecimal
+                                                                                ? parseFloat(investimento.valor_investido.$numberDecimal).toLocaleString('pt-BR', {
                                                                                     minimumFractionDigits: 2,
                                                                                     maximumFractionDigits: 2
                                                                                 })
-                                                                                : '0,00'
-                                                                    }
-                                                                </span>
-                                                                <span>
-                                                                    Rendimento Esperado: R$ {
-                                                                        calcularRendimentoEsperado(investimento).toLocaleString('pt-BR', {
-                                                                            minimumFractionDigits: 2,
-                                                                            maximumFractionDigits: 2
-                                                                        })
-                                                                    }
-                                                                </span>
-                                                            </div>
-                                                        </Accordion.Header>
-                                                        <Accordion.Body>
-                                                            <Row className="mb-3">
-                                                                <Col md={8}>
-                                                                    <PeriodoSelector
-                                                                        periodoVisualizacao={periodoVisualizacao}
-                                                                        setPeriodoVisualizacao={setPeriodoVisualizacao}
-                                                                        unidadeTempo={unidadeTempo}
-                                                                        setUnidadeTempo={setUnidadeTempo}
-                                                                    />
-                                                                </Col>
-                                                            </Row>
-                                                            <Row>
-                                                                <Col md={8}>
-                                                                    <Line
-                                                                        data={gerarDadosGrafico(investimento)}
-                                                                        options={{
-                                                                            responsive: true,
-                                                                            plugins: {
-                                                                                legend: {
-                                                                                    position: 'top',
+                                                                                : typeof investimento.valor_investido === 'number'
+                                                                                    ? investimento.valor_investido.toLocaleString('pt-BR', {
+                                                                                        minimumFractionDigits: 2,
+                                                                                        maximumFractionDigits: 2
+                                                                                    })
+                                                                                    : '0,00'
+                                                                        }
+                                                                    </span>
+                                                                    <span>
+                                                                        Rendimento Esperado: R$ {
+                                                                            calcularRendimentoEsperado(investimento).toLocaleString('pt-BR', {
+                                                                                minimumFractionDigits: 2,
+                                                                                maximumFractionDigits: 2
+                                                                            })
+                                                                        }
+                                                                    </span>
+                                                                </div>
+                                                            </Accordion.Header>
+                                                            <Accordion.Body>
+                                                                <Row className="mb-3">
+                                                                    <Col md={8}>
+                                                                        <PeriodoSelector
+                                                                            periodoVisualizacao={periodoVisualizacao}
+                                                                            setPeriodoVisualizacao={setPeriodoVisualizacao}
+                                                                            unidadeTempo={unidadeTempo}
+                                                                            setUnidadeTempo={setUnidadeTempo}
+                                                                        />
+                                                                    </Col>
+                                                                </Row>
+                                                                <Row>
+                                                                    <Col md={8}>
+                                                                        <Line
+                                                                            data={gerarDadosGrafico(investimento)}
+                                                                            options={{
+                                                                                responsive: true,
+                                                                                plugins: {
+                                                                                    legend: {
+                                                                                        position: 'top',
+                                                                                    },
+                                                                                    title: {
+                                                                                        display: true,
+                                                                                        text: 'Evolução do Rendimento'
+                                                                                    },
+                                                                                    tooltip: {
+                                                                                        mode: 'index',
+                                                                                        intersect: false,
+                                                                                        callbacks: {
+                                                                                            title: function (tooltipItems) {
+                                                                                                return tooltipItems[0].label;
+                                                                                            },
+                                                                                            label: function (context) {
+                                                                                                const valorTotal = calcularRendimentoEsperado({
+                                                                                                    ...investimento,
+                                                                                                    data: context.dataIndex + 1
+                                                                                                });
+                                                                                                const valorInicial = parseFloat(
+                                                                                                    typeof investimento.valor_investido === 'object' && investimento.valor_investido.$numberDecimal
+                                                                                                        ? investimento.valor_investido.$numberDecimal
+                                                                                                        : investimento.valor_investido
+                                                                                                );
+
+                                                                                                return [
+                                                                                                    `Rendimento Líquido: R$ ${context.raw.toLocaleString('pt-BR', {
+                                                                                                        minimumFractionDigits: 2,
+                                                                                                        maximumFractionDigits: 2
+                                                                                                    })}`,
+                                                                                                    `Valor Total: R$ ${valorTotal.toLocaleString('pt-BR', {
+                                                                                                        minimumFractionDigits: 2,
+                                                                                                        maximumFractionDigits: 2
+                                                                                                    })}`,
+                                                                                                    `Valor Inicial: R$ ${valorInicial.toLocaleString('pt-BR', {
+                                                                                                        minimumFractionDigits: 2,
+                                                                                                        maximumFractionDigits: 2
+                                                                                                    })}`
+                                                                                                ];
+                                                                                            }
+                                                                                        }
+                                                                                    }
                                                                                 },
-                                                                                title: {
-                                                                                    display: true,
-                                                                                    text: 'Evolução do Rendimento'
-                                                                                },
-                                                                                tooltip: {
+                                                                                interaction: {
                                                                                     mode: 'index',
                                                                                     intersect: false,
-                                                                                    callbacks: {
-                                                                                        title: function (tooltipItems) {
-                                                                                            return tooltipItems[0].label;
-                                                                                        },
-                                                                                        label: function (context) {
-                                                                                            const valorTotal = calcularRendimentoEsperado({
-                                                                                                ...investimento,
-                                                                                                data: context.dataIndex + 1
-                                                                                            });
-                                                                                            const valorInicial = parseFloat(
-                                                                                                typeof investimento.valor_investido === 'object' && investimento.valor_investido.$numberDecimal
-                                                                                                    ? investimento.valor_investido.$numberDecimal
-                                                                                                    : investimento.valor_investido
-                                                                                            );
-
-                                                                                            return [
-                                                                                                `Rendimento Líquido: R$ ${context.raw.toLocaleString('pt-BR', {
+                                                                                },
+                                                                                scales: {
+                                                                                    y: {
+                                                                                        beginAtZero: true,
+                                                                                        ticks: {
+                                                                                            callback: function (value) {
+                                                                                                return 'R$ ' + value.toLocaleString('pt-BR', {
                                                                                                     minimumFractionDigits: 2,
                                                                                                     maximumFractionDigits: 2
-                                                                                                })}`,
-                                                                                                `Valor Total: R$ ${valorTotal.toLocaleString('pt-BR', {
-                                                                                                    minimumFractionDigits: 2,
-                                                                                                    maximumFractionDigits: 2
-                                                                                                })}`,
-                                                                                                `Valor Inicial: R$ ${valorInicial.toLocaleString('pt-BR', {
-                                                                                                    minimumFractionDigits: 2,
-                                                                                                    maximumFractionDigits: 2
-                                                                                                })}`
-                                                                                            ];
+                                                                                                });
+                                                                                            }
                                                                                         }
-                                                                                    }
-                                                                                }
-                                                                            },
-                                                                            interaction: {
-                                                                                mode: 'index',
-                                                                                intersect: false,
-                                                                            },
-                                                                            scales: {
-                                                                                y: {
-                                                                                    beginAtZero: true,
-                                                                                    ticks: {
-                                                                                        callback: function (value) {
-                                                                                            return 'R$ ' + value.toLocaleString('pt-BR', {
-                                                                                                minimumFractionDigits: 2,
-                                                                                                maximumFractionDigits: 2
-                                                                                            });
+                                                                                    },
+                                                                                    x: {
+                                                                                        ticks: {
+                                                                                            maxRotation: 45,
+                                                                                            minRotation: 45
                                                                                         }
                                                                                     }
                                                                                 },
-                                                                                x: {
-                                                                                    ticks: {
-                                                                                        maxRotation: 45,
-                                                                                        minRotation: 45
-                                                                                    }
-                                                                                }
-                                                                            },
-                                                                            maintainAspectRatio: false
-                                                                        }}
-                                                                        style={{
-                                                                            height: '300px',
-                                                                            maxHeight: '300px'
-                                                                        }}
-                                                                    />
-                                                                </Col>
-                                                                <Col md={4}>
-                                                                    <h5>Detalhes do Investimento</h5>
-                                                                    <p><strong>Tipo:</strong> {investimento.tipo_investimento}</p>
-                                                                    <p><strong>Valor:</strong> R$ {
-                                                                        typeof investimento.valor_investido === 'object' && investimento.valor_investido.$numberDecimal
-                                                                            ? parseFloat(investimento.valor_investido.$numberDecimal).toLocaleString('pt-BR', {
-                                                                                minimumFractionDigits: 2,
-                                                                                maximumFractionDigits: 2
-                                                                            })
-                                                                            : typeof investimento.valor_investido === 'number'
-                                                                                ? investimento.valor_investido.toLocaleString('pt-BR', {
+                                                                                maintainAspectRatio: false
+                                                                            }}
+                                                                            style={{
+                                                                                height: '300px',
+                                                                                maxHeight: '300px'
+                                                                            }}
+                                                                        />
+                                                                    </Col>
+                                                                    <Col md={4}>
+                                                                        <h5>Detalhes do Investimento</h5>
+                                                                        <p><strong>Tipo:</strong> {investimento.tipo_investimento}</p>
+                                                                        <p><strong>Valor:</strong> R$ {
+                                                                            typeof investimento.valor_investido === 'object' && investimento.valor_investido.$numberDecimal
+                                                                                ? parseFloat(investimento.valor_investido.$numberDecimal).toLocaleString('pt-BR', {
                                                                                     minimumFractionDigits: 2,
                                                                                     maximumFractionDigits: 2
                                                                                 })
-                                                                                : '0,00'
-                                                                    }</p>
-                                                                    <p><strong>Taxa de Juros:</strong> {investimento.taxa_juros}%</p>
-                                                                    <p><strong>Tipo de Juros:</strong> {investimento.tipo_juros}</p>
-                                                                    <p><strong>Prazo Investimento:</strong> {investimento.data} meses</p>
-                                                                    <p><strong>Descrição:</strong> {investimento.descricao}</p>
-                                                                    <div className="mt-3">
-                                                                        <Button
-                                                                            variant="warning"
-                                                                            size="sm"
-                                                                            className="me-2"
-                                                                            onClick={() => handleEdit(investimento.carteiras_id)}
-                                                                        >
-                                                                            <FaEdit /> Editar
-                                                                        </Button>
-                                                                        <Button
-                                                                            variant="danger"
-                                                                            size="sm"
-                                                                            onClick={() => handleDelete(investimento.carteiras_id)}
-                                                                        >
-                                                                            <MdDelete /> Excluir
-                                                                        </Button>
-                                                                    </div>
-                                                                </Col>
-                                                            </Row>
-                                                        </Accordion.Body>
-                                                    </Accordion.Item>
-                                                ))}
-                                        </Accordion>
-                                        {/* <CardInvestimento carteira={carteira} onEdit={handleEdit} onDelete={handleDelete} /> */}
-                                    </Accordion.Body>
-                                </Accordion.Item>
-                            ))}
-
-
-
-                        </Accordion>
+                                                                                : typeof investimento.valor_investido === 'number'
+                                                                                    ? investimento.valor_investido.toLocaleString('pt-BR', {
+                                                                                        minimumFractionDigits: 2,
+                                                                                        maximumFractionDigits: 2
+                                                                                    })
+                                                                                    : '0,00'
+                                                                        }</p>
+                                                                        <p><strong>Taxa de Juros:</strong> {investimento.taxa_juros}%</p>
+                                                                        <p><strong>Tipo de Juros:</strong> {investimento.tipo_juros}</p>
+                                                                        <p><strong>Prazo Investimento:</strong> {investimento.data} meses</p>
+                                                                        <p><strong>Descrição:</strong> {investimento.descricao}</p>
+                                                                        <div className="mt-3">
+                                                                            <Button
+                                                                                variant="warning"
+                                                                                size="sm"
+                                                                                className="me-2"
+                                                                                onClick={() => handleEditInvestimento(investimento.carteiras_id)}
+                                                                            >
+                                                                                <FaEdit /> Editar investimento
+                                                                            </Button>
+                                                                            <Button
+                                                                                variant="danger"
+                                                                                size="sm"
+                                                                                onClick={() => handleDeleteInvestimento(investimento.carteiras_id)}
+                                                                            >
+                                                                                <MdDelete /> Excluir investimento
+                                                                            </Button>
+                                                                        </div>
+                                                                    </Col>
+                                                                </Row>
+                                                            </Accordion.Body>
+                                                        </Accordion.Item>
+                                                    ))}
+                                            </Accordion>
+                                            {/* Botões de Editar e Excluir para a carteira */}
+                                            <div className="d-flex justify-content-end mt-3">
+                                                <Button variant="warning" size="sm" onClick={() => handleEdit(carteira._id)}>
+                                                    <FaEdit /> Editar carteira
+                                                </Button>
+                                                <Button variant="danger" size="sm" onClick={() => handleDeleteCarteira(carteira._id)} className="ms-2">
+                                                    <MdDelete /> Excluir carteira
+                                                </Button>
+                                            </div>
+                                        </Accordion.Body>
+                                    </Accordion.Item>
+                                ))}
+                            </Accordion>
+                        </>
                     )}
                 </Card.Body>
             </Card>
@@ -615,7 +674,7 @@ export default function Investimentos() {
                                             <Cell key={`cell-${index}`} fill={['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'][index % 5]} />
                                         ))}
                                     </Pie>
-                                    <RechartsTooltip 
+                                    <RechartsTooltip
                                         formatter={(value, name) => {
                                             const total = investimentos.reduce((acc, investimento) => {
                                                 const valor = parseFloat(
@@ -627,7 +686,7 @@ export default function Investimentos() {
                                             }, 0);
                                             const percentage = ((value / total) * 100).toFixed(2);
                                             return [`R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, `${name}: ${percentage}%`];
-                                        }} 
+                                        }}
                                     />
                                 </PieChart>
                             </ResponsiveContainer>
@@ -668,12 +727,12 @@ export default function Investimentos() {
                                             <Cell key={`cell-${index}`} fill={['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'][index % 5]} />
                                         ))}
                                     </Pie>
-                                    <RechartsTooltip 
+                                    <RechartsTooltip
                                         formatter={(value, name) => {
                                             const total = gerarDadosDistribuicaoPorCarteiras().reduce((acc, item) => acc + item.value, 0);
                                             const percentage = ((value / total) * 100).toFixed(2);
                                             return [`R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, `${name}: ${percentage}%`];
-                                        }} 
+                                        }}
                                     />
                                 </PieChart>
                             </ResponsiveContainer>
