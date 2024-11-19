@@ -14,6 +14,7 @@ import { MdDelete } from "react-icons/md";
 import Api_avaliacao_2DB from 'services/Api_avaliacao_2DB';
 import Swal from 'sweetalert2';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip } from 'recharts';
+import { Formik } from 'formik';
 
 ChartJS.register(
     CategoryScale,
@@ -70,6 +71,9 @@ export default function Investimentos() {
     const [periodoVisualizacao, setPeriodoVisualizacao] = useDebouncedState(12);
     const [unidadeTempo, setUnidadeTempo] = useState('meses');
     const [carregando, setCarregando] = useState(true);
+    const [isEditing, setIsEditing] = useState(false);
+    const [carteiraSelecionadaId, setCarteiraSelecionadaId] = useState('');
+    const [nomeCarteiraSelecionada, setNomeCarteiraSelecionada] = useState('');
 
     useEffect(() => {
         carregarDados();
@@ -208,52 +212,34 @@ export default function Investimentos() {
         };
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const handleSubmit = async (values) => {
+        console.log('Valores do formulário:', values);
         try {
-            const dadosFormatados = {
-                ...formData,
-                valor_investido: parseFloat(formData.valor_investido),
-                taxa_juros: parseFloat(formData.taxa_juros),
-                data: formData.data,
-                periodo_investimento: parseInt(formData.periodo_investimento),
-                frequencia_juros: formData.frequencia_juros,
-            };
+            const response = await Api_avaliacao_2DB.post('/investimento', values);
+            console.log('Investimento salvo com sucesso:', response.data);
 
-            if (!dadosFormatados.carteira_id || !dadosFormatados.tipo_investimento || isNaN(dadosFormatados.valor_investido) || isNaN(dadosFormatados.taxa_juros)) {
-                throw new Error("Todos os campos obrigatórios devem ser preenchidos corretamente.");
-            }
-
-            await Api_avaliacao_2DB.post('/investimento', dadosFormatados);
-            setShowModal(false);
-            carregarDados();
-            setFormData({
-                carteira_id: '',
-                tipo_investimento: '',
-                valor_investido: '',
-                taxa_juros: '',
-                tipo_juros: 'Simples',
-                data: '',
-                frequencia_juros: 'Mensal',
-                periodo_investimento: '1',
-                descricao: ''
-            });
+            // Atualize o estado com o novo investimento
+            setInvestimentos((prev) => [...prev, response.data]); // Adiciona o novo investimento à lista
+            setShowModal(false); // Fecha o modal após o envio
         } catch (error) {
-            console.error('Erro ao salvar:', error.response?.data || error);
+            console.error('Erro ao salvar investimento:', error);
         }
     };
 
     const handleSubmitCarteira = async (e) => {
         e.preventDefault();
         try {
-            await Api_avaliacao_2DB.post('/carteirainvestimento', novaCarteira);
+            if (isEditing) {
+                await Api_avaliacao_2DB.put(`/carteirainvestimento/${novaCarteira._id}`, {
+                    nome_carteira: novaCarteira.nome_carteira,
+                    objetivo_carteira_descricao: novaCarteira.objetivo_carteira_descricao
+                });
+                setIsEditing(false);
+            } else {
+                await Api_avaliacao_2DB.post('/carteirainvestimento', novaCarteira);
+            }
             setShowModalCarteira(false);
             carregarDados();
-            Swal.fire({
-                title: "Sucesso!",
-                text: "Carteira criada com sucesso",
-                icon: "success"
-            });
             setNovaCarteira({
                 usuario_id: '',
                 nome_carteira: '',
@@ -263,7 +249,7 @@ export default function Investimentos() {
             console.error('Erro ao salvar:', error);
             Swal.fire({
                 title: "Erro!",
-                text: "Erro ao criar carteira",
+                text: "Erro ao criar ou editar carteira",
                 icon: "error"
             });
         }
@@ -335,7 +321,7 @@ export default function Investimentos() {
             }
         }
     };
-    
+
     const gerarDadosDistribuicaoPorCarteiras = () => {
         return carteiras.map(carteira => {
             const totalInvestido = investimentos
@@ -397,9 +383,9 @@ export default function Investimentos() {
                         </div>
                     ) : (
                         <>
-                            <div className='d-flex justify-content-between mb-2'>
+                            <div className='d-flex justify-content-between mb-2 mt-3'>
                                 <span >
-                                    <h5>nomes</h5>
+                                    <h5>Nomes das carteiras</h5>
                                 </span>
                                 <span >
                                     <h5>Total carteiras</h5>
@@ -421,7 +407,12 @@ export default function Investimentos() {
                                         <Accordion.Body>
                                             <Button
                                                 variant="primary"
-                                                onClick={() => setShowModal(true)}
+                                                onClick={() => {
+                                                    setShowModal(true);
+                                                    setCarteiraSelecionadaId(carteira._id);
+                                                    setNomeCarteiraSelecionada(carteira.nome_carteira);
+                                                    setFormData({ ...formData, carteira_id: carteira._id });
+                                                }}
                                             >
                                                 <FaPlusCircle /> Novo Investimento
                                             </Button>
@@ -596,7 +587,16 @@ export default function Investimentos() {
                                             </Accordion>
                                             {/* Botões de Editar e Excluir para a carteira */}
                                             <div className="d-flex justify-content-end mt-3">
-                                                <Button variant="warning" size="sm" onClick={() => handleEdit(carteira._id)}>
+                                                <Button variant="warning" size="sm" onClick={() => {
+                                                    setNovaCarteira({
+                                                        _id: carteira._id,
+                                                        usuario_id: carteira.usuario_id,
+                                                        nome_carteira: carteira.nome_carteira,
+                                                        objetivo_carteira_descricao: carteira.objetivo_carteira_descricao
+                                                    });
+                                                    setIsEditing(true);
+                                                    setShowModalCarteira(true);
+                                                }}>
                                                     <FaEdit /> Editar carteira
                                                 </Button>
                                                 <Button variant="danger" size="sm" onClick={() => handleDeleteCarteira(carteira._id)} className="ms-2">
@@ -745,162 +745,183 @@ export default function Investimentos() {
                 <Modal.Header closeButton>
                     <Modal.Title>Novo Investimento</Modal.Title>
                 </Modal.Header>
-                <Form onSubmit={handleSubmit}>
-                    <Modal.Body>
-                        <Row>
-                            <Col md={6}>
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Carteira</Form.Label>
-                                    <Form.Select
-                                        required
-                                        value={formData.carteira_id}
-                                        onChange={(e) => setFormData({ ...formData, carteira_id: e.target.value })}
-                                    >
-                                        <option value="">Selecione uma carteira</option>
-                                        {carteiras.map(carteira => (
-                                            <option key={carteira._id} value={carteira._id}>
-                                                {carteira.nome_carteira || 'Carteira sem nome'}
-                                            </option>
-                                        ))}
-                                    </Form.Select>
-                                </Form.Group>
-                            </Col>
-                            <Col md={6}>
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Tipo de Investimento</Form.Label>
-                                    <Form.Select
-                                        required
-                                        value={formData.tipo_investimento}
-                                        onChange={(e) => setFormData({ ...formData, tipo_investimento: e.target.value })}
-                                    >
-                                        <option value="">Selecione o tipo de investimento</option>
-                                        <option value="Ações">Ações</option>
-                                        <option value="CDB">CDB</option>
-                                        <option value="Debentures">Debentures</option>
-                                        <option value="Renda Fixa">Renda Fixa</option>
-                                        <option value="Fundos">Fundos</option>
-                                        <option value="Tesouro Direto">Tesouro Direto</option>
-                                        <option value="Cryptomoeda">Cryptomoeda</option>
-                                        <option value="LCI">LCI</option>
-                                        <option value="LCA">LCA</option>
-                                        <option value="Fundo Imobiliário">Fundo Imobiliário</option>
-                                        <option value="ETF">ETF</option>
-                                        <option value="Fundo Multimercado">Fundo Multimercado</option>
-                                        <option value="Poupança">Poupança</option>
-                                        <option value="Previdência Privada">Previdência Privada</option>
-                                        <option value="Commodities">Commodities</option>
-                                        <option value="Moeda Estrangeira">Moeda Estrangeira</option>
-                                    </Form.Select>
-                                </Form.Group>
-                            </Col>
-                        </Row>
+                <Formik
+                    initialValues={formData}
+                    onSubmit={async (values, { setSubmitting }) => {
+                        try {
+                            await handleSubmit(values); // Chame a função de envio com os valores do formulário
+                            setShowModal(false); // Feche o modal após o envio
+                        } catch (error) {
+                            console.error('Erro ao salvar investimento:', error);
+                        } finally {
+                            setSubmitting(false); // Libere o estado de submissão
+                        }
+                    }}
+                >
+                    {({ values, handleChange, handleSubmit }) => (
+                        <Form onSubmit={handleSubmit}>
+                            <Modal.Body>
+                                <Row>
+                                    <Col md={6}>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label>Carteira</Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                name="carteira_id"
+                                                value={nomeCarteiraSelecionada}
+                                                readOnly
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                </Row>
 
-                        <Row>
-                            <Col md={4}>
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Valor Investido</Form.Label>
-                                    <Form.Control
-                                        type="number"
-                                        required
-                                        min="0"
-                                        step="0.01"
-                                        value={formData.valor_investido}
-                                        onChange={(e) => setFormData({ ...formData, valor_investido: e.target.value })}
-                                    />
-                                </Form.Group>
-                            </Col>
-                            <Col md={4}>
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Taxa de Juros (%)</Form.Label>
-                                    <Form.Control
-                                        type="number"
-                                        required
-                                        step="0.01"
-                                        value={formData.taxa_juros}
-                                        onChange={(e) => setFormData({ ...formData, taxa_juros: e.target.value })}
-                                    />
-                                </Form.Group>
-                            </Col>
-                            <Col md={4}>
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Tipo de Juros</Form.Label>
-                                    <Form.Select
-                                        required
-                                        value={formData.tipo_juros}
-                                        onChange={(e) => setFormData({ ...formData, tipo_juros: e.target.value })}
-                                    >
-                                        <option value="Simples">Juros Simples</option>
-                                        <option value="Composto">Juros Compostos</option>
-                                    </Form.Select>
-                                </Form.Group>
-                            </Col>
-                        </Row>
+                                <Row>
+                                    <Col md={4}>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label>Tipo de Investimento</Form.Label>
+                                            <Form.Select
+                                                required
+                                                name="tipo_investimento"
+                                                value={values.tipo_investimento}
+                                                onChange={handleChange}
+                                            >
+                                                <option value="">Selecione o tipo de investimento</option>
+                                                <option value="Ações">Ações</option>
+                                                <option value="CDB">CDB</option>
+                                                <option value="Debentures">Debentures</option>
+                                                <option value="Renda Fixa">Renda Fixa</option>
+                                                <option value="Fundos">Fundos</option>
+                                                <option value="Tesouro Direto">Tesouro Direto</option>
+                                                <option value="Cryptomoeda">Cryptomoeda</option>
+                                                <option value="LCI">LCI</option>
+                                                <option value="LCA">LCA</option>
+                                                <option value="Fundo Imobiliário">Fundo Imobiliário</option>
+                                                <option value="ETF">ETF</option>
+                                                <option value="Fundo Multimercado">Fundo Multimercado</option>
+                                                <option value="Poupança">Poupança</option>
+                                                <option value="Previdência Privada">Previdência Privada</option>
+                                                <option value="Commodities">Commodities</option>
+                                                <option value="Moeda Estrangeira">Moeda Estrangeira</option>
+                                            </Form.Select>
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={4}>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label>Valor Investido</Form.Label>
+                                            <Form.Control
+                                                type="number"
+                                                required
+                                                min="0"
+                                                step="0.01"
+                                                name="valor_investido"
+                                                value={values.valor_investido}
+                                                onChange={handleChange}
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={4}>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label>Taxa de Juros (%)</Form.Label>
+                                            <Form.Control
+                                                type="number"
+                                                required
+                                                step="0.01"
+                                                name="taxa_juros"
+                                                value={values.taxa_juros}
+                                                onChange={handleChange}
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                </Row>
 
-                        <Row>
-                            <Col md={4}>
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Data</Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        required
-                                        value={formData.data}
-                                        onChange={(e) => setFormData({ ...formData, data: e.target.value })}
-                                    />
-                                </Form.Group>
-                            </Col>
-                            <Col md={4}>
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Frequência de Juros</Form.Label>
-                                    <Form.Select
-                                        required
-                                        value={formData.frequencia_juros}
-                                        onChange={(e) => setFormData({ ...formData, frequencia_juros: e.target.value })}
-                                    >
-                                        <option value="Mensal">Mensal</option>
-                                        <option value="Anual">Anual</option>
-                                    </Form.Select>
-                                </Form.Group>
-                            </Col>
-                            <Col md={4}>
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Período de Investimento (meses)</Form.Label>
-                                    <Form.Control
-                                        type="number"
-                                        required
-                                        min="1"
-                                        value={formData.periodo_investimento}
-                                        onChange={(e) => setFormData({ ...formData, periodo_investimento: e.target.value })}
-                                    />
-                                </Form.Group>
-                            </Col>
-                        </Row>
+                                <Row>
+                                    <Col md={4}>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label>Tipo de Juros</Form.Label>
+                                            <Form.Select
+                                                required
+                                                name="tipo_juros"
+                                                value={values.tipo_juros}
+                                                onChange={handleChange}
+                                            >
+                                                <option value="Simples">Juros Simples</option>
+                                                <option value="Composto">Juros Compostos</option>
+                                            </Form.Select>
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={4}>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label>Data</Form.Label>
+                                            <Form.Control
+                                                type="date"
+                                                required
+                                                name="data"
+                                                value={values.data}
+                                                onChange={handleChange}
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={4}>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label>Frequência de Juros</Form.Label>
+                                            <Form.Select
+                                                required
+                                                name="frequencia_juros"
+                                                value={values.frequencia_juros}
+                                                onChange={handleChange}
+                                            >
+                                                <option value="Mensal">Mensal</option>
+                                                <option value="Anual">Anual</option>
+                                            </Form.Select>
+                                        </Form.Group>
+                                    </Col>
+                                </Row>
 
-                        <Form.Group className="mb-3">
-                            <Form.Label>Descrição</Form.Label>
-                            <Form.Control
-                                as="textarea"
-                                rows={3}
-                                value={formData.descricao}
-                                onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
-                            />
-                        </Form.Group>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={() => setShowModal(false)}>
-                            Cancelar
-                        </Button>
-                        <Button variant="primary" type="submit">
-                            Salvar
-                        </Button>
-                    </Modal.Footer>
-                </Form>
+                                <Row>
+                                    <Col md={4}>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label>Período de Investimento (meses)</Form.Label>
+                                            <Form.Control
+                                                type="number"
+                                                required
+                                                min="1"
+                                                name="periodo_investimento"
+                                                value={values.periodo_investimento}
+                                                onChange={handleChange}
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                </Row>
+
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Descrição</Form.Label>
+                                    <Form.Control
+                                        as="textarea"
+                                        rows={3}
+                                        name="descricao"
+                                        value={values.descricao}
+                                        onChange={handleChange}
+                                    />
+                                </Form.Group>
+                            </Modal.Body>
+                            <Modal.Footer>
+                                <Button variant="secondary" onClick={() => setShowModal(false)}>
+                                    Cancelar
+                                </Button>
+                                <Button variant="primary" type="submit">
+                                    Salvar
+                                </Button>
+                            </Modal.Footer>
+                        </Form>
+                    )}
+                </Formik>
             </Modal>
 
             {
                 showModalCarteira && (
                     <Modal show={showModalCarteira} onHide={() => setShowModalCarteira(false)}>
                         <Modal.Header closeButton>
-                            <Modal.Title>Criar Carteira de Investimentos</Modal.Title>
+                            <Modal.Title>{isEditing ? "Editar Carteira de Investimentos" : "Criar Carteira de Investimentos"}</Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
                             <form onSubmit={handleSubmitCarteira}>
@@ -910,6 +931,7 @@ export default function Investimentos() {
                                         type="text"
                                         className="form-control"
                                         id="nomeCarteira"
+                                        name="nomeCarteira"
                                         value={novaCarteira.nome_carteira}
                                         onChange={(e) => setNovaCarteira({ ...novaCarteira, nome_carteira: e.target.value })}
                                         required
@@ -921,11 +943,19 @@ export default function Investimentos() {
                                         type="text"
                                         className="form-control"
                                         id="objetivoDescricao"
+                                        name="objetivoDescricao"
                                         value={novaCarteira.objetivo_carteira_descricao}
                                         onChange={(e) => setNovaCarteira({ ...novaCarteira, objetivo_carteira_descricao: e.target.value })}
                                     />
                                 </div>
-                                <Button type="submit" variant="primary">Criar Carteira</Button>
+                                <Modal.Footer>
+                                    <Button variant="secondary" onClick={() => setShowModalCarteira(false)}>
+                                        Cancelar
+                                    </Button>
+                                    <Button variant="primary" type="submit">
+                                        {isEditing ? "Salvar Edição" : "Criar Carteira"}
+                                    </Button>
+                                </Modal.Footer>
                             </form>
                         </Modal.Body>
                     </Modal>
