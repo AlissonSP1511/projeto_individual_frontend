@@ -749,7 +749,12 @@ export default function Investimentos() {
                     initialValues={formData}
                     onSubmit={async (values, { setSubmitting }) => {
                         try {
-                            await handleSubmit(values); // Chame a função de envio com os valores do formulário
+                            // Inclua o ID da carteira no objeto values
+                            const valuesToSubmit = {
+                                ...values,
+                                carteira_id: carteiraSelecionadaId // Adiciona o ID da carteira selecionada
+                            };
+                            await handleSubmit(valuesToSubmit); // Chame a função de envio com os valores do formulário
                             setShowModal(false); // Feche o modal após o envio
                         } catch (error) {
                             console.error('Erro ao salvar investimento:', error);
@@ -761,20 +766,6 @@ export default function Investimentos() {
                     {({ values, handleChange, handleSubmit }) => (
                         <Form onSubmit={handleSubmit}>
                             <Modal.Body>
-                                <Row>
-                                    <Col md={6}>
-                                        <Form.Group className="mb-3">
-                                            <Form.Label>Carteira</Form.Label>
-                                            <Form.Control
-                                                type="text"
-                                                name="carteira_id"
-                                                value={nomeCarteiraSelecionada}
-                                                readOnly
-                                            />
-                                        </Form.Group>
-                                    </Col>
-                                </Row>
-
                                 <Row>
                                     <Col md={4}>
                                         <Form.Group className="mb-3">
