@@ -260,6 +260,11 @@ export default function Investimentos() {
     };
 
     const handleDeleteInvestimento = async (id) => {
+        if (!id) {
+            console.error('ID do investimento não definido');
+            return; // Retorna se o ID não estiver definido
+        }
+
         const result = await Swal.fire({
             title: 'Tem certeza?',
             text: "Esta ação não poderá ser revertida!",
@@ -274,7 +279,7 @@ export default function Investimentos() {
         if (result.isConfirmed) {
             try {
                 await Api_avaliacao_2DB.delete(`/investimento/${id}`);
-                carregarDados();
+                carregarDados(); // Atualiza a lista de investimentos
                 Swal.fire({
                     title: 'Excluído!',
                     text: 'O investimento foi excluído com sucesso.',
@@ -574,7 +579,7 @@ export default function Investimentos() {
                                                                             <Button
                                                                                 variant="danger"
                                                                                 size="sm"
-                                                                                onClick={() => handleDeleteInvestimento(investimento.carteiras_id)}
+                                                                                onClick={() => handleDeleteInvestimento(investimento._id)}
                                                                             >
                                                                                 <MdDelete /> Excluir investimento
                                                                             </Button>
