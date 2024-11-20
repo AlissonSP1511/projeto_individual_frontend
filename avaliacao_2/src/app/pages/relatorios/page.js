@@ -39,18 +39,18 @@ export default function Page() {
         }).then((result) => {
             if (result.isConfirmed) {
                 Api_avaliacao_2DB.delete(`/usuario/${id}`)
-                .then(() => {
-                    carregarUsuarios()
-                    Swal.fire({
-                        title: "Excluído!",
-                        text: "Registro excluído com sucesso.",
-                        icon: "success",
-                        showConfirmButton: false,
-                        timer: 1500
+                    .then(() => {
+                        carregarUsuarios()
+                        Swal.fire({
+                            title: "Excluído!",
+                            text: "Registro excluído com sucesso.",
+                            icon: "success",
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    }).catch((error) => {
+                        console.error('Erro ao excluir usuário:', error);
                     });
-                }).catch((error) => {
-                    console.error('Erro ao excluir usuário:', error);
-                });
             }
         });
     }

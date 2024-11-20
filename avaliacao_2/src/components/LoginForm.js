@@ -1,31 +1,19 @@
   // projeto_individual_frontend/avaliacao_2/src/components/LoginForm.js
 "use client";
-import { Formik, Field, Form } from 'formik';
+import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
-import axios from 'axios';
 import { useRouter } from 'next/navigation';
-import { TextField, Button, Box, Alert } from '@mui/material';
+import { TextField, Button, Box } from '@mui/material';
 import Api_avaliacao_2DB from 'services/Api_avaliacao_2DB';
 
 const LoginForm = () => {
   const router = useRouter();
-
   // Esquema de validação
   const validationSchema = Yup.object({
     email: Yup.string().email('Email inválido').required('Obrigatório'),
     password: Yup.string().required('Obrigatório')
   });
 
-  // const handleLogin = async (values) => {
-  //   try {
-  //     const response = await Api_avaliacao_2DB.post('/login', values);
-  //     localStorage.setItem('token', response.data.token);
-  //     localStorage.setItem('userId', response.data.user.id);
-  //     localStorage.setItem('userName', response.data.user.nome);
-
-  //     Api_avaliacao_2DB.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
-  //     router.push('/pages/contasBancarias');
-  //   } catch (error) {
   const handleLogin = async (values) => {
     try {
       const response = await Api_avaliacao_2DB.post('/login', values);
@@ -62,7 +50,6 @@ const LoginForm = () => {
               helperText={touched.email && errors.email}
               autoComplete="email" // Adicionado para autocompletar o email
             />
-
             <TextField
               fullWidth
               name="password"
@@ -74,7 +61,6 @@ const LoginForm = () => {
               helperText={touched.password && errors.password}
               autoComplete="current-password" // Adicionado para autocompletar a senha
             />
-
             <Button
               type="submit"
               variant="contained"

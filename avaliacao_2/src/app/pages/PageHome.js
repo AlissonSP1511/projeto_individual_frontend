@@ -54,7 +54,7 @@ export default function App() {
                         que a planilha não te oferece
                     </h1>
                     <Row className='d-flex justify-content-center row-cols-1 row-cols-lg-3 g-4 mt-5' >
-                        <Col style={{ display: 'flex', justifyContent: 'center' ,height: '220px'}} >
+                        <Col style={{ display: 'flex', justifyContent: 'center', height: '220px' }} >
                             <Card border="info" className="bg-primary bg-opacity-10">
                                 <Card.Header>Controle Total e Simplicidade</Card.Header>
                                 <Card.Body>
@@ -64,7 +64,7 @@ export default function App() {
                                 </Card.Body>
                             </Card>
                         </Col>
-                        <Col style={{ display: 'flex', justifyContent: 'center' ,height: '220px'}}>
+                        <Col style={{ display: 'flex', justifyContent: 'center', height: '220px' }}>
                             <Card border="info" className="bg-primary bg-opacity-25">
                                 <Card.Header>Visão Clara da Sua Saúde Financeira</Card.Header>
                                 <Card.Body>
@@ -74,7 +74,7 @@ export default function App() {
                                 </Card.Body>
                             </Card>
                         </Col>
-                        <Col style={{ display: 'flex', justifyContent: 'center' ,height: '220px'}}>
+                        <Col style={{ display: 'flex', justifyContent: 'center', height: '220px' }}>
                             <Card border="info" className="bg-primary bg-opacity-10">
                                 <Card.Header>Defina e Alcance Suas Metas</Card.Header>
                                 <Card.Body>
@@ -84,7 +84,7 @@ export default function App() {
                                 </Card.Body>
                             </Card>
                         </Col>
-                        <Col style={{ display: 'flex', justifyContent: 'center' ,height: '220px'}}>
+                        <Col style={{ display: 'flex', justifyContent: 'center', height: '220px' }}>
                             <Card border="info" className="bg-primary bg-opacity-25">
                                 <Card.Header>Segurança e Privacidade</Card.Header>
                                 <Card.Body>
@@ -94,7 +94,7 @@ export default function App() {
                                 </Card.Body>
                             </Card>
                         </Col>
-                        <Col style={{ display: 'flex', justifyContent: 'center' ,height: '220px'}}>
+                        <Col style={{ display: 'flex', justifyContent: 'center', height: '220px' }}>
                             <Card border="info" className="bg-primary bg-opacity-10">
                                 <Card.Header>Personalização Total</Card.Header>
                                 <Card.Body>
@@ -104,7 +104,7 @@ export default function App() {
                                 </Card.Body>
                             </Card>
                         </Col>
-                        <Col style={{ display: 'flex', justifyContent: 'center' ,height: '220px'}}>
+                        <Col style={{ display: 'flex', justifyContent: 'center', height: '220px' }}>
                             <Card border="info" className="bg-primary bg-opacity-25">
                                 <Card.Header>Controle de Cartões de Crédito</Card.Header>
                                 <Card.Body>
@@ -114,7 +114,7 @@ export default function App() {
                                 </Card.Body>
                             </Card>
                         </Col>
-                        <Col style={{ display: 'flex', justifyContent: 'center' ,height: '220px'}}>
+                        <Col style={{ display: 'flex', justifyContent: 'center', height: '220px' }}>
                             <Card border="info" className="bg-primary bg-opacity-10">
                                 <Card.Header>Gerenciamento de Investimentos</Card.Header>
                                 <Card.Body>
@@ -124,7 +124,7 @@ export default function App() {
                                 </Card.Body>
                             </Card>
                         </Col>
-                        <Col style={{ display: 'flex', justifyContent: 'center' ,height: '220px'}}>
+                        <Col style={{ display: 'flex', justifyContent: 'center', height: '220px' }}>
                             <Card border="info" className="bg-primary bg-opacity-25">
                                 <Card.Header>Relatórios Detalhados</Card.Header>
                                 <Card.Body>
@@ -134,7 +134,7 @@ export default function App() {
                                 </Card.Body>
                             </Card>
                         </Col>
-                        <Col style={{ display: 'flex', justifyContent: 'center' ,height: '220px'}}>
+                        <Col style={{ display: 'flex', justifyContent: 'center', height: '220px' }}>
                             <Card border="info" className="bg-primary bg-opacity-10">
                                 <Card.Header>Suporte Completo</Card.Header>
                                 <Card.Body>

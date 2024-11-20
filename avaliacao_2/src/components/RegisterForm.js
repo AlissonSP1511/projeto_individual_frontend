@@ -2,7 +2,6 @@
 "use client"
 import { Formik, Field, Form } from 'formik';
 import * as Yup from 'yup';
-import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { TextField, Button, Box, Alert } from '@mui/material';
 import Api_avaliacao_2DB from 'services/Api_avaliacao_2DB';
@@ -71,9 +70,9 @@ const RegisterForm = () => {
               autoComplete="current-password" // Adicionado para o autocomplete do navegador
             />
 
-            <Button 
-              type="submit" 
-              variant="contained" 
+            <Button
+              type="submit"
+              variant="contained"
               className="bg-primary bg-opacity-50 text-gray text-black fw-bolder fs-6"
               fullWidth
               sx={{ mt: 2 }}

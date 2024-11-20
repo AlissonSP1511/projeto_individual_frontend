@@ -16,11 +16,10 @@ const ProtectedRoute = ({ children }) => {
             router.push('/pages/login');
         }
     }, []);
-
     return children;
 };
 
-export default ProtectedRoute; 
+export default ProtectedRoute;
 
 
 // 'use client'

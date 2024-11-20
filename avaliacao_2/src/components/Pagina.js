@@ -62,7 +62,7 @@ export default function Pagina({ titulo, children }) {
                 </Navbar.Collapse>
             </Navbar>
 
-            <div className="content-container mb-5 mt-4 ">
+            <div className="content-container mb-2 mt-4 ">
                 <Container>
 
                     {children}

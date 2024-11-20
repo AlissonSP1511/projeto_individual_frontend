@@ -111,6 +111,7 @@ export default function Investimentos() {
 
 
     const calcularRendimentoEsperado = (investimento) => {
+        console.log ('investimentos = ', investimento);
 
         if (!investimento) {
             console.warn('Investimento inválido ou nulo');
