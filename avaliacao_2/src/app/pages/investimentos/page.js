@@ -111,7 +111,7 @@ export default function Investimentos() {
 
 
     const calcularRendimentoEsperado = (investimento) => {
-        console.log ('investimentos = ', investimento);
+        console.log('investimentos = ', investimento);
 
         if (!investimento) {
             console.warn('Investimento inválido ou nulo');
@@ -446,14 +446,14 @@ export default function Investimentos() {
                                                                                     : '0,00'
                                                                         }
                                                                     </span>
-                                                                    <span>
+                                                                    {/* <span>
                                                                         Rendimento Esperado: R$ {
                                                                             calcularRendimentoEsperado(investimento).toLocaleString('pt-BR', {
                                                                                 minimumFractionDigits: 2,
                                                                                 maximumFractionDigits: 2
                                                                             })
                                                                         }
-                                                                    </span>
+                                                                    </span> */}
                                                                 </div>
                                                             </Accordion.Header>
                                                             <Accordion.Body>
@@ -593,21 +593,25 @@ export default function Investimentos() {
                                             </Accordion>
                                             {/* Botões de Editar e Excluir para a carteira */}
                                             <div className="d-flex justify-content-end mt-3">
-                                                <Button variant="warning" size="sm" onClick={() => {
-                                                    setNovaCarteira({
-                                                        _id: carteira._id,
-                                                        usuario_id: carteira.usuario_id,
-                                                        nome_carteira: carteira.nome_carteira,
-                                                        objetivo_carteira_descricao: carteira.objetivo_carteira_descricao
-                                                    });
-                                                    setIsEditing(true);
-                                                    setShowModalCarteira(true);
-                                                }}>
-                                                    <FaEdit /> Editar carteira
-                                                </Button>
-                                                <Button variant="danger" size="sm" onClick={() => handleDeleteCarteira(carteira._id)} className="ms-2">
-                                                    <MdDelete /> Excluir carteira
-                                                </Button>
+                                                {calcularTotalInvestimentosCarteira(carteira._id) === 0 && ( // Verifica se não há investimentos
+                                                    <>
+                                                        <Button variant="warning" size="sm" onClick={() => {
+                                                            setNovaCarteira({
+                                                                _id: carteira._id,
+                                                                usuario_id: carteira.usuario_id,
+                                                                nome_carteira: carteira.nome_carteira,
+                                                                objetivo_carteira_descricao: carteira.objetivo_carteira_descricao
+                                                            });
+                                                            setIsEditing(true);
+                                                            setShowModalCarteira(true);
+                                                        }}>
+                                                            <FaEdit /> Editar carteira
+                                                        </Button>
+                                                        <Button variant="danger" size="sm" onClick={() => handleDeleteCarteira(carteira._id)} className="ms-2">
+                                                            <MdDelete /> Excluir carteira
+                                                        </Button>
+                                                    </>
+                                                )}
                                             </div>
                                         </Accordion.Body>
                                     </Accordion.Item>
