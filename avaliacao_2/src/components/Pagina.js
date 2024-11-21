@@ -69,7 +69,7 @@ export default function Pagina({ titulo, children }) {
                 </Container>
             </div>
 
-            <footer className="bg-primary bg-opacity-25 text-black py-3 fs-6">
+            <footer className="bg-primary bg-opacity-25 text-black py-3 fs-6 mt-5">
                 <Container className="text-center">
                     <p className="mb-1">© 2024 Finanças Pessoais - Todos os direitos reservados.</p>
                     <p className="small">

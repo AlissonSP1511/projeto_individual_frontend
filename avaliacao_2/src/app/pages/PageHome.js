@@ -145,7 +145,7 @@ export default function App() {
                             </Card>
                         </Col>
                     </Row>
-                    <Row className="justify-content-center" mt={5}>
+                    {/* <Row className="justify-content-center" mt={5}>
                         <Col style={{ display: 'flex', justifyContent: 'center' }}>
                             <MDPagination size="large">
                                 <MDPagination item>
@@ -159,7 +159,7 @@ export default function App() {
                                 </MDPagination>
                             </MDPagination>
                         </Col>
-                    </Row>
+                    </Row> */}
                 </Pagina>
             </ThemeProvider>
             {/* </CacheProvider> */}
